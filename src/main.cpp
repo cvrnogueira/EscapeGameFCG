@@ -266,9 +266,9 @@ int main(int argc, char* argv[])
     // LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
     // LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
 
-    LoadTextureImage("../../data/wall.jpg");
-    LoadTextureImage("../../data/floor.jpg");
-    LoadTextureImage("../../data/ceiling.jpg");
+    LoadTextureImage("../../data/wall.jpg"); // TextureImage0
+    LoadTextureImage("../../data/floor.jpg"); // TextureImage1
+    LoadTextureImage("../../data/ceiling.jpg"); // TextureImage2
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -302,6 +302,13 @@ int main(int argc, char* argv[])
     ObjModel cowmodel("../../data/cow.obj");
     ComputeNormals(&cowmodel);
     BuildTrianglesAndAddToVirtualScene(&cowmodel);
+
+    ObjModel coffeetable("../../data/coffee_table.obj","../../data/");
+    BuildTrianglesAndAddToVirtualScene(&coffeetable);
+
+
+    ObjModel bomb("../../data/bomb.obj","../../data/");
+    BuildTrianglesAndAddToVirtualScene(&bomb);
 
 
     ObjModel assetsArray[] = { spheremodel, bunnymodel, planemodel, leftwallmodel, rightwallmodel, safeboxmodel,chairmodel, cowmodel};
@@ -420,18 +427,19 @@ model = Matrix_Identity();
 #define CHAIR 3
 #define COW 4
 #define SPHERE 5
+#define TABLE 6
 
     // esquerda
-    model = Matrix_Translate(-2.0f,0.0f,0.0f)
-            * Matrix_Scale(1.0f, 1.0f, 2.0f)
+    model = Matrix_Translate(-4.0f,0.0f,0.0f)
+            * Matrix_Scale(1.0f, 1.0f, 4.0f)
             * Matrix_Rotate_Z(-M_PI_2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("leftwall");
 
     //direita
-    model = Matrix_Translate(2.0f,0.0f,0.0f)
-            * Matrix_Scale(1.0f,1.0f,2.0f)
+    model = Matrix_Translate(4.0f,0.0f,0.0f)
+            * Matrix_Scale(1.0f,1.0f,4.0f)
             * Matrix_Rotate_Z(M_PI_2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
@@ -439,7 +447,7 @@ model = Matrix_Identity();
 
     // teto
     model = Matrix_Translate(0.0f,1.0f,0.0f)
-            * Matrix_Scale(2.0f, 1.0f, 2.0f)
+            * Matrix_Scale(4.0f, 1.0f, 4.0f)
             * Matrix_Rotate_X(M_PI);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, CEILING);
@@ -447,14 +455,14 @@ model = Matrix_Identity();
 
     //chao
     model = Matrix_Translate(0.0f,-1.0f,0.0f)
-            * Matrix_Scale(2.0f, 1.0f, 2.0f);
+            * Matrix_Scale(4.0f, 1.0f, 4.0f);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, FLOOR);
     DrawVirtualObject("plane");
 
     //fundo
     model = Matrix_Translate(0.0f,0.0f,-2.0f)
-            * Matrix_Scale(2.0f,1.0f,1.0f)
+            * Matrix_Scale(4.0f,1.0f,1.0f)
             * Matrix_Rotate_X(M_PI_2);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -463,22 +471,37 @@ model = Matrix_Identity();
 
     //frente
     model = Matrix_Translate(0.0f,0.0f,2.0f)
-            * Matrix_Scale(2.0f,1.0f,1.0f)
+            * Matrix_Scale(4.0f,1.0f,1.0f)
             * Matrix_Rotate_X(-M_PI_2);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
 
-    //cadeira
-    model = Matrix_Translate(0.0f,2.0f,1.0f)
-            * Matrix_Scale(0.002f,0.002f,0.002f);
+	// HP LAPTOP
+	model = Matrix_Translate(1.9f, -0.60f, -3.1f)
+		* Matrix_Scale(0.15, 0.15, 0.15)
+		* Matrix_Rotate_Y(-3.5* PI / 4);
 
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, CHAIR);
-    DrawVirtualObject("chair");
+	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
 
-    ///Oi, cata! Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
+	glUniform1i(object_id_uniform, 4);
+
+	DrawVirtualObject("hplaptop_d");
+
+
+    	// COFFEE TABLE
+
+	model = Matrix_Translate(+3.05f, -1.025f, -1.225f)
+		* Matrix_Scale(0.002f, 0.002f, 0.002f)
+		* Matrix_Rotate_Y(1 * PI / 8);
+
+	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(object_id_uniform, TABLE);
+    DrawVirtualObject("coffee_table");
+
+    ///Oi, cata! (Oiee Lau!)
+    /// Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
     ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
     ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
     /// em cima deles. Mas, precisa saber as dims do obj para ter eles. O que eu fiz foi basicamente

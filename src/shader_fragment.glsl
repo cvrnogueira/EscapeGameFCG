@@ -26,7 +26,8 @@ uniform mat4 projection;
 #define CHAIR 3
 #define COW 4
 #define SPHERE 5
-
+#define TABLE 6
+#define BOMB 7
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -37,7 +38,9 @@ uniform vec4 bbox_max;
 uniform sampler2D WoodFloor;
 uniform sampler2D BrickWall;
 uniform sampler2D GrayCeiling;
-
+uniform sampler2D BombDifuse;
+uniform sampler2D BombNormal;
+uniform sampler2D BombSpecular;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
@@ -108,19 +111,7 @@ void main()
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
         q = 1;
     }
-    else if (object_id == CHAIR) {
-        Kd = vec3(0.08,0.4,0.8);
-        Ks = vec3(0.8,0.8,0.8);
-        Ka = Kd/2;
-        q = 32.0;
-       //  U = texcoords.x;
-      //  V = texcoords.y;
-       // Kd = texture(WoodFloor, vec2(U,V)).rgb;
-     //   Ks = vec3(0.0f,0.0f,0.0f);
-      //  Ka = Kd/2;   //vec3(0.0f,0.0f,0.0f);
-      //  q = 1;
-    }
-    else if (object_id == COW ){
+    else if (object_id == COW){
 
         Kd = vec3(0.08,0.4,0.8);
         Ks = vec3(0.8,0.8,0.8);
@@ -133,6 +124,31 @@ void main()
         Ka = Kd/2;
         q = 32.0;
     }
+      else if (object_id == TABLE){
+      Kd = vec3(0.08,0.4,0.8);
+        Ks = vec3(0.8,0.8,0.8);
+        Ka = Kd/2;
+        q = 32.0;
+    }
+ /*   else if(object_id == BOMB){
+        U = texcoords.x;
+        V = texcoords.y;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        Kd = texture(BombDifuse, vec2(U,V)).rgb;
+
+        vec3 n_aux = texture(BombNormal, vec2(U,V)).rbg;
+        n = vec4(n_aux.x, n_aux.y, n_aux.z, 0.0f);
+
+        Ks = texture(BombSpecular, vec2(U,V)).rgb;
+        float q = 1;
+
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+        float phong = pow(max(0.0,dot(r,v)), q);
+        color = (Kd * (lambert + 0.01)) + (Ks * (phong + 0.01));
+    }
+*/
 
     vec3 I = vec3(1.0,1.0,1.0);
 
@@ -159,5 +175,5 @@ void main()
 
     // Cor final com correção gamma, considerando monitor sRGB.
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-   // color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+   color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
 }
