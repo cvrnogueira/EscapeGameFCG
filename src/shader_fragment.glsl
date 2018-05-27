@@ -19,11 +19,13 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
-#define SPHERE 0
-#define BUNNY  1
-#define PLANE  2
-#define CEILING 3
-#define FLOOR 4
+
+#define WALL  0
+#define FLOOR 1
+#define CEILING 2
+#define CHAIR 3
+#define COW 4
+#define SPHERE 5
 
 uniform int object_id;
 
@@ -32,9 +34,10 @@ uniform vec4 bbox_min;
 uniform vec4 bbox_max;
 
 // Variáveis para acesso das imagens de textura
-uniform sampler2D TextureImage0;
-uniform sampler2D TextureImage1;
-uniform sampler2D TextureImage2;
+uniform sampler2D WoodFloor;
+uniform sampler2D BrickWall;
+uniform sampler2D GrayCeiling;
+
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
@@ -67,69 +70,94 @@ void main()
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);
 
+    vec4 r = -1 * l + 2 * n * dot(n,l);
+
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
 
-    if ( object_id == SPHERE )
-    {
-        // PREENCHA AQUI as coordenadas de textura da esfera, computadas com
-        // projeção esférica EM COORDENADAS DO MODELO. Utilize como referência
-        // o slide 139 do documento "Aula_20_e_21_Mapeamento_de_Texturas.pdf".
-        // A esfera que define a projeção deve estar centrada na posição
-        // "bbox_center" definida abaixo.
+    vec3 Kd;
+    vec3 Ks;
+    vec3 Ka;
+    float q = 0.0f;
 
-        // Você deve utilizar:
-        //   função 'length( )' : comprimento Euclidiano de um vetor
-        //   função 'atan( , )' : arcotangente. Veja https://en.wikipedia.org/wiki/Atan2.
-        //   função 'asin( )'   : seno inverso.
-        //   constante M_PI
-        //   variável position_model
-
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
-
-        U = 0.0;
-        V = 0.0;
-    }
-    else if ( object_id == BUNNY )
-    {
-        // PREENCHA AQUI as coordenadas de textura do coelho, computadas com
-        // projeção planar XY em COORDENADAS DO MODELO. Utilize como referência
-        // o slide 106 do documento "Aula_20_e_21_Mapeamento_de_Texturas.pdf",
-        // e também use as variáveis min*/max* definidas abaixo para normalizar
-        // as coordenadas de textura U e V dentro do intervalo [0,1]. Para
-        // tanto, veja por exemplo o mapeamento da variável 'p_v' utilizando
-        // 'h' no slide 151 do documento "Aula_20_e_21_Mapeamento_de_Texturas.pdf".
-
-        float minx = bbox_min.x;
-        float maxx = bbox_max.x;
-
-        float miny = bbox_min.y;
-        float maxy = bbox_max.y;
-
-        float minz = bbox_min.z;
-        float maxz = bbox_max.z;
-
-        U = 0.0;
-        V = 0.0;
-    }
-    else if ( object_id == PLANE || object_id == CEILING || object_id == FLOOR)
+    if ( object_id == WALL)
     {
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
+        Kd = texture(BrickWall, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd / 2; //vec3(0.0f,0.0f,0.0f);
+        q = 1.0f;
 
     }
+    else if (object_id == FLOOR) {
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(WoodFloor, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;   //vec3(0.0f,0.0f,0.0f);
+        q = 1;
+    }
+    else if (object_id == CEILING) {
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(GrayCeiling, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
+        q = 1;
+    }
+    else if (object_id == CHAIR) {
+        Kd = vec3(0.08,0.4,0.8);
+        Ks = vec3(0.8,0.8,0.8);
+        Ka = Kd/2;
+        q = 32.0;
+       //  U = texcoords.x;
+      //  V = texcoords.y;
+       // Kd = texture(WoodFloor, vec2(U,V)).rgb;
+     //   Ks = vec3(0.0f,0.0f,0.0f);
+      //  Ka = Kd/2;   //vec3(0.0f,0.0f,0.0f);
+      //  q = 1;
+    }
+    else if (object_id == COW ){
 
-    // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-    vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
+        Kd = vec3(0.08,0.4,0.8);
+        Ks = vec3(0.8,0.8,0.8);
+        Ka = Kd/2;
+        q = 32.0;
+    }
+    else if (object_id == SPHERE){
+        Kd = vec3(0.08,0.8,0.4);
+        Ks = vec3(0.8,0.8,0.8);
+        Ka = Kd/2;
+        q = 32.0;
+    }
+
+    vec3 I = vec3(1.0,1.0,1.0);
+
+    // Espectro da luz ambiente
+    vec3 Ia = vec3(0.2,0.2,0.2);
+
+    // Termo difuso utilizando a lei dos cossenos de Lambert
+    vec3 lambert_diffuse_term = Kd * I * max(0, dot(n,l));
+
+    // Termo ambiente
+    vec3 ambient_term = Ka * Ia;
+
+    // Termo especular utilizando o modelo de iluminação de Phong
+    vec3 phong_specular_term  = Ks * I * pow(max(0.0,dot(r,v)), q);
+
+    color = lambert_diffuse_term + ambient_term + phong_specular_term;
+
+
 
     // Equação de Iluminação
-    float lambert = max(0,dot(n,l));
+   // float lambert = max(0,dot(n,l));
 
-    color = Kd0 * (lambert + 0.01);
+    //color = Kd0 * (lambert + 0.01);
 
     // Cor final com correção gamma, considerando monitor sRGB.
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-    color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+   // color = pow(color, vec3(1.0,1.0,1.0)/2.2);
 }

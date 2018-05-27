@@ -125,6 +125,13 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
+
+glm::vec4 w;
+glm::vec4 u;
+bool checkCollisionCowSphere() ;
+void printBBoxesToDebug() ;
+
+
 // Definimos uma estrutura que armazenará dados necessários para renderizar
 // cada objeto da cena virtual.
 struct SceneObject
@@ -169,7 +176,7 @@ bool g_MiddleMouseButtonPressed = false; // Análogo para botão do meio do mous
 // renderização.
 float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
-float g_CameraDistance = 3.5f; // Distância da câmera para a origem
+float g_CameraDistance = 0.1f; // Distância da câmera para a origem
 
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
@@ -198,6 +205,11 @@ GLint bbox_max_uniform;
 
 // Número de texturas carregadas pela função LoadTextureImage()
 GLuint g_NumLoadedTextures = 0;
+
+glm::vec3 sphereTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
+glm::vec3 sphereBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
+glm::vec3 cowTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
+glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 
 int main(int argc, char* argv[])
 {
@@ -270,8 +282,12 @@ int main(int argc, char* argv[])
     LoadShadersFromFiles();
 
     // Carregamos duas imagens para serem utilizadas como textura
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
-    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+   // LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
+   // LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+
+    LoadTextureImage("../../data/wall.jpg");
+    LoadTextureImage("../../data/floor.jpg");
+    LoadTextureImage("../../data/ceiling.jpg");
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -286,13 +302,31 @@ int main(int argc, char* argv[])
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
-    ObjModel ceilingmodel("../../data/ceiling.obj");
-    ComputeNormals(&ceilingmodel);
-    BuildTrianglesAndAddToVirtualScene(&ceilingmodel);
+    ObjModel leftwallmodel("../../data/leftwall.obj");
+    ComputeNormals(&leftwallmodel);
+    BuildTrianglesAndAddToVirtualScene(&leftwallmodel);
 
-    ObjModel floorModel("../../data/floor.obj");
-    ComputeNormals(&floorModel);
-    BuildTrianglesAndAddToVirtualScene(&floorModel);
+    ObjModel rightwallmodel("../../data/rightwall.obj");
+    ComputeNormals(&rightwallmodel);
+    BuildTrianglesAndAddToVirtualScene(&rightwallmodel);
+
+    ObjModel safeboxmodel("../../data/safebox.obj");
+    ComputeNormals(&safeboxmodel);
+    BuildTrianglesAndAddToVirtualScene(&safeboxmodel);
+
+    ObjModel chairmodel("../../data/chair.obj");
+    ComputeNormals(&chairmodel);
+    BuildTrianglesAndAddToVirtualScene(&chairmodel);
+
+    ObjModel cowmodel("../../data/cow.obj");
+    ComputeNormals(&cowmodel);
+    BuildTrianglesAndAddToVirtualScene(&cowmodel);
+
+//    ObjModel spheremodel("../../data/sphere.obj");
+ //   ComputeNormals(&spheremodel);
+  //  BuildTrianglesAndAddToVirtualScene(&spheremodel);
+
+
 
     if ( argc > 1 )
     {
@@ -342,6 +376,7 @@ int main(int argc, char* argv[])
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
+       // g_CameraDistance = 0.9;
         float r = g_CameraDistance;
         float y = r*sin(g_CameraPhi);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
@@ -353,6 +388,14 @@ int main(int argc, char* argv[])
         glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
         glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+
+     //   glm::vec4 camera_view_vector = glm::vec4(x,y,z,0.0f); // Vetor "view", sentido para onde a câmera está virada
+     //   camera_view_vector = camera_view_vector/norm(camera_view_vector);
+      //  w = -camera_view_vector;
+     //   u = crossproduct(camera_up_vector, w);
+     //   w = w/norm(w);
+     //   u = u/norm(u);
+     //   glm::vec4 v = crossproduct(w,u);
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slide 179 do
@@ -398,55 +441,123 @@ int main(int argc, char* argv[])
         glUniformMatrix4fv(view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
 
-        #define SPHERE 0
-        #define BUNNY  1
-        #define PLANE  2
-        #define CEILING 3
-        #define FLOOR 4
+
+        #define WALL  0
+        #define FLOOR 1
+        #define CEILING 2
+        #define CHAIR 3
+        #define COW 4
+        #define SPHERE 5
 
         // esquerda
-        model = Matrix_Translate(-1.0f,0.0f,0.0f)
+        model = Matrix_Translate(-2.0f,0.0f,0.0f)
+              * Matrix_Scale(1.0f, 1.0f, 2.0f)
               * Matrix_Rotate_Z(-M_PI_2);
-             // * Matrix_Rotate_X(0.2f)
-             // * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
-        DrawVirtualObject("plane");
+        glUniform1i(object_id_uniform, WALL);
+        DrawVirtualObject("leftwall");
+
+          //direita
+        model = Matrix_Translate(2.0f,0.0f,0.0f)
+                * Matrix_Scale(1.0f,1.0f,2.0f)
+                * Matrix_Rotate_Z(M_PI_2);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, WALL);
+        DrawVirtualObject("rightwall");
 
         // teto
         model = Matrix_Translate(0.0f,1.0f,0.0f)
+              * Matrix_Scale(2.0f, 1.0f, 2.0f)
               * Matrix_Rotate_X(M_PI);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
+        glUniform1i(object_id_uniform, CEILING);
         DrawVirtualObject("plane");
 
         //chao
-        model = Matrix_Translate(0.0f,-1.0f,0.0f);
+        model = Matrix_Translate(0.0f,-1.0f,0.0f)
+                * Matrix_Scale(2.0f, 1.0f, 2.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
-        DrawVirtualObject("plane");
-
-
-        //direita
-        model = Matrix_Translate(1.0f,0.0f,0.0f)
-                * Matrix_Rotate_Z(M_PI_2);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
+        glUniform1i(object_id_uniform, FLOOR);
         DrawVirtualObject("plane");
 
         //fundo
-        model = Matrix_Translate(0.0f,0.0f,-1.0f)
+        model = Matrix_Translate(0.0f,0.0f,-2.0f)
+                * Matrix_Scale(2.0f,1.0f,1.0f)
                 * Matrix_Rotate_X(M_PI_2);
+
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
+        glUniform1i(object_id_uniform, WALL);
         DrawVirtualObject("plane");
 
         //frente
-        model = Matrix_Translate(0.0f,0.0f,1.0f)
+        model = Matrix_Translate(0.0f,0.0f,2.0f)
+                * Matrix_Scale(2.0f,1.0f,1.0f)
                 * Matrix_Rotate_X(-M_PI_2);
+
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, PLANE);
+        glUniform1i(object_id_uniform, WALL);
         DrawVirtualObject("plane");
+
+        //cadeira
+        model = Matrix_Translate(0.0f,2.0f,1.0f)
+                * Matrix_Scale(0.002f,0.002f,0.002f);
+
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, CHAIR);
+        DrawVirtualObject("chair");
+
+        ///Oi, cata! Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
+        ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
+        ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
+        /// em cima deles. Mas, precisa saber as dims do obj para ter eles. O que eu fiz foi basicamente
+        ///ir chutando ate conseguir uma aprox do tamanho da vaca e da esfera do arquivo do sor.
+        ///dai coloquei e fiz os pontos e sucesso (eu espero). Mas dai com o tempo vou aproximando melhorzinho
+        ///caso as colisoes fiquem meio trash
+
+        float cowLenght = 1.0f;
+        float cowWidth = 0.5f;
+        float cowHeight = 1.0f;
+        float scaleCoef = 1.0f;
+        ///TODO: estimular um pouquinho melhor a dimencao da vaca
+        glm::vec3 cowCenter = glm::vec3(0.0f, -0.4f,0.0f);
+
+        model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
+                * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef)
+                * Matrix_Rotate_Y(-M_PI_2);
+
+        //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, COW);
+        DrawVirtualObject("cow");
+        cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
+                                       cowCenter.y - cowHeight*scaleCoef/2.0f,
+                                       cowCenter.z - cowLenght*scaleCoef/2.0f);
+        cowTopFrontLeft = glm::vec3(cowCenter.x - cowWidth*scaleCoef/2.0f,
+                                    cowCenter.y + cowHeight*scaleCoef/2.0f,
+                                    cowCenter.z + cowLenght*scaleCoef/2.0f);
+
+        glm::vec3 centerSphere = glm::vec3(1.0f, 0.0f,0.0f);
+        float sphereRadius = 0.5f;
+        float sphereScaleCoef = 0.5f;
+       //Matrix_Translate(1.0f,-0.5f,-1.0f)
+        model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
+                * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
+
+        sphereTopFrontLeft = glm::vec3(centerSphere.x - sphereRadius*sphereScaleCoef,
+                                       centerSphere.y + sphereRadius*sphereScaleCoef,
+                                       centerSphere.z + sphereRadius*sphereScaleCoef);
+        sphereBottomBackRight = glm::vec3(centerSphere.x + sphereRadius*sphereScaleCoef,
+                                          centerSphere.y - sphereRadius*sphereScaleCoef,
+                                          centerSphere.z - sphereRadius*sphereScaleCoef);
+
+
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, SPHERE);
+        DrawVirtualObject("sphere");
+
+        if (checkCollisionCowSphere()) {
+            printf("colidiuuuuuuuuu");
+        }
 
         // Pegamos um vértice com coordenadas de modelo (0.5, 0.5, 0.5, 1) e o
         // passamos por todos os sistemas de coordenadas armazenados nas
@@ -486,6 +597,31 @@ int main(int argc, char* argv[])
 
     // Fim do programa
     return 0;
+}
+bool checkCollisionCowSphere() {
+
+    return (sphereBottomBackRight.x >= cowTopFrontLeft.x && sphereTopFrontLeft.x <= cowBottomBackRight.x) &&
+            (sphereBottomBackRight.y <= cowTopFrontLeft.y && sphereTopFrontLeft.y >= cowBottomBackRight.y) &&
+            (sphereBottomBackRight.z <= cowTopFrontLeft.z && sphereTopFrontLeft.z >= cowBottomBackRight.z);
+
+}
+void printBBoxesToDebug() {
+ printf("sphereBottonRight: x = %f \n y = %f \n z = %f \n",
+               sphereBottomBackRight.x,
+               sphereBottomBackRight.y,
+               sphereBottomBackRight.z);
+        printf("sphereTopFrontLeft: x = %f \n y = %f \n z = %f \n",
+               sphereTopFrontLeft.x,
+               sphereTopFrontLeft.y,
+               sphereTopFrontLeft.z);
+        printf("cowBottonRight: x = %f \n y = %f \n z = %f \n",
+               cowBottomBackRight.x,
+               cowBottomBackRight.y,
+               cowBottomBackRight.z);
+        printf("cowTopFrontLeft: x = %f \n y = %f \n z = %f \n",
+               cowTopFrontLeft.x,
+               cowTopFrontLeft.y,
+               cowTopFrontLeft.z);
 }
 
 // Função que carrega uma imagem para ser utilizada como textura
@@ -619,9 +755,11 @@ void LoadShadersFromFiles()
 
     // Variáveis em "shader_fragment.glsl" para acesso das imagens de textura
     glUseProgram(program_id);
-    glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
-    glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
-    glUniform1i(glGetUniformLocation(program_id, "TextureImage2"), 2);
+   // glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
+   // glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
+    glUniform1i(glGetUniformLocation(program_id, "BrickWall"), 0);
+    glUniform1i(glGetUniformLocation(program_id, "WoodFloor"), 1);
+    glUniform1i(glGetUniformLocation(program_id, "GrayCeiling"), 2);
     glUseProgram(0);
 }
 
