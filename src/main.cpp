@@ -1,20 +1,4 @@
-//     Universidade Federal do Rio Grande do Sul
-//             Instituto de Informática
-//       Departamento de Informática Aplicada
-//
-//    INF01047 Fundamentos de Computação Gráfica
-//               Prof. Eduardo Gastal
-//
-//                   LABORATÓRIO 5
-//
 
-// Arquivos "headers" padrões de C podem ser incluídos em um
-// programa C++, sendo necessário somente adicionar o caractere
-// "c" antes de seu nome, e remover o sufixo ".h". Exemplo:
-//    #include <stdio.h> // Em C
-//  vira
-//    #include <cstdio> // Em C++
-//
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -50,7 +34,6 @@
 
 #define M_PI_2 1.57079632679489661923
 #define M_PI   3.14159265358979323846
-
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -124,7 +107,39 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+//====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
+//PARA CAMERA E MOVIMENTO
 
+#define PI 3.14159265
+glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f); // Posição do Personagem (character) e, consequentemente, da câmera
+glm::vec4 novoPos_char;
+glm::vec4 front_vector = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f); // Vetor de direção de visualização do personagem e, consequentemente, da câmera
+glm::vec4 up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor up da câmera
+void movimento();
+float deltaTempo = 0.0f;
+float ultimaFrame = 0.0f;
+float tempoLastStep = 0.0f;
+float tempoLastTransport = 0.0f;
+float field_of_view = PI / 3.0f;
+bool teclas[200]; // Vetor que Armazena se teclas foram pressionadas, usando-se o índice do vetor para identificar a tecla em si
+void DrawLevel1(glm::mat4 view, glm::mat4 projection);
+float velocidadeY = 0.0f;
+bool firstMouse = true;
+bool colisaoChao = true;
+bool testaColisao = false; // Inicializado com false, só muda qnd tem movimentação
+float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
+float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
+float g_CameraDistance = 3.5f; // Distância da câmera para a origem
+bool g_UsePerspectiveProjection = true;
+// Razão de proporção da janela (largura/altura). Veja função FramebufferSizeCallback().
+float g_ScreenRatio = 1.0f;
+void colisao();
+
+struct ObjetoBB {
+	glm::vec3 minBB;
+	glm::vec3 maxBB;
+};
+//====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 
 glm::vec4 w;
 glm::vec4 u;
@@ -153,41 +168,12 @@ struct SceneObject
 // estes são acessados.
 std::map<std::string, SceneObject> g_VirtualScene;
 
-// Pilha que guardará as matrizes de modelagem.
-std::stack<glm::mat4>  g_MatrixStack;
-
-// Razão de proporção da janela (largura/altura). Veja função FramebufferSizeCallback().
-float g_ScreenRatio = 1.0f;
-
-// Ângulos de Euler que controlam a rotação de um dos cubos da cena virtual
-float g_AngleX = 0.0f;
-float g_AngleY = 0.0f;
-float g_AngleZ = 0.0f;
 
 // "g_LeftMouseButtonPressed = true" se o usuário está com o botão esquerdo do mouse
 // pressionado no momento atual. Veja função MouseButtonCallback().
 bool g_LeftMouseButtonPressed = false;
 bool g_RightMouseButtonPressed = false; // Análogo para botão direito do mouse
 bool g_MiddleMouseButtonPressed = false; // Análogo para botão do meio do mouse
-
-// Variáveis que definem a câmera em coordenadas esféricas, controladas pelo
-// usuário através do mouse (veja função CursorPosCallback()). A posição
-// efetiva da câmera é calculada dentro da função main(), dentro do loop de
-// renderização.
-float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
-float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
-float g_CameraDistance = 0.1f; // Distância da câmera para a origem
-
-// Variáveis que controlam rotação do antebraço
-float g_ForearmAngleZ = 0.0f;
-float g_ForearmAngleX = 0.0f;
-
-// Variáveis que controlam translação do torso
-float g_TorsoPositionX = 0.0f;
-float g_TorsoPositionY = 0.0f;
-
-// Variável que controla o tipo de projeção utilizada: perspectiva ou ortográfica.
-bool g_UsePerspectiveProjection = true;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = true;
@@ -214,7 +200,7 @@ glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 int main(int argc, char* argv[])
 {
     // Inicializamos a biblioteca GLFW, utilizada para criar uma janela do
-    // sistema operacional, onde poderemos renderizar com OpenGL.
+    // sistema operacional, onde poderemos renderizar com a OpenGL.
     int success = glfwInit();
     if (!success)
     {
@@ -229,14 +215,13 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    // Pedimos para utilizar o perfil "core", isto é, utilizaremos somente as
-    // funções modernas de OpenGL.
+    // Pedimos apra utilizar o perfil "core", isto é, utilizaremos somente as
+    // funções modernas da OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
-    // de pixels, e com título "INF01047 ...".
+    // Criamos uma janela do sistema operacional
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -247,25 +232,25 @@ int main(int argc, char* argv[])
     // Definimos a função de callback que será chamada sempre que o usuário
     // pressionar alguma tecla do teclado ...
     glfwSetKeyCallback(window, KeyCallback);
-    // ... ou clicar os botões do mouse ...
-    glfwSetMouseButtonCallback(window, MouseButtonCallback);
-    // ... ou movimentar o cursor do mouse em cima da janela ...
+
     glfwSetCursorPosCallback(window, CursorPosCallback);
-    // ... ou rolar a "rodinha" do mouse.
-    glfwSetScrollCallback(window, ScrollCallback);
 
     // Indicamos que as chamadas OpenGL deverão renderizar nesta janela
     glfwMakeContextCurrent(window);
 
-    // Carregamento de todas funções definidas por OpenGL 3.3, utilizando a
-    // biblioteca GLAD.
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Oculta o cursor e mantém ele dentro da janela
+
+    // Carregamento de todas funções definidas pela OpenGL 3.3, utilizando a
+    // biblioteca GLAD. Veja
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
     // Definimos a função de callback que será chamada sempre que a janela for
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
+
+    FramebufferSizeCallback(window, 800, 600);// Forçamos a chamada do callback acima, para definir g_ScreenRatio.
+
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 800, 600); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.
 
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -275,15 +260,11 @@ int main(int argc, char* argv[])
 
     printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
 
-    // Carregamos os shaders de vértices e de fragmentos que serão utilizados
-    // para renderização. Veja slide 217 e 219 do documento no Moodle
-    // "Aula_03_Rendering_Pipeline_Grafico.pdf".
-    //
     LoadShadersFromFiles();
 
     // Carregamos duas imagens para serem utilizadas como textura
-   // LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
-   // LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+    // LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
+    // LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
 
     LoadTextureImage("../../data/wall.jpg");
     LoadTextureImage("../../data/floor.jpg");
@@ -322,11 +303,8 @@ int main(int argc, char* argv[])
     ComputeNormals(&cowmodel);
     BuildTrianglesAndAddToVirtualScene(&cowmodel);
 
-//    ObjModel spheremodel("../../data/sphere.obj");
- //   ComputeNormals(&spheremodel);
-  //  BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
-
+    ObjModel assetsArray[] = { spheremodel, bunnymodel, planemodel, leftwallmodel, rightwallmodel, safeboxmodel,chairmodel, cowmodel};
 
     if ( argc > 1 )
     {
@@ -354,241 +332,60 @@ int main(int argc, char* argv[])
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
-        // Aqui executamos as operações de renderização
 
-        // Definimos a cor do "fundo" do framebuffer como branco.  Tal cor é
-        // definida como coeficientes RGBA: Red, Green, Blue, Alpha; isto é:
-        // Vermelho, Verde, Azul, Alpha (valor de transparência).
-        // Conversaremos sobre sistemas de cores nas aulas de Modelos de Iluminação.
-        //
-        //           R     G     B     A
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-        // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
-        // e também resetamos todos os pixels do Z-buffer (depth buffer).
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
         // os shaders de vértice e fragmentos).
-        glUseProgram(program_id);
+        // os shaders de vértice e fragmentos).
+        float tempoAtual = glfwGetTime();
+        deltaTempo = tempoAtual - ultimaFrame;
+        ultimaFrame = tempoAtual;
 
-        // Computamos a posição da câmera utilizando coordenadas esféricas.  As
-        // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
-        // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
-        // e ScrollCallback().
-       // g_CameraDistance = 0.9;
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
-
-        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
-        // Veja slides 165-175 do documento "Aula_08_Sistemas_de_Coordenadas.pdf".
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
-        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
-
-     //   glm::vec4 camera_view_vector = glm::vec4(x,y,z,0.0f); // Vetor "view", sentido para onde a câmera está virada
-     //   camera_view_vector = camera_view_vector/norm(camera_view_vector);
-      //  w = -camera_view_vector;
-     //   u = crossproduct(camera_up_vector, w);
-     //   w = w/norm(w);
-     //   u = u/norm(u);
-     //   glm::vec4 v = crossproduct(w,u);
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
-        // definir o sistema de coordenadas da câmera.  Veja slide 179 do
+        // definir o sistema de coordenadas da câmera.  Veja slide 162 do
         // documento "Aula_08_Sistemas_de_Coordenadas.pdf".
-        glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
-
+        glm::mat4 view = Matrix_Camera_View(pos_char, front_vector, up_vector);
         // Agora computamos a matriz de Projeção.
         glm::mat4 projection;
+        glm::mat4 model;
 
         // Note que, no sistema de coordenadas da câmera, os planos near e far
-        // estão no sentido negativo! Veja slides 191-194 do documento
+        // estão no sentido negativo! Veja slides 180-183 do documento
         // "Aula_09_Projecoes.pdf".
         float nearplane = -0.1f;  // Posição do "near plane"
-        float farplane  = -10.0f; // Posição do "far plane"
+        float farplane = -40.0f; // Posição do "far plane"
+
+
 
         if (g_UsePerspectiveProjection)
         {
             // Projeção Perspectiva.
-            // Para definição do field of view (FOV), veja slide 228 do
+            // Para definição do field of view (FOV), veja slide 199 do
             // documento "Aula_09_Projecoes.pdf".
-            float field_of_view = 3.141592 / 3.0f;
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else
         {
             // Projeção Ortográfica.
             // Para definição dos valores l, r, b, t ("left", "right", "bottom", "top"),
-            // veja slide 243 do documento "Aula_09_Projecoes.pdf".
+            // veja slide 206 do documento "Aula_09_Projecoes.pdf".
             // Para simular um "zoom" ortográfico, computamos o valor de "t"
             // utilizando a variável g_CameraDistance.
-            float t = 1.5f*g_CameraDistance/2.5f;
+            float t = 1.5f*g_CameraDistance / 2.5f;
             float b = -t;
             float r = t*g_ScreenRatio;
             float l = -r;
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
-
-        glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
-
-        // Enviamos as matrizes "view" e "projection" para a placa de vídeo
-        // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
-        // efetivamente aplicadas em todos os pontos.
-        glUniformMatrix4fv(view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
-        glUniformMatrix4fv(projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
-
-
-        #define WALL  0
-        #define FLOOR 1
-        #define CEILING 2
-        #define CHAIR 3
-        #define COW 4
-        #define SPHERE 5
-
-        // esquerda
-        model = Matrix_Translate(-2.0f,0.0f,0.0f)
-              * Matrix_Scale(1.0f, 1.0f, 2.0f)
-              * Matrix_Rotate_Z(-M_PI_2);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, WALL);
-        DrawVirtualObject("leftwall");
-
-          //direita
-        model = Matrix_Translate(2.0f,0.0f,0.0f)
-                * Matrix_Scale(1.0f,1.0f,2.0f)
-                * Matrix_Rotate_Z(M_PI_2);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, WALL);
-        DrawVirtualObject("rightwall");
-
-        // teto
-        model = Matrix_Translate(0.0f,1.0f,0.0f)
-              * Matrix_Scale(2.0f, 1.0f, 2.0f)
-              * Matrix_Rotate_X(M_PI);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, CEILING);
-        DrawVirtualObject("plane");
-
-        //chao
-        model = Matrix_Translate(0.0f,-1.0f,0.0f)
-                * Matrix_Scale(2.0f, 1.0f, 2.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, FLOOR);
-        DrawVirtualObject("plane");
-
-        //fundo
-        model = Matrix_Translate(0.0f,0.0f,-2.0f)
-                * Matrix_Scale(2.0f,1.0f,1.0f)
-                * Matrix_Rotate_X(M_PI_2);
-
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, WALL);
-        DrawVirtualObject("plane");
-
-        //frente
-        model = Matrix_Translate(0.0f,0.0f,2.0f)
-                * Matrix_Scale(2.0f,1.0f,1.0f)
-                * Matrix_Rotate_X(-M_PI_2);
-
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, WALL);
-        DrawVirtualObject("plane");
-
-        //cadeira
-        model = Matrix_Translate(0.0f,2.0f,1.0f)
-                * Matrix_Scale(0.002f,0.002f,0.002f);
-
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, CHAIR);
-        DrawVirtualObject("chair");
-
-        ///Oi, cata! Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
-        ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
-        ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
-        /// em cima deles. Mas, precisa saber as dims do obj para ter eles. O que eu fiz foi basicamente
-        ///ir chutando ate conseguir uma aprox do tamanho da vaca e da esfera do arquivo do sor.
-        ///dai coloquei e fiz os pontos e sucesso (eu espero). Mas dai com o tempo vou aproximando melhorzinho
-        ///caso as colisoes fiquem meio trash
-
-        float cowLenght = 1.0f;
-        float cowWidth = 0.5f;
-        float cowHeight = 1.0f;
-        float scaleCoef = 1.0f;
-        ///TODO: estimular um pouquinho melhor a dimencao da vaca
-        glm::vec3 cowCenter = glm::vec3(0.0f, -0.4f,0.0f);
-
-        model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
-                * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef)
-                * Matrix_Rotate_Y(-M_PI_2);
-
-        //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, COW);
-        DrawVirtualObject("cow");
-        cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
-                                       cowCenter.y - cowHeight*scaleCoef/2.0f,
-                                       cowCenter.z - cowLenght*scaleCoef/2.0f);
-        cowTopFrontLeft = glm::vec3(cowCenter.x - cowWidth*scaleCoef/2.0f,
-                                    cowCenter.y + cowHeight*scaleCoef/2.0f,
-                                    cowCenter.z + cowLenght*scaleCoef/2.0f);
-
-        glm::vec3 centerSphere = glm::vec3(1.0f, 0.0f,0.0f);
-        float sphereRadius = 0.5f;
-        float sphereScaleCoef = 0.5f;
-       //Matrix_Translate(1.0f,-0.5f,-1.0f)
-        model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
-                * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
-
-        sphereTopFrontLeft = glm::vec3(centerSphere.x - sphereRadius*sphereScaleCoef,
-                                       centerSphere.y + sphereRadius*sphereScaleCoef,
-                                       centerSphere.z + sphereRadius*sphereScaleCoef);
-        sphereBottomBackRight = glm::vec3(centerSphere.x + sphereRadius*sphereScaleCoef,
-                                          centerSphere.y - sphereRadius*sphereScaleCoef,
-                                          centerSphere.z - sphereRadius*sphereScaleCoef);
-
-
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, SPHERE);
-        DrawVirtualObject("sphere");
-
-        if (checkCollisionCowSphere()) {
-            printf("colidiuuuuuuuuu");
-        }
-
-        // Pegamos um vértice com coordenadas de modelo (0.5, 0.5, 0.5, 1) e o
-        // passamos por todos os sistemas de coordenadas armazenados nas
-        // matrizes the_model, the_view, e the_projection; e escrevemos na tela
-        // as matrizes e pontos resultantes dessas transformações.
-        //glm::vec4 p_model(0.5f, 0.5f, 0.5f, 1.0f);
-        //TextRendering_ShowModelViewProjection(window, projection, view, model, p_model);
-
-        // Imprimimos na tela os ângulos de Euler que controlam a rotação do
-        // terceiro cubo.
-        TextRendering_ShowEulerAngles(window);
-
-        // Imprimimos na informação sobre a matriz de projeção sendo utilizada.
-        TextRendering_ShowProjection(window);
-
-        // Imprimimos na tela informação sobre o número de quadros renderizados
-        // por segundo (frames per second).
+colisao();
+        DrawLevel1(view, projection);
+        movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
 
-        // O framebuffer onde OpenGL executa as operações de renderização não
-        // é o mesmo que está sendo mostrado para o usuário, caso contrário
-        // seria possível ver artefatos conhecidos como "screen tearing". A
-        // chamada abaixo faz a troca dos buffers, mostrando para o usuário
-        // tudo que foi renderizado pelas funções acima.
-        // Veja o link: Veja o link: https://en.wikipedia.org/w/index.php?title=Multiple_buffering&oldid=793452829#Double_buffering_in_computer_graphics
         glfwSwapBuffers(window);
 
-        // Verificamos com o sistema operacional se houve alguma interação do
-        // usuário (teclado, mouse, ...). Caso positivo, as funções de callback
-        // definidas anteriormente usando glfwSet*Callback() serão chamadas
-        // pela biblioteca GLFW.
         glfwPollEvents();
     }
 
@@ -598,30 +395,242 @@ int main(int argc, char* argv[])
     // Fim do programa
     return 0;
 }
-bool checkCollisionCowSphere() {
 
-    return (sphereBottomBackRight.x >= cowTopFrontLeft.x && sphereTopFrontLeft.x <= cowBottomBackRight.x) &&
-            (sphereBottomBackRight.y <= cowTopFrontLeft.y && sphereTopFrontLeft.y >= cowBottomBackRight.y) &&
-            (sphereBottomBackRight.z <= cowTopFrontLeft.z && sphereTopFrontLeft.z >= cowBottomBackRight.z);
+
+void DrawLevel1(glm::mat4 view, glm::mat4 projection)
+{
+    glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
+    //           R     G     B     A
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
+    // e também resetamos todos os pixels do Z-buffer (depth buffer).
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+model = Matrix_Identity();
+    glUseProgram(program_id);
+    // Enviamos as matrizes "view" e "projection" para a placa de vídeo
+    // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
+    // efetivamente aplicadas em todos os pontos.
+    glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
+
+#define WALL  0
+#define FLOOR 1
+#define CEILING 2
+#define CHAIR 3
+#define COW 4
+#define SPHERE 5
+
+    // esquerda
+    model = Matrix_Translate(-2.0f,0.0f,0.0f)
+            * Matrix_Scale(1.0f, 1.0f, 2.0f)
+            * Matrix_Rotate_Z(-M_PI_2);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, WALL);
+    DrawVirtualObject("leftwall");
+
+    //direita
+    model = Matrix_Translate(2.0f,0.0f,0.0f)
+            * Matrix_Scale(1.0f,1.0f,2.0f)
+            * Matrix_Rotate_Z(M_PI_2);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, WALL);
+    DrawVirtualObject("rightwall");
+
+    // teto
+    model = Matrix_Translate(0.0f,1.0f,0.0f)
+            * Matrix_Scale(2.0f, 1.0f, 2.0f)
+            * Matrix_Rotate_X(M_PI);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, CEILING);
+    DrawVirtualObject("plane");
+
+    //chao
+    model = Matrix_Translate(0.0f,-1.0f,0.0f)
+            * Matrix_Scale(2.0f, 1.0f, 2.0f);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, FLOOR);
+    DrawVirtualObject("plane");
+
+    //fundo
+    model = Matrix_Translate(0.0f,0.0f,-2.0f)
+            * Matrix_Scale(2.0f,1.0f,1.0f)
+            * Matrix_Rotate_X(M_PI_2);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, WALL);
+    DrawVirtualObject("plane");
+
+    //frente
+    model = Matrix_Translate(0.0f,0.0f,2.0f)
+            * Matrix_Scale(2.0f,1.0f,1.0f)
+            * Matrix_Rotate_X(-M_PI_2);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, WALL);
+    DrawVirtualObject("plane");
+
+    //cadeira
+    model = Matrix_Translate(0.0f,2.0f,1.0f)
+            * Matrix_Scale(0.002f,0.002f,0.002f);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, CHAIR);
+    DrawVirtualObject("chair");
+
+    ///Oi, cata! Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
+    ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
+    ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
+    /// em cima deles. Mas, precisa saber as dims do obj para ter eles. O que eu fiz foi basicamente
+    ///ir chutando ate conseguir uma aprox do tamanho da vaca e da esfera do arquivo do sor.
+    ///dai coloquei e fiz os pontos e sucesso (eu espero). Mas dai com o tempo vou aproximando melhorzinho
+    ///caso as colisoes fiquem meio trash
+
+    float cowLenght = 1.0f;
+    float cowWidth = 0.5f;
+    float cowHeight = 1.0f;
+    float scaleCoef = 1.0f;
+    ///TODO: estimular um pouquinho melhor a dimencao da vaca
+    glm::vec3 cowCenter = glm::vec3(0.0f, -0.4f,0.0f);
+
+    model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
+            * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef)
+            * Matrix_Rotate_Y(-M_PI_2);
+
+    //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, COW);
+    DrawVirtualObject("cow");
+    cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
+                                   cowCenter.y - cowHeight*scaleCoef/2.0f,
+                                   cowCenter.z - cowLenght*scaleCoef/2.0f);
+    cowTopFrontLeft = glm::vec3(cowCenter.x - cowWidth*scaleCoef/2.0f,
+                                cowCenter.y + cowHeight*scaleCoef/2.0f,
+                                cowCenter.z + cowLenght*scaleCoef/2.0f);
+
+    glm::vec3 centerSphere = glm::vec3(1.0f, 0.0f,0.0f);
+    float sphereRadius = 0.5f;
+    float sphereScaleCoef = 0.5f;
+    //Matrix_Translate(1.0f,-0.5f,-1.0f)
+    model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
+            * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
+
+    sphereTopFrontLeft = glm::vec3(centerSphere.x - sphereRadius*sphereScaleCoef,
+                                   centerSphere.y + sphereRadius*sphereScaleCoef,
+                                   centerSphere.z + sphereRadius*sphereScaleCoef);
+    sphereBottomBackRight = glm::vec3(centerSphere.x + sphereRadius*sphereScaleCoef,
+                                      centerSphere.y - sphereRadius*sphereScaleCoef,
+                                      centerSphere.z - sphereRadius*sphereScaleCoef);
+
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, SPHERE);
+    DrawVirtualObject("sphere");
+
+    if (checkCollisionCowSphere())
+    {
+        printf("colidiuuuuuuuuu");
+    }
+}
+
+void movimento()
+{
+	glm::vec4 dir_movimento = normalize(glm::vec4(front_vector.x, 0.0f, front_vector.z, 0.0f));
+	float velocidade = 4.0f * deltaTempo;
+	tempoLastStep += deltaTempo;
+	tempoLastTransport += deltaTempo;
+	bool step = false;
+
+	if (teclas[GLFW_KEY_W])
+    {
+       novoPos_char += velocidade * dir_movimento;
+        step = true;
+    }
+
+	if (teclas[GLFW_KEY_S])
+    {
+        novoPos_char -= velocidade * dir_movimento;
+		step = true;
+    }
+
+	if (teclas[GLFW_KEY_A])
+    {
+        novoPos_char -= normalize(crossproduct(dir_movimento, up_vector)) * velocidade;
+		step = true;
+    }
+
+	if (teclas[GLFW_KEY_D])
+    {
+        novoPos_char += normalize(crossproduct(dir_movimento, up_vector)) * velocidade;
+		step = true;
+    }
+
+	// Movimento Vertical
+	if (colisaoChao)
+    {
+        if (step && testaColisao)
+            if (tempoLastStep > 0.5f)
+            {
+                tempoLastStep = 0;
+            }
+
+        if (teclas[GLFW_KEY_SPACE])
+		{
+			velocidadeY = 3.0f;
+		}
+    }
+	novoPos_char.y += velocidadeY * deltaTempo;
+	velocidadeY -= 3.0f * deltaTempo;
 
 }
-void printBBoxesToDebug() {
- printf("sphereBottonRight: x = %f \n y = %f \n z = %f \n",
-               sphereBottomBackRight.x,
-               sphereBottomBackRight.y,
-               sphereBottomBackRight.z);
-        printf("sphereTopFrontLeft: x = %f \n y = %f \n z = %f \n",
-               sphereTopFrontLeft.x,
-               sphereTopFrontLeft.y,
-               sphereTopFrontLeft.z);
-        printf("cowBottonRight: x = %f \n y = %f \n z = %f \n",
-               cowBottomBackRight.x,
-               cowBottomBackRight.y,
-               cowBottomBackRight.z);
-        printf("cowTopFrontLeft: x = %f \n y = %f \n z = %f \n",
-               cowTopFrontLeft.x,
-               cowTopFrontLeft.y,
-               cowTopFrontLeft.z);
+
+void colisao()
+{	testaColisao = true;
+	colisaoChao = false;
+	if (testaColisao)       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
+	{
+		pos_char.x = novoPos_char.x;
+		pos_char.z = novoPos_char.z;
+	}
+	else
+	{
+		novoPos_char.x = pos_char.x;
+		novoPos_char.z = pos_char.z;
+	}
+
+}
+// Função pra preencher as colisões dos níveis
+void inicializaNiveis()
+{
+
+
+}
+bool checkCollisionCowSphere()
+{
+
+    return (sphereBottomBackRight.x >= cowTopFrontLeft.x && sphereTopFrontLeft.x <= cowBottomBackRight.x) &&
+           (sphereBottomBackRight.y <= cowTopFrontLeft.y && sphereTopFrontLeft.y >= cowBottomBackRight.y) &&
+           (sphereBottomBackRight.z <= cowTopFrontLeft.z && sphereTopFrontLeft.z >= cowBottomBackRight.z);
+
+}
+void printBBoxesToDebug()
+{
+    printf("sphereBottonRight: x = %f \n y = %f \n z = %f \n",
+           sphereBottomBackRight.x,
+           sphereBottomBackRight.y,
+           sphereBottomBackRight.z);
+    printf("sphereTopFrontLeft: x = %f \n y = %f \n z = %f \n",
+           sphereTopFrontLeft.x,
+           sphereTopFrontLeft.y,
+           sphereTopFrontLeft.z);
+    printf("cowBottonRight: x = %f \n y = %f \n z = %f \n",
+           cowBottomBackRight.x,
+           cowBottomBackRight.y,
+           cowBottomBackRight.z);
+    printf("cowTopFrontLeft: x = %f \n y = %f \n z = %f \n",
+           cowTopFrontLeft.x,
+           cowTopFrontLeft.y,
+           cowTopFrontLeft.z);
 }
 
 // Função que carrega uma imagem para ser utilizada como textura
@@ -755,32 +764,12 @@ void LoadShadersFromFiles()
 
     // Variáveis em "shader_fragment.glsl" para acesso das imagens de textura
     glUseProgram(program_id);
-   // glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
-   // glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
+    // glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
+    // glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(program_id, "BrickWall"), 0);
     glUniform1i(glGetUniformLocation(program_id, "WoodFloor"), 1);
     glUniform1i(glGetUniformLocation(program_id, "GrayCeiling"), 2);
     glUseProgram(0);
-}
-
-// Função que pega a matriz M e guarda a mesma no topo da pilha
-void PushMatrix(glm::mat4 M)
-{
-    g_MatrixStack.push(M);
-}
-
-// Função que remove a matriz atualmente no topo da pilha e armazena a mesma na variável M
-void PopMatrix(glm::mat4& M)
-{
-    if ( g_MatrixStack.empty() )
-    {
-        M = Matrix_Identity();
-    }
-    else
-    {
-        M = g_MatrixStack.top();
-        g_MatrixStack.pop();
-    }
 }
 
 // Função que computa as normais de um ObjModel, caso elas não tenham sido
@@ -1021,10 +1010,13 @@ void LoadShader(const char* filename, GLuint shader_id)
     // e colocamos seu conteúdo em memória, apontado pela variável
     // "shader_string".
     std::ifstream file;
-    try {
+    try
+    {
         file.exceptions(std::ifstream::failbit);
         file.open(filename);
-    } catch ( std::exception& e ) {
+    }
+    catch ( std::exception& e )
+    {
         fprintf(stderr, "ERROR: Cannot open file \"%s\".\n", filename);
         std::exit(EXIT_FAILURE);
     }
@@ -1142,18 +1134,17 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
     // Indicamos que queremos renderizar em toda região do framebuffer. A
     // função "glViewport" define o mapeamento das "normalized device
     // coordinates" (NDC) para "pixel coordinates".  Essa é a operação de
-    // "Screen Mapping" ou "Viewport Mapping" vista em aula (slides 33 até 42
-    // do documento "Aula_07_Transformacoes_Geometricas_3D.pdf").
+    // "Screen Mapping" ou "Viewport Mapping" vista em aula (slide 183 do
+    // documento "Aula_03_Rendering_Pipeline_Grafico.pdf").
     glViewport(0, 0, width, height);
-
     // Atualizamos também a razão que define a proporção da janela (largura /
     // altura), a qual será utilizada na definição das matrizes de projeção,
     // tal que não ocorra distorções durante o processo de "Screen Mapping"
-    // acima, quando NDC é mapeado para coordenadas de pixels. Veja slide 228
+    // acima, quando NDC é mapeado para coordenadas de pixels. Veja slide 199
     // do documento "Aula_09_Projecoes.pdf".
     //
     // O cast para float é necessário pois números inteiros são arredondados ao
-    // serem divididos!
+    // ser divididos!
     g_ScreenRatio = (float)width / height;
 }
 
@@ -1219,70 +1210,52 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 // cima da janela OpenGL.
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    // Abaixo executamos o seguinte: caso o botão esquerdo do mouse esteja
-    // pressionado, computamos quanto que o mouse se movimento desde o último
-    // instante de tempo, e usamos esta movimentação para atualizar os
-    // parâmetros que definem a posição da câmera dentro da cena virtual.
-    // Assim, temos que o usuário consegue controlar a câmera.
 
-    if (g_LeftMouseButtonPressed)
+    if(firstMouse)
     {
-        // Deslocamento do cursor do mouse em x e y de coordenadas de tela!
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
-
-        // Atualizamos parâmetros da câmera com os deslocamentos
-        g_CameraTheta -= 0.01f*dx;
-        g_CameraPhi   += 0.01f*dy;
-
-        // Em coordenadas esféricas, o ângulo phi deve ficar entre -pi/2 e +pi/2.
-        float phimax = 3.141592f/2;
-        float phimin = -phimax;
-
-        if (g_CameraPhi > phimax)
-            g_CameraPhi = phimax;
-
-        if (g_CameraPhi < phimin)
-            g_CameraPhi = phimin;
-
-        // Atualizamos as variáveis globais para armazenar a posição atual do
-        // cursor como sendo a última posição conhecida do cursor.
         g_LastCursorPosX = xpos;
         g_LastCursorPosY = ypos;
+        firstMouse = false;
     }
 
-    if (g_RightMouseButtonPressed)
-    {
-        // Deslocamento do cursor do mouse em x e y de coordenadas de tela!
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
 
-        // Atualizamos parâmetros da antebraço com os deslocamentos
-        g_ForearmAngleZ -= 0.01f*dx;
-        g_ForearmAngleX += 0.01f*dy;
+    // Deslocamento do cursor do mouse em x e y de coordenadas de tela!
+    float dx = xpos - g_LastCursorPosX;
+    float dy = ypos - g_LastCursorPosY;
 
-        // Atualizamos as variáveis globais para armazenar a posição atual do
-        // cursor como sendo a última posição conhecida do cursor.
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
+    // Atualizamos parâmetros da câmera com os deslocamentos
 
-    if (g_MiddleMouseButtonPressed)
-    {
-        // Deslocamento do cursor do mouse em x e y de coordenadas de tela!
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
+    g_CameraTheta -= 0.01f*dx;
+    g_CameraPhi += 0.01f*dy;
 
-        // Atualizamos parâmetros da antebraço com os deslocamentos
-        g_TorsoPositionX += 0.01f*dx;
-        g_TorsoPositionY -= 0.01f*dy;
+    // Em coordenadas esféricas, o ângulo phi deve ficar entre -pi/2 e +pi/2.
+    float phimax = 3.141592f / 2;
+    float phimin = -phimax;
 
-        // Atualizamos as variáveis globais para armazenar a posição atual do
-        // cursor como sendo a última posição conhecida do cursor.
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
+    if (g_CameraPhi > phimax)
+        g_CameraPhi = phimax;
+
+    if (g_CameraPhi < phimin)
+        g_CameraPhi = phimin;
+
+    // Atualizamos as variáveis globais para armazenar a posição atual do
+    // cursor como sendo a última posição conhecida do cursor.
+
+
+
+    glm::vec4 frente;
+    frente.x = -cos(g_CameraTheta)*cos(g_CameraPhi);
+    frente.y = -sin(g_CameraPhi);
+    frente.z = sin(g_CameraTheta)*cos(g_CameraPhi);
+    frente.w = 0.0f;
+    front_vector = normalize(frente);
+
+    g_LastCursorPosX = xpos;
+    g_LastCursorPosY = ypos;
+
+
 }
+
 
 // Função callback chamada sempre que o usuário movimenta a "rodinha" do mouse.
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -1305,71 +1278,36 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 // tecla do teclado. Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 {
-    // Se o usuário pressionar a tecla ESC, fechamos a janela.
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
+	// Se o usuário pressionar a tecla ESC, fechamos a janela.
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
 
-    // O código abaixo implementa a seguinte lógica:
-    //   Se apertar tecla X       então g_AngleX += delta;
-    //   Se apertar tecla shift+X então g_AngleX -= delta;
-    //   Se apertar tecla Y       então g_AngleY += delta;
-    //   Se apertar tecla shift+Y então g_AngleY -= delta;
-    //   Se apertar tecla Z       então g_AngleZ += delta;
-    //   Se apertar tecla shift+Z então g_AngleZ -= delta;
 
-    float delta = 3.141592 / 16; // 22.5 graus, em radianos.
+	// Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
+	if (key == GLFW_KEY_H && action == GLFW_PRESS)
+	{
+		g_ShowInfoText = !g_ShowInfoText;
+	}
 
-    if (key == GLFW_KEY_X && action == GLFW_PRESS)
-    {
-        g_AngleX += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
+	// Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
+	if (key == GLFW_KEY_R && action == GLFW_PRESS)
+	{
+		LoadShadersFromFiles();
+		fprintf(stdout, "Shaders recarregados!\n");
+		fflush(stdout);
+	}
 
-    if (key == GLFW_KEY_Y && action == GLFW_PRESS)
-    {
-        g_AngleY += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
-    if (key == GLFW_KEY_Z && action == GLFW_PRESS)
-    {
-        g_AngleZ += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-    }
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    // Se o usuário apertar a tecla espaço, resetamos os ângulos de Euler para zero.
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-        g_AngleX = 0.0f;
-        g_AngleY = 0.0f;
-        g_AngleZ = 0.0f;
-        g_ForearmAngleX = 0.0f;
-        g_ForearmAngleZ = 0.0f;
-        g_TorsoPositionX = 0.0f;
-        g_TorsoPositionY = 0.0f;
-    }
 
-    // Se o usuário apertar a tecla P, utilizamos projeção perspectiva.
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
-    {
-        g_UsePerspectiveProjection = true;
-    }
+	if (key >= 0 && key < 200)
+	{
+		if (action == GLFW_PRESS)
+			teclas[key] = true;
+		else if (action == GLFW_RELEASE)
+			teclas[key] = false;
+	}
 
-    // Se o usuário apertar a tecla O, utilizamos projeção ortográfica.
-    if (key == GLFW_KEY_O && action == GLFW_PRESS)
-    {
-        g_UsePerspectiveProjection = false;
-    }
-
-    // Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
-    if (key == GLFW_KEY_H && action == GLFW_PRESS)
-    {
-        g_ShowInfoText = !g_ShowInfoText;
-    }
-
-    // Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
-    if (key == GLFW_KEY_R && action == GLFW_PRESS)
-    {
-        LoadShadersFromFiles();
-        fprintf(stdout,"Shaders recarregados!\n");
-        fflush(stdout);
-    }
 }
 
 // Definimos o callback para impressão de erros da GLFW no terminal
@@ -1406,21 +1344,6 @@ void TextRendering_ShowModelViewProjection(
 
     TextRendering_PrintString(window, " Projection matrix        Camera                   NDC", -1.0f, 1.0f-13*pad, 1.0f);
     TextRendering_PrintMatrixVectorProductDivW(window, projection, p_camera, -1.0f, 1.0f-14*pad, 1.0f);
-}
-
-// Escrevemos na tela os ângulos de Euler definidos nas variáveis globais
-// g_AngleX, g_AngleY, e g_AngleZ.
-void TextRendering_ShowEulerAngles(GLFWwindow* window)
-{
-    if ( !g_ShowInfoText )
-        return;
-
-    float pad = TextRendering_LineHeight(window);
-
-    char buffer[80];
-    snprintf(buffer, 80, "Euler Angles rotation matrix = Z(%.2f)*Y(%.2f)*X(%.2f)\n", g_AngleZ, g_AngleY, g_AngleX);
-
-    TextRendering_PrintString(window, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
 }
 
 // Escrevemos na tela qual matriz de projeção está sendo utilizada.
@@ -1479,168 +1402,183 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
 // Veja: https://github.com/syoyo/tinyobjloader/blob/22883def8db9ef1f3ffb9b404318e7dd25fdbb51/loader_example.cc#L98
 void PrintObjModelInfo(ObjModel* model)
 {
-  const tinyobj::attrib_t                & attrib    = model->attrib;
-  const std::vector<tinyobj::shape_t>    & shapes    = model->shapes;
-  const std::vector<tinyobj::material_t> & materials = model->materials;
+    const tinyobj::attrib_t                & attrib    = model->attrib;
+    const std::vector<tinyobj::shape_t>    & shapes    = model->shapes;
+    const std::vector<tinyobj::material_t> & materials = model->materials;
 
-  printf("# of vertices  : %d\n", (int)(attrib.vertices.size() / 3));
-  printf("# of normals   : %d\n", (int)(attrib.normals.size() / 3));
-  printf("# of texcoords : %d\n", (int)(attrib.texcoords.size() / 2));
-  printf("# of shapes    : %d\n", (int)shapes.size());
-  printf("# of materials : %d\n", (int)materials.size());
+    printf("# of vertices  : %d\n", (int)(attrib.vertices.size() / 3));
+    printf("# of normals   : %d\n", (int)(attrib.normals.size() / 3));
+    printf("# of texcoords : %d\n", (int)(attrib.texcoords.size() / 2));
+    printf("# of shapes    : %d\n", (int)shapes.size());
+    printf("# of materials : %d\n", (int)materials.size());
 
-  for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
-    printf("  v[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
-           static_cast<const double>(attrib.vertices[3 * v + 0]),
-           static_cast<const double>(attrib.vertices[3 * v + 1]),
-           static_cast<const double>(attrib.vertices[3 * v + 2]));
-  }
-
-  for (size_t v = 0; v < attrib.normals.size() / 3; v++) {
-    printf("  n[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
-           static_cast<const double>(attrib.normals[3 * v + 0]),
-           static_cast<const double>(attrib.normals[3 * v + 1]),
-           static_cast<const double>(attrib.normals[3 * v + 2]));
-  }
-
-  for (size_t v = 0; v < attrib.texcoords.size() / 2; v++) {
-    printf("  uv[%ld] = (%f, %f)\n", static_cast<long>(v),
-           static_cast<const double>(attrib.texcoords[2 * v + 0]),
-           static_cast<const double>(attrib.texcoords[2 * v + 1]));
-  }
-
-  // For each shape
-  for (size_t i = 0; i < shapes.size(); i++) {
-    printf("shape[%ld].name = %s\n", static_cast<long>(i),
-           shapes[i].name.c_str());
-    printf("Size of shape[%ld].indices: %lu\n", static_cast<long>(i),
-           static_cast<unsigned long>(shapes[i].mesh.indices.size()));
-
-    size_t index_offset = 0;
-
-    assert(shapes[i].mesh.num_face_vertices.size() ==
-           shapes[i].mesh.material_ids.size());
-
-    printf("shape[%ld].num_faces: %lu\n", static_cast<long>(i),
-           static_cast<unsigned long>(shapes[i].mesh.num_face_vertices.size()));
-
-    // For each face
-    for (size_t f = 0; f < shapes[i].mesh.num_face_vertices.size(); f++) {
-      size_t fnum = shapes[i].mesh.num_face_vertices[f];
-
-      printf("  face[%ld].fnum = %ld\n", static_cast<long>(f),
-             static_cast<unsigned long>(fnum));
-
-      // For each vertex in the face
-      for (size_t v = 0; v < fnum; v++) {
-        tinyobj::index_t idx = shapes[i].mesh.indices[index_offset + v];
-        printf("    face[%ld].v[%ld].idx = %d/%d/%d\n", static_cast<long>(f),
-               static_cast<long>(v), idx.vertex_index, idx.normal_index,
-               idx.texcoord_index);
-      }
-
-      printf("  face[%ld].material_id = %d\n", static_cast<long>(f),
-             shapes[i].mesh.material_ids[f]);
-
-      index_offset += fnum;
+    for (size_t v = 0; v < attrib.vertices.size() / 3; v++)
+    {
+        printf("  v[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
+               static_cast<const double>(attrib.vertices[3 * v + 0]),
+               static_cast<const double>(attrib.vertices[3 * v + 1]),
+               static_cast<const double>(attrib.vertices[3 * v + 2]));
     }
 
-    printf("shape[%ld].num_tags: %lu\n", static_cast<long>(i),
-           static_cast<unsigned long>(shapes[i].mesh.tags.size()));
-    for (size_t t = 0; t < shapes[i].mesh.tags.size(); t++) {
-      printf("  tag[%ld] = %s ", static_cast<long>(t),
-             shapes[i].mesh.tags[t].name.c_str());
-      printf(" ints: [");
-      for (size_t j = 0; j < shapes[i].mesh.tags[t].intValues.size(); ++j) {
-        printf("%ld", static_cast<long>(shapes[i].mesh.tags[t].intValues[j]));
-        if (j < (shapes[i].mesh.tags[t].intValues.size() - 1)) {
-          printf(", ");
-        }
-      }
-      printf("]");
-
-      printf(" floats: [");
-      for (size_t j = 0; j < shapes[i].mesh.tags[t].floatValues.size(); ++j) {
-        printf("%f", static_cast<const double>(
-                         shapes[i].mesh.tags[t].floatValues[j]));
-        if (j < (shapes[i].mesh.tags[t].floatValues.size() - 1)) {
-          printf(", ");
-        }
-      }
-      printf("]");
-
-      printf(" strings: [");
-      for (size_t j = 0; j < shapes[i].mesh.tags[t].stringValues.size(); ++j) {
-        printf("%s", shapes[i].mesh.tags[t].stringValues[j].c_str());
-        if (j < (shapes[i].mesh.tags[t].stringValues.size() - 1)) {
-          printf(", ");
-        }
-      }
-      printf("]");
-      printf("\n");
+    for (size_t v = 0; v < attrib.normals.size() / 3; v++)
+    {
+        printf("  n[%ld] = (%f, %f, %f)\n", static_cast<long>(v),
+               static_cast<const double>(attrib.normals[3 * v + 0]),
+               static_cast<const double>(attrib.normals[3 * v + 1]),
+               static_cast<const double>(attrib.normals[3 * v + 2]));
     }
-  }
 
-  for (size_t i = 0; i < materials.size(); i++) {
-    printf("material[%ld].name = %s\n", static_cast<long>(i),
-           materials[i].name.c_str());
-    printf("  material.Ka = (%f, %f ,%f)\n",
-           static_cast<const double>(materials[i].ambient[0]),
-           static_cast<const double>(materials[i].ambient[1]),
-           static_cast<const double>(materials[i].ambient[2]));
-    printf("  material.Kd = (%f, %f ,%f)\n",
-           static_cast<const double>(materials[i].diffuse[0]),
-           static_cast<const double>(materials[i].diffuse[1]),
-           static_cast<const double>(materials[i].diffuse[2]));
-    printf("  material.Ks = (%f, %f ,%f)\n",
-           static_cast<const double>(materials[i].specular[0]),
-           static_cast<const double>(materials[i].specular[1]),
-           static_cast<const double>(materials[i].specular[2]));
-    printf("  material.Tr = (%f, %f ,%f)\n",
-           static_cast<const double>(materials[i].transmittance[0]),
-           static_cast<const double>(materials[i].transmittance[1]),
-           static_cast<const double>(materials[i].transmittance[2]));
-    printf("  material.Ke = (%f, %f ,%f)\n",
-           static_cast<const double>(materials[i].emission[0]),
-           static_cast<const double>(materials[i].emission[1]),
-           static_cast<const double>(materials[i].emission[2]));
-    printf("  material.Ns = %f\n",
-           static_cast<const double>(materials[i].shininess));
-    printf("  material.Ni = %f\n", static_cast<const double>(materials[i].ior));
-    printf("  material.dissolve = %f\n",
-           static_cast<const double>(materials[i].dissolve));
-    printf("  material.illum = %d\n", materials[i].illum);
-    printf("  material.map_Ka = %s\n", materials[i].ambient_texname.c_str());
-    printf("  material.map_Kd = %s\n", materials[i].diffuse_texname.c_str());
-    printf("  material.map_Ks = %s\n", materials[i].specular_texname.c_str());
-    printf("  material.map_Ns = %s\n",
-           materials[i].specular_highlight_texname.c_str());
-    printf("  material.map_bump = %s\n", materials[i].bump_texname.c_str());
-    printf("  material.map_d = %s\n", materials[i].alpha_texname.c_str());
-    printf("  material.disp = %s\n", materials[i].displacement_texname.c_str());
-    printf("  <<PBR>>\n");
-    printf("  material.Pr     = %f\n", materials[i].roughness);
-    printf("  material.Pm     = %f\n", materials[i].metallic);
-    printf("  material.Ps     = %f\n", materials[i].sheen);
-    printf("  material.Pc     = %f\n", materials[i].clearcoat_thickness);
-    printf("  material.Pcr    = %f\n", materials[i].clearcoat_thickness);
-    printf("  material.aniso  = %f\n", materials[i].anisotropy);
-    printf("  material.anisor = %f\n", materials[i].anisotropy_rotation);
-    printf("  material.map_Ke = %s\n", materials[i].emissive_texname.c_str());
-    printf("  material.map_Pr = %s\n", materials[i].roughness_texname.c_str());
-    printf("  material.map_Pm = %s\n", materials[i].metallic_texname.c_str());
-    printf("  material.map_Ps = %s\n", materials[i].sheen_texname.c_str());
-    printf("  material.norm   = %s\n", materials[i].normal_texname.c_str());
-    std::map<std::string, std::string>::const_iterator it(
-        materials[i].unknown_parameter.begin());
-    std::map<std::string, std::string>::const_iterator itEnd(
-        materials[i].unknown_parameter.end());
-
-    for (; it != itEnd; it++) {
-      printf("  material.%s = %s\n", it->first.c_str(), it->second.c_str());
+    for (size_t v = 0; v < attrib.texcoords.size() / 2; v++)
+    {
+        printf("  uv[%ld] = (%f, %f)\n", static_cast<long>(v),
+               static_cast<const double>(attrib.texcoords[2 * v + 0]),
+               static_cast<const double>(attrib.texcoords[2 * v + 1]));
     }
-    printf("\n");
-  }
+
+    // For each shape
+    for (size_t i = 0; i < shapes.size(); i++)
+    {
+        printf("shape[%ld].name = %s\n", static_cast<long>(i),
+               shapes[i].name.c_str());
+        printf("Size of shape[%ld].indices: %lu\n", static_cast<long>(i),
+               static_cast<unsigned long>(shapes[i].mesh.indices.size()));
+
+        size_t index_offset = 0;
+
+        assert(shapes[i].mesh.num_face_vertices.size() ==
+               shapes[i].mesh.material_ids.size());
+
+        printf("shape[%ld].num_faces: %lu\n", static_cast<long>(i),
+               static_cast<unsigned long>(shapes[i].mesh.num_face_vertices.size()));
+
+        // For each face
+        for (size_t f = 0; f < shapes[i].mesh.num_face_vertices.size(); f++)
+        {
+            size_t fnum = shapes[i].mesh.num_face_vertices[f];
+
+            printf("  face[%ld].fnum = %ld\n", static_cast<long>(f),
+                   static_cast<unsigned long>(fnum));
+
+            // For each vertex in the face
+            for (size_t v = 0; v < fnum; v++)
+            {
+                tinyobj::index_t idx = shapes[i].mesh.indices[index_offset + v];
+                printf("    face[%ld].v[%ld].idx = %d/%d/%d\n", static_cast<long>(f),
+                       static_cast<long>(v), idx.vertex_index, idx.normal_index,
+                       idx.texcoord_index);
+            }
+
+            printf("  face[%ld].material_id = %d\n", static_cast<long>(f),
+                   shapes[i].mesh.material_ids[f]);
+
+            index_offset += fnum;
+        }
+
+        printf("shape[%ld].num_tags: %lu\n", static_cast<long>(i),
+               static_cast<unsigned long>(shapes[i].mesh.tags.size()));
+        for (size_t t = 0; t < shapes[i].mesh.tags.size(); t++)
+        {
+            printf("  tag[%ld] = %s ", static_cast<long>(t),
+                   shapes[i].mesh.tags[t].name.c_str());
+            printf(" ints: [");
+            for (size_t j = 0; j < shapes[i].mesh.tags[t].intValues.size(); ++j)
+            {
+                printf("%ld", static_cast<long>(shapes[i].mesh.tags[t].intValues[j]));
+                if (j < (shapes[i].mesh.tags[t].intValues.size() - 1))
+                {
+                    printf(", ");
+                }
+            }
+            printf("]");
+
+            printf(" floats: [");
+            for (size_t j = 0; j < shapes[i].mesh.tags[t].floatValues.size(); ++j)
+            {
+                printf("%f", static_cast<const double>(
+                           shapes[i].mesh.tags[t].floatValues[j]));
+                if (j < (shapes[i].mesh.tags[t].floatValues.size() - 1))
+                {
+                    printf(", ");
+                }
+            }
+            printf("]");
+
+            printf(" strings: [");
+            for (size_t j = 0; j < shapes[i].mesh.tags[t].stringValues.size(); ++j)
+            {
+                printf("%s", shapes[i].mesh.tags[t].stringValues[j].c_str());
+                if (j < (shapes[i].mesh.tags[t].stringValues.size() - 1))
+                {
+                    printf(", ");
+                }
+            }
+            printf("]");
+            printf("\n");
+        }
+    }
+
+    for (size_t i = 0; i < materials.size(); i++)
+    {
+        printf("material[%ld].name = %s\n", static_cast<long>(i),
+               materials[i].name.c_str());
+        printf("  material.Ka = (%f, %f ,%f)\n",
+               static_cast<const double>(materials[i].ambient[0]),
+               static_cast<const double>(materials[i].ambient[1]),
+               static_cast<const double>(materials[i].ambient[2]));
+        printf("  material.Kd = (%f, %f ,%f)\n",
+               static_cast<const double>(materials[i].diffuse[0]),
+               static_cast<const double>(materials[i].diffuse[1]),
+               static_cast<const double>(materials[i].diffuse[2]));
+        printf("  material.Ks = (%f, %f ,%f)\n",
+               static_cast<const double>(materials[i].specular[0]),
+               static_cast<const double>(materials[i].specular[1]),
+               static_cast<const double>(materials[i].specular[2]));
+        printf("  material.Tr = (%f, %f ,%f)\n",
+               static_cast<const double>(materials[i].transmittance[0]),
+               static_cast<const double>(materials[i].transmittance[1]),
+               static_cast<const double>(materials[i].transmittance[2]));
+        printf("  material.Ke = (%f, %f ,%f)\n",
+               static_cast<const double>(materials[i].emission[0]),
+               static_cast<const double>(materials[i].emission[1]),
+               static_cast<const double>(materials[i].emission[2]));
+        printf("  material.Ns = %f\n",
+               static_cast<const double>(materials[i].shininess));
+        printf("  material.Ni = %f\n", static_cast<const double>(materials[i].ior));
+        printf("  material.dissolve = %f\n",
+               static_cast<const double>(materials[i].dissolve));
+        printf("  material.illum = %d\n", materials[i].illum);
+        printf("  material.map_Ka = %s\n", materials[i].ambient_texname.c_str());
+        printf("  material.map_Kd = %s\n", materials[i].diffuse_texname.c_str());
+        printf("  material.map_Ks = %s\n", materials[i].specular_texname.c_str());
+        printf("  material.map_Ns = %s\n",
+               materials[i].specular_highlight_texname.c_str());
+        printf("  material.map_bump = %s\n", materials[i].bump_texname.c_str());
+        printf("  material.map_d = %s\n", materials[i].alpha_texname.c_str());
+        printf("  material.disp = %s\n", materials[i].displacement_texname.c_str());
+        printf("  <<PBR>>\n");
+        printf("  material.Pr     = %f\n", materials[i].roughness);
+        printf("  material.Pm     = %f\n", materials[i].metallic);
+        printf("  material.Ps     = %f\n", materials[i].sheen);
+        printf("  material.Pc     = %f\n", materials[i].clearcoat_thickness);
+        printf("  material.Pcr    = %f\n", materials[i].clearcoat_thickness);
+        printf("  material.aniso  = %f\n", materials[i].anisotropy);
+        printf("  material.anisor = %f\n", materials[i].anisotropy_rotation);
+        printf("  material.map_Ke = %s\n", materials[i].emissive_texname.c_str());
+        printf("  material.map_Pr = %s\n", materials[i].roughness_texname.c_str());
+        printf("  material.map_Pm = %s\n", materials[i].metallic_texname.c_str());
+        printf("  material.map_Ps = %s\n", materials[i].sheen_texname.c_str());
+        printf("  material.norm   = %s\n", materials[i].normal_texname.c_str());
+        std::map<std::string, std::string>::const_iterator it(
+            materials[i].unknown_parameter.begin());
+        std::map<std::string, std::string>::const_iterator itEnd(
+            materials[i].unknown_parameter.end());
+
+        for (; it != itEnd; it++)
+        {
+            printf("  material.%s = %s\n", it->first.c_str(), it->second.c_str());
+        }
+        printf("\n");
+    }
 }
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
