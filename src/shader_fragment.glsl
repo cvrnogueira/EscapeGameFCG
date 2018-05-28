@@ -179,13 +179,13 @@ void main()
 
     }
     else if (object_id == BUTTON){
-        U = (position_model.x - minx)/(maxx - minx) ;
-        V = (position_model.y - miny)/(maxy - miny) ;
+         U = texcoords.x;
+        V = texcoords.y;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage8, vec2(U,V)).rgb;
-        Ka = vec3(0.1f,0.1f,0.1f);
-        Ks = vec3(0.1f,0.1f,0.1f);
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
         q = 1;
     }
 
