@@ -379,11 +379,13 @@ int main(int argc, char* argv[])
 
     while(true)
     {
+        g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa projeção no meu, porque dai estamos usando essa aqui e a do jogo é a outra, logo usamos as duas!
         int opMenu = menu();
         switch(opMenu)
         {
 
         case 0 :
+            g_UsePerspectiveProjection = true;
             playGame();
             break;
 
@@ -405,6 +407,12 @@ int main(int argc, char* argv[])
 ///Coloca pra jogar
 void playGame()
 {
+  int success = glfwInit();
+    if (!success)
+    {
+        fprintf(stderr, "ERROR: glfwInit() failed.\n");
+        std::exit(EXIT_FAILURE);
+    }
 
 // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
