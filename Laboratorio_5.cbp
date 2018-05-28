@@ -2,7 +2,8 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="Laboratorio_5" />
+		<Option title="ScapeGame" />
+		<Option execution_dir="../../Outros semestres/speedprogramming-master/snake" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -59,6 +60,7 @@
 			<Add option="lib\libglfw3.a -lgdi32 -lopengl32" />
 			<Add directory="lib" />
 		</Linker>
+		<Unit filename="Game.hpp" />
 		<Unit filename="include/GLFW/glfw3.h" />
 		<Unit filename="include/GLFW/glfw3native.h" />
 		<Unit filename="include/KHR/khrplatform.h" />
@@ -330,6 +332,8 @@
 		<Unit filename="include/stb_image.h" />
 		<Unit filename="include/tiny_obj_loader.h" />
 		<Unit filename="include/utils.h" />
+		<Unit filename="painter.hpp" />
+		<Unit filename="snake.hpp" />
 		<Unit filename="src/glad.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -167,6 +167,7 @@ GLFWwindow* window;
 #define BOMB 7
 #define LAPTOP 8
 #define BUTTON 9
+#define BUTTON 9
 // esquerda
 glm::vec4 w;
 glm::vec4 u;
@@ -307,7 +308,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
 	LoadTextureImage("../../data/button_console.jpg"); //TextureImage8
-
+	LoadTextureImage("../../data/Orange.jpg"); //TextureImage9
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -361,6 +362,7 @@ int main(int argc, char* argv[])
 	ObjModel button("../../data/button.obj", "../../data/");
     ComputeNormals(&button);
     BuildTrianglesAndAddToVirtualScene(&button);
+
 
     if ( argc > 1 )
     {
@@ -1019,7 +1021,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage6"), 6);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage7"), 7);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
-
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage9"), 9);
     glUseProgram(0);
 }
 
