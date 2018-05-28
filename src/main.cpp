@@ -269,6 +269,10 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/wall.jpg"); // TextureImage0
     LoadTextureImage("../../data/floor.jpg"); // TextureImage1
     LoadTextureImage("../../data/ceiling.jpg"); // TextureImage2
+    LoadTextureImage("../../data/hplaptop_d.jpg"); // TextureImage2
+    LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage2
+    LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage2
+    LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage2
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -295,10 +299,6 @@ int main(int argc, char* argv[])
     ComputeNormals(&safeboxmodel);
     BuildTrianglesAndAddToVirtualScene(&safeboxmodel);
 
-    ObjModel chairmodel("../../data/chair.obj");
-    ComputeNormals(&chairmodel);
-    BuildTrianglesAndAddToVirtualScene(&chairmodel);
-
     ObjModel cowmodel("../../data/cow.obj");
     ComputeNormals(&cowmodel);
     BuildTrianglesAndAddToVirtualScene(&cowmodel);
@@ -306,12 +306,11 @@ int main(int argc, char* argv[])
     ObjModel coffeetable("../../data/coffee_table.obj","../../data/");
     BuildTrianglesAndAddToVirtualScene(&coffeetable);
 
+    ObjModel laptop("../../data/Laptop_High-Polay_HP_BI_2_obj.obj","../../data/");
+    BuildTrianglesAndAddToVirtualScene(&laptop);
 
-    ObjModel bomb("../../data/bomb.obj","../../data/");
+  ObjModel bomb("../../data/bomb.obj","../../data/");
     BuildTrianglesAndAddToVirtualScene(&bomb);
-
-
-    ObjModel assetsArray[] = { spheremodel, bunnymodel, planemodel, leftwallmodel, rightwallmodel, safeboxmodel,chairmodel, cowmodel};
 
     if ( argc > 1 )
     {
@@ -428,7 +427,8 @@ model = Matrix_Identity();
 #define COW 4
 #define SPHERE 5
 #define TABLE 6
-
+#define BOMB 7
+#define LAPTOP 8
     // esquerda
     model = Matrix_Translate(-4.0f,0.0f,0.0f)
             * Matrix_Scale(1.0f, 1.0f, 4.0f)
@@ -478,18 +478,6 @@ model = Matrix_Identity();
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
 
-	// HP LAPTOP
-	model = Matrix_Translate(1.9f, -0.60f, -3.1f)
-		* Matrix_Scale(0.15, 0.15, 0.15)
-		* Matrix_Rotate_Y(-3.5* PI / 4);
-
-	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-
-	glUniform1i(object_id_uniform, 4);
-
-	DrawVirtualObject("hplaptop_d");
-
-
     	// COFFEE TABLE
 
 	model = Matrix_Translate(+3.05f, -1.025f, -1.225f)
@@ -499,6 +487,32 @@ model = Matrix_Identity();
 	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
 	glUniform1i(object_id_uniform, TABLE);
     DrawVirtualObject("coffee_table");
+
+    //laptop
+	model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
+		* Matrix_Scale(0.15f, 0.15f, 0.15)
+		* Matrix_Rotate_Y(1 * PI / 8);
+	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(object_id_uniform, LAPTOP);
+	DrawVirtualObject("HPPlane002");
+
+    model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
+		* Matrix_Scale(0.15f, 0.15f, 0.15)
+		* Matrix_Rotate_Y(1 * PI / 8);
+	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(object_id_uniform, LAPTOP);
+	DrawVirtualObject("HPPlane005_Plane");
+
+	    	// bombbbbb
+
+	model = Matrix_Translate(+3.05f, -0.9f, -1.225f)
+		* Matrix_Scale(0.15f, 0.15f, 0.15f)
+		* Matrix_Rotate_Y(1 * PI / 8);
+
+	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(object_id_uniform, BOMB);
+    DrawVirtualObject("plane");
+
 
     ///Oi, cata! (Oiee Lau!)
     /// Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
@@ -792,6 +806,12 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "BrickWall"), 0);
     glUniform1i(glGetUniformLocation(program_id, "WoodFloor"), 1);
     glUniform1i(glGetUniformLocation(program_id, "GrayCeiling"), 2);
+    glUniform1i(glGetUniformLocation(program_id, "hplaptop_d"), 3);
+    glUniform1i(glGetUniformLocation(program_id, "bomb_difuse_map"), 4);
+    glUniform1i(glGetUniformLocation(program_id, "bomb_normal_map"), 5);
+    glUniform1i(glGetUniformLocation(program_id, "bomb_specular_map"), 6);
+
+
     glUseProgram(0);
 }
 
