@@ -1118,7 +1118,7 @@
 	<inttypes.h>
 	<stdint.h>
 
-1527470861 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\main.cpp
+1527474970 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\main.cpp
 	<cmath>
 	<cstdio>
 	<cstdlib>
@@ -1624,7 +1624,7 @@
 1527033848 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\stb_image.cpp
 	"stb_image.h"
 
-1527033848 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\textrendering.cpp
+1527473199 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\textrendering.cpp
 	<string>
 	<glad/glad.h>
 	<GLFW/glfw3.h>

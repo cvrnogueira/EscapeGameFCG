@@ -134,11 +134,28 @@ bool g_UsePerspectiveProjection = true;
 // Razão de proporção da janela (largura/altura). Veja função FramebufferSizeCallback().
 float g_ScreenRatio = 1.0f;
 void colisao();
-
-struct ObjetoBB {
-	glm::vec3 minBB;
-	glm::vec3 maxBB;
+void playGame();
+int menu();
+void optionsMenu();
+struct ObjetoBB
+{
+    glm::vec3 minBB;
+    glm::vec3 maxBB;
 };
+int chooseOption =false;
+bool enterPressed = false;
+bool busyWKey = false;
+bool busySKey = false;
+bool busyJUMPKey = false;
+bool pressW = false;
+bool pressS = false;
+bool pressA = false;
+bool pressD = false;
+bool pressT = false;
+bool pressR = false;
+bool pressE = false;
+bool pressSpace = false;
+GLFWwindow* window;
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
 #define FLOOR 1
@@ -149,7 +166,7 @@ struct ObjetoBB {
 #define TABLE 6
 #define BOMB 7
 #define LAPTOP 8
-    // esquerda
+// esquerda
 glm::vec4 w;
 glm::vec4 u;
 bool checkCollisionCowSphere() ;
@@ -206,10 +223,11 @@ glm::vec3 sphereBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 
+
 int main(int argc, char* argv[])
 {
     // Inicializamos a biblioteca GLFW, utilizada para criar uma janela do
-    // sistema operacional, onde poderemos renderizar com a OpenGL.
+    // sistema operacional, onde poderemos renderizar com OpenGL.
     int success = glfwInit();
     if (!success)
     {
@@ -224,13 +242,17 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    // Pedimos apra utilizar o perfil "core", isto é, utilizaremos somente as
-    // funções modernas da OpenGL.
+    // Pedimos para utilizar o perfil "core", isto é, utilizaremos somente as
+    // funções modernas de OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Criamos uma janela do sistema operacional
-    GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
     {
         glfwTerminate();
@@ -241,25 +263,25 @@ int main(int argc, char* argv[])
     // Definimos a função de callback que será chamada sempre que o usuário
     // pressionar alguma tecla do teclado ...
     glfwSetKeyCallback(window, KeyCallback);
-
+    // ... ou clicar os botões do mouse ...
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    // ... ou movimentar o cursor do mouse em cima da janela ...
     glfwSetCursorPosCallback(window, CursorPosCallback);
+    // ... ou rolar a "rodinha" do mouse.
+    glfwSetScrollCallback(window, ScrollCallback);
 
     // Indicamos que as chamadas OpenGL deverão renderizar nesta janela
     glfwMakeContextCurrent(window);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Oculta o cursor e mantém ele dentro da janela
-
-    // Carregamento de todas funções definidas pela OpenGL 3.3, utilizando a
-    // biblioteca GLAD. Veja
+    // Carregamento de todas funções definidas por OpenGL 3.3, utilizando a
+    // biblioteca GLAD.
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
     // Definimos a função de callback que será chamada sempre que a janela for
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
-
-    FramebufferSizeCallback(window, 800, 600);// Forçamos a chamada do callback acima, para definir g_ScreenRatio.
-
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.
 
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -326,6 +348,10 @@ int main(int argc, char* argv[])
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
 
+    ObjModel cube("../../data/cube.obj","../../data/");
+    ComputeNormals(&cube);
+    BuildTrianglesAndAddToVirtualScene(&cube);
+
 
 
     if ( argc > 1 )
@@ -351,11 +377,38 @@ int main(int argc, char* argv[])
     glm::mat4 the_model;
     glm::mat4 the_view;
 
-    // Ficamos em loop, renderizando, até que o usuário feche a janela
+    while(true)
+    {
+        int opMenu = menu();
+        switch(opMenu)
+        {
+
+        case 0 :
+            playGame();
+            break;
+
+        case 1:
+            return 0;
+            break;
+
+        default:
+            break;
+
+        }
+    }
+    // Finalizamos o uso dos recursos do sistema operacional
+    glfwTerminate();
+
+    // Fim do programa
+    return 0;
+}
+///Coloca pra jogar
+void playGame()
+{
+
+// Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
-
-
 
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
         // os shaders de vértice e fragmentos).
@@ -401,7 +454,7 @@ int main(int argc, char* argv[])
             float l = -r;
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
-colisao();
+        colisao();
         DrawLevel1(view, projection);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
@@ -415,9 +468,133 @@ colisao();
     glfwTerminate();
 
     // Fim do programa
-    return 0;
+    glfwSetWindowShouldClose(window, GL_FALSE);
 }
+//Mostra o menu e tal
+int menu()
+{
 
+
+    float startPos = -0.5f;
+    float startSize = 2.5f;
+    float exitPos = -0.65f;
+    float exitSize = 1.0f;
+
+
+    int selectPos = 0;
+
+    while(!enterPressed)
+    {
+
+            if(pressW && !busyWKey && selectPos > 0)
+            {
+                busyWKey = true;
+                selectPos--;
+            }
+            if(pressS && !busySKey && selectPos < 2)
+            {
+                busySKey = true;
+                selectPos++;
+            }
+
+            switch(selectPos)
+            {
+            case 0:
+                startSize = 2.5f;
+                exitSize = 1.0f;
+                break;
+            case 1:
+                startSize = 1.0f;
+                exitSize = 2.5f;
+            break;
+            default:
+                break;
+            }
+
+
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
+        // e também resetamos todos os pixels do Z-buffer (depth buffer).
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(program_id);
+        float r = g_CameraDistance;
+        float y = r*sin(g_CameraPhi);
+        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
+        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+
+        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
+        // Veja slide 165 do documento "Aula_08_Sistemas_de_Coordenadas.pdf".
+        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
+        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
+        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+
+        // Computamos a matriz "View" utilizando os parâmetros da câmera para
+        // definir o sistema de coordenadas da câmera.  Veja slide 169 do
+        // documento "Aula_08_Sistemas_de_Coordenadas.pdf".
+        glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
+
+        // Agora computamos a matriz de Projeção.
+        glm::mat4 projection;
+
+        // Note que, no sistema de coordenadas da câmera, os planos near e far
+        // estão no sentido negativo! Veja slides 198-200 do documento
+        // "Aula_09_Projecoes.pdf".
+        float nearplane = -0.1f;  // Posição do "near plane"
+        float farplane  = -100.0f; // Posição do "far plane"
+
+        if (g_UsePerspectiveProjection)
+        {
+            // Projeção Perspectiva.
+            // Para definição do field of view (FOV), veja slide 234 do
+            // documento "Aula_09_Projecoes.pdf".
+            float field_of_view = 3.141592 / 3.0f;
+            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
+        }
+        else
+        {
+            // Projeção Ortográfica.
+            // Para definição dos valores l, r, b, t ("left", "right", "bottom", "top"),
+            // veja slide 243 do documento "Aula_09_Projecoes.pdf".
+            // Para simular um "zoom" ortográfico, computamos o valor de "t"
+            // utilizando a variável g_CameraDistance.
+            float t = 1.5f*g_CameraDistance/2.5f;
+            float b = -t;
+            float r = t*g_ScreenRatio;
+            float l = -r;
+            projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
+        }
+
+        glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
+        // model = Matrix_Rotate_Y((float)glfwGetTime() * 0.1f);
+        // Enviamos as matrizes "view" e "projection" para a placa de vídeo
+        // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
+        // efetivamente aplicadas em todos os pontos.
+        glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(object_id_uniform, COW);
+        DrawVirtualObject("cow");
+
+        TextRendering_PrintString(window, "Start", 0.0f, startPos, startSize);
+        TextRendering_PrintString(window, "exit", 0.0f, exitPos, exitSize);
+
+        glfwSwapBuffers(window);
+
+
+        // Verificamos com o sistema operacional se houve alguma interação do
+        // usuário (teclado, mouse, ...). Caso positivo, as funções de callback
+        // definidas anteriormente usando glfwSet*Callback() serão chamadas
+        // pela biblioteca GLFW.
+        glfwPollEvents();
+    }
+
+    enterPressed = false;
+    return selectPos;
+
+}
 
 void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 {
@@ -428,7 +605,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     // e também resetamos todos os pixels do Z-buffer (depth buffer).
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-model = Matrix_Identity();
+    model = Matrix_Identity();
     glUseProgram(program_id);
     // Enviamos as matrizes "view" e "projection" para a placa de vídeo
     // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
@@ -485,43 +662,42 @@ model = Matrix_Identity();
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
 
-    	// COFFEE TABLE
+    // COFFEE TABLE
 
-	model = Matrix_Translate(+3.05f, -1.025f, -1.225f)
-		* Matrix_Scale(0.002f, 0.002f, 0.002f)
-		* Matrix_Rotate_Y(1 * PI / 8);
+    model = Matrix_Translate(+3.05f, -1.025f, -1.225f)
+            * Matrix_Scale(0.002f, 0.002f, 0.002f)
+            * Matrix_Rotate_Y(1 * PI / 8);
 
-	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(object_id_uniform, TABLE);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. è estranho pq eu testei a testura no laptop e funciona, na msa é que não rola. Ve se tu consegue daii
     DrawVirtualObject("coffee_table");
 
     //laptop
-	model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-		* Matrix_Scale(0.15f, 0.15f, 0.15)
-		* Matrix_Rotate_Y(1 * PI / 8);
-	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(object_id_uniform, LAPTOP);
-	DrawVirtualObject("HPPlane002");
+    model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
+            * Matrix_Scale(0.15f, 0.15f, 0.15)
+            * Matrix_Rotate_Y(1 * PI / 8);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, LAPTOP);
+    DrawVirtualObject("HPPlane002");
 
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-		* Matrix_Scale(0.15f, 0.15f, 0.15)
-		* Matrix_Rotate_Y(1 * PI / 8);
-	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(object_id_uniform, LAPTOP);
-	DrawVirtualObject("HPPlane005_Plane");
+            * Matrix_Scale(0.15f, 0.15f, 0.15)
+            * Matrix_Rotate_Y(1 * PI / 8);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, LAPTOP);
+    DrawVirtualObject("HPPlane005_Plane");
 
-	    	// bombbbbb
+    // bomb
+    model = Matrix_Translate(+3.05f, -0.9f, -1.225f)
+            * Matrix_Scale(0.15f, 0.15f, 0.15f)
+            * Matrix_Rotate_Y(1 * PI / 8);
 
-	model = Matrix_Translate(+3.05f, -0.9f, -1.225f)
-		* Matrix_Scale(0.15f, 0.15f, 0.15f)
-		* Matrix_Rotate_Y(1 * PI / 8);
-
-	glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(object_id_uniform, BOMB);
-    DrawVirtualObject("plane");
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    DrawVirtualObject("plane"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
 
 
-    ///Oi, cata! (Oiee Lau!)
+    ///Oi, cata! resposta: (Oiee Lau!)
     /// Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
     ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
     ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
@@ -579,38 +755,38 @@ model = Matrix_Identity();
 
 void movimento()
 {
-	glm::vec4 dir_movimento = normalize(glm::vec4(front_vector.x, 0.0f, front_vector.z, 0.0f));
-	float velocidade = 4.0f * deltaTempo;
-	tempoLastStep += deltaTempo;
-	tempoLastTransport += deltaTempo;
-	bool step = false;
+    glm::vec4 dir_movimento = normalize(glm::vec4(front_vector.x, 0.0f, front_vector.z, 0.0f));
+    float velocidade = 4.0f * deltaTempo;
+    tempoLastStep += deltaTempo;
+    tempoLastTransport += deltaTempo;
+    bool step = false;
 
-	if (teclas[GLFW_KEY_W])
+    if (teclas[GLFW_KEY_W])
     {
-       novoPos_char += velocidade * dir_movimento;
+        novoPos_char += velocidade * dir_movimento;
         step = true;
     }
 
-	if (teclas[GLFW_KEY_S])
+    if (teclas[GLFW_KEY_S])
     {
         novoPos_char -= velocidade * dir_movimento;
-		step = true;
+        step = true;
     }
 
-	if (teclas[GLFW_KEY_A])
+    if (teclas[GLFW_KEY_A])
     {
         novoPos_char -= normalize(crossproduct(dir_movimento, up_vector)) * velocidade;
-		step = true;
+        step = true;
     }
 
-	if (teclas[GLFW_KEY_D])
+    if (teclas[GLFW_KEY_D])
     {
         novoPos_char += normalize(crossproduct(dir_movimento, up_vector)) * velocidade;
-		step = true;
+        step = true;
     }
 
-	// Movimento Vertical
-	if (colisaoChao)
+// Movimento Vertical
+    if (colisaoChao)
     {
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
@@ -619,28 +795,29 @@ void movimento()
             }
 
         if (teclas[GLFW_KEY_SPACE])
-		{
-			velocidadeY = 3.0f;
-		}
+        {
+            velocidadeY = 3.0f;
+        }
     }
-	novoPos_char.y += velocidadeY * deltaTempo;
-	velocidadeY -= 3.0f * deltaTempo;
+    novoPos_char.y += velocidadeY * deltaTempo;
+    velocidadeY -= 3.0f * deltaTempo;
 
 }
 
 void colisao()
-{	testaColisao = true;
-	colisaoChao = false;
-	if (testaColisao)       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
-	{
-		pos_char.x = novoPos_char.x;
-		pos_char.z = novoPos_char.z;
-	}
-	else
-	{
-		novoPos_char.x = pos_char.x;
-		novoPos_char.z = pos_char.z;
-	}
+{
+    testaColisao = true;
+    colisaoChao = false;
+    if (testaColisao)       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
+    {
+        pos_char.x = novoPos_char.x;
+        pos_char.z = novoPos_char.z;
+    }
+    else
+    {
+        novoPos_char.x = pos_char.x;
+        novoPos_char.z = pos_char.z;
+    }
 
 }
 // Função pra preencher as colisões dos níveis
@@ -1328,35 +1505,59 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 // tecla do teclado. Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 {
-	// Se o usuário pressionar a tecla ESC, fechamos a janela.
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
+    // Se o usuário pressionar a tecla ESC, fechamos a janela.
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+
+   if ( (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && action == GLFW_PRESS)
+    {
+        enterPressed = true;
+    }
+  if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS)
+    {
+         pressW = true;
+    }
+     if  (key == GLFW_KEY_S)
+    {
+       pressS = true;
+    }
+    // Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
+    if (key == GLFW_KEY_H && action == GLFW_PRESS)
+    {
+        g_ShowInfoText = !g_ShowInfoText;
+    }
+
+    // Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+    {
+        LoadShadersFromFiles();
+        fprintf(stdout, "Shaders recarregados!\n");
+        fflush(stdout);
+    }
+    //release na key
+        if ( (key == GLFW_KEY_W) && action == GLFW_RELEASE)
+    {
+        pressW = false;
+        busyWKey = false;
+    }
+
+    if ((key == GLFW_KEY_S ) && action == GLFW_RELEASE)
+    {
+        pressS = false;
+        busySKey = false;
+    }
 
 
-	// Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
-	if (key == GLFW_KEY_H && action == GLFW_PRESS)
-	{
-		g_ShowInfoText = !g_ShowInfoText;
-	}
-
-	// Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
-	if (key == GLFW_KEY_R && action == GLFW_PRESS)
-	{
-		LoadShadersFromFiles();
-		fprintf(stdout, "Shaders recarregados!\n");
-		fflush(stdout);
-	}
-
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 
-	if (key >= 0 && key < 200)
-	{
-		if (action == GLFW_PRESS)
-			teclas[key] = true;
-		else if (action == GLFW_RELEASE)
-			teclas[key] = false;
-	}
+    if (key >= 0 && key < 200)
+    {
+        if (action == GLFW_PRESS)
+            teclas[key] = true;
+        else if (action == GLFW_RELEASE)
+            teclas[key] = false;
+    }
 
 }
 

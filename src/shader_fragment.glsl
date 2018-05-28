@@ -126,11 +126,14 @@ void main()
         q = 1;
     }
     else if (object_id == COW){
+        U = (position_model.x - minx)/(maxx - minx) ;
+        V = (position_model.y - miny)/(maxy - miny) ;
 
-        Kd = vec3(0.08,0.4,0.8);
-        Ks = vec3(0.8,0.8,0.8);
-        Ka = Kd/2;
-        q = 32.0;
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        Kd = texture(TextureImage3, vec2(U,V)).rgb;
+        Ka = vec3(0.1f,0.1f,0.1f);
+        Ks = vec3(0.1f,0.1f,0.1f);
+        q = 1;
     }
     else if (object_id == SPHERE){
         Kd = vec3(0.08,0.8,0.4);
@@ -144,7 +147,7 @@ void main()
         Kd = texture(TextureImage3, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd / 2; //vec3(0.0f,0.0f,0.0f);
-        q = 1;
+        q = 1.0f;
     }
       else if (object_id == LAPTOP){
           U = texcoords.x;

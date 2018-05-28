@@ -211,6 +211,7 @@ void TextRendering_PrintString(GLFWwindow* window, const std::string &str, float
     }
 }
 
+
 float TextRendering_LineHeight(GLFWwindow* window)
 {
     int width, height;
