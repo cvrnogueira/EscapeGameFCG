@@ -166,6 +166,7 @@ GLFWwindow* window;
 #define TABLE 6
 #define BOMB 7
 #define LAPTOP 8
+#define BUTTON 9
 // esquerda
 glm::vec4 w;
 glm::vec4 u;
@@ -305,6 +306,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage5
     LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
+	LoadTextureImage("../../data/button_console.jpg"); //TextureImage8
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -352,7 +354,13 @@ int main(int argc, char* argv[])
     ComputeNormals(&cube);
     BuildTrianglesAndAddToVirtualScene(&cube);
 
+	ObjModel button_console("../../data/button_console.obj", "../../data/");
+	ComputeNormals(&button_console);
+	BuildTrianglesAndAddToVirtualScene(&button_console);
 
+	ObjModel button("../../data/button.obj", "../../data/");
+    ComputeNormals(&button);
+    BuildTrianglesAndAddToVirtualScene(&button);
 
     if ( argc > 1 )
     {
@@ -698,11 +706,19 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     // bomb
     model = Matrix_Translate(+3.05f, -0.9f, -1.225f)
             * Matrix_Scale(0.15f, 0.15f, 0.15f)
-            * Matrix_Rotate_Y(1 * PI / 8);
+            *Matrix_Rotate_Y(M_PI/4);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
     DrawVirtualObject("plane"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
+
+      //button
+    model = Matrix_Translate(+0.05f, -0.25f, -2.0f)
+            * Matrix_Scale(0.05f, 0.05f, 0.05f)
+            * Matrix_Rotate_X(-3*PI / 2);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BUTTON);
+    DrawVirtualObject("BUTTON_CONSOLE_01");
 
 
     ///Oi, cata! resposta: (Oiee Lau!)
@@ -1513,6 +1529,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 // tecla do teclado. Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 {
+
     // Se o usuário pressionar a tecla ESC, fechamos a janela.
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
