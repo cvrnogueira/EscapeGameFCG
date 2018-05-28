@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
 ///Coloca pra jogar
 void playGame()
 {
-  int success = glfwInit();
+    int success = glfwInit();
     if (!success)
     {
         fprintf(stderr, "ERROR: glfwInit() failed.\n");
@@ -494,30 +494,30 @@ int menu()
     while(!enterPressed)
     {
 
-            if(pressW && !busyWKey && selectPos > 0)
-            {
-                busyWKey = true;
-                selectPos--;
-            }
-            if(pressS && !busySKey && selectPos < 2)
-            {
-                busySKey = true;
-                selectPos++;
-            }
+        if(pressW && !busyWKey && selectPos > 0)
+        {
+            busyWKey = true;
+            selectPos--;
+        }
+        if(pressS && !busySKey && selectPos < 2)
+        {
+            busySKey = true;
+            selectPos++;
+        }
 
-            switch(selectPos)
-            {
-            case 0:
-                startSize = 2.5f;
-                exitSize = 1.0f;
-                break;
-            case 1:
-                startSize = 1.0f;
-                exitSize = 2.5f;
+        switch(selectPos)
+        {
+        case 0:
+            startSize = 2.5f;
+            exitSize = 1.0f;
             break;
-            default:
-                break;
-            }
+        case 1:
+            startSize = 1.0f;
+            exitSize = 2.5f;
+            break;
+        default:
+            break;
+        }
 
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1517,17 +1517,17 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
-   if ( (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && action == GLFW_PRESS)
+    if ( (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && action == GLFW_PRESS)
     {
         enterPressed = true;
     }
-  if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS)
+    if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS)
     {
-         pressW = true;
+        pressW = true;
     }
-     if  (key == GLFW_KEY_S)
+    if  (key == GLFW_KEY_S)
     {
-       pressS = true;
+        pressS = true;
     }
     // Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
@@ -1543,7 +1543,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         fflush(stdout);
     }
     //release na key
-        if ( (key == GLFW_KEY_W) && action == GLFW_RELEASE)
+    if ( (key == GLFW_KEY_W) && action == GLFW_RELEASE)
     {
         pressW = false;
         busyWKey = false;
