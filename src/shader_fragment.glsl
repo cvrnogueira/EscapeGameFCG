@@ -36,13 +36,15 @@ uniform vec4 bbox_min;
 uniform vec4 bbox_max;
 
 // Variáveis para acesso das imagens de textura
-uniform sampler2D WoodFloor;
-uniform sampler2D BrickWall;
-uniform sampler2D GrayCeiling;
-uniform sampler2D hplaptop_d;
-uniform sampler2D bomb_difuse_map;
-uniform sampler2D bomb_normal_map;
-uniform sampler2D bomb_specular_map;
+uniform sampler2D TextureImage0;
+uniform sampler2D TextureImage1;
+uniform sampler2D TextureImage2;
+uniform sampler2D TextureImage3;
+uniform sampler2D TextureImage4;
+uniform sampler2D TextureImage5;
+uniform sampler2D TextureImage6;
+uniform sampler2D TextureImage7;
+
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
 
@@ -52,6 +54,17 @@ out vec3 color;
 
 void main()
 {
+    vec4 bbox_center;
+
+    float minx = bbox_min.x;
+    float maxx = bbox_max.x;
+
+    float miny = bbox_min.y;
+    float maxy = bbox_max.y;
+
+    float minz = bbox_min.z;
+    float maxz = bbox_max.z;
+
     // Obtemos a posição da câmera utilizando a inversa da matriz que define o
     // sistema de coordenadas da câmera.
     vec4 origin = vec4(0.0, 0.0, 0.0, 1.0);
@@ -90,7 +103,7 @@ void main()
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(BrickWall, vec2(U,V)).rgb;
+        Kd = texture(TextureImage0, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd / 2; //vec3(0.0f,0.0f,0.0f);
         q = 1.0f;
@@ -99,7 +112,7 @@ void main()
     else if (object_id == FLOOR) {
         U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(WoodFloor, vec2(U,V)).rgb;
+        Kd = texture(TextureImage1, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;   //vec3(0.0f,0.0f,0.0f);
         q = 1;
@@ -107,7 +120,7 @@ void main()
     else if (object_id == CEILING) {
         U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(GrayCeiling, vec2(U,V)).rgb;
+        Kd = texture(TextureImage2, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
         q = 1;
@@ -126,17 +139,19 @@ void main()
         q = 32.0;
     }
       else if (object_id == TABLE){
-      Kd = vec3(0.08,0.4,0.8);
-        Ks = vec3(0.8,0.8,0.8);
-        Ka = Kd/2;
-        q = 32.0;
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage3, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd / 2; //vec3(0.0f,0.0f,0.0f);
+        q = 1;
     }
       else if (object_id == LAPTOP){
           U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(hplaptop_d, vec2(U,V)).rgb;
+        Kd = texture(TextureImage4, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
-        Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
         q = 1;
     }
     else if(object_id == BOMB)
@@ -145,12 +160,12 @@ void main()
         V = texcoords.y;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        Kd = texture(bomb_difuse_map, vec2(U,V)).rgb;
+        Kd = texture(TextureImage5, vec2(U,V)).rgb;
 
-        vec3 n_aux = texture(bomb_normal_map, vec2(U,V)).rbg;
+        vec3 n_aux = texture(TextureImage6, vec2(U,V)).rbg;
         n = vec4(n_aux.x, n_aux.y, n_aux.z, 0.0f);
 
-        Ks = texture(bomb_specular_map, vec2(U,V)).rgb;
+        Ks = texture(TextureImage7, vec2(U,V)).rgb;
         float q = 10.0;
 
         // Equação de Iluminação

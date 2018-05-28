@@ -140,7 +140,16 @@ struct ObjetoBB {
 	glm::vec3 maxBB;
 };
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
-
+#define WALL  0
+#define FLOOR 1
+#define CEILING 2
+#define CHAIR 3
+#define COW 4
+#define SPHERE 5
+#define TABLE 6
+#define BOMB 7
+#define LAPTOP 8
+    // esquerda
 glm::vec4 w;
 glm::vec4 u;
 bool checkCollisionCowSphere() ;
@@ -269,10 +278,11 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/wall.jpg"); // TextureImage0
     LoadTextureImage("../../data/floor.jpg"); // TextureImage1
     LoadTextureImage("../../data/ceiling.jpg"); // TextureImage2
-    LoadTextureImage("../../data/hplaptop_d.jpg"); // TextureImage2
-    LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage2
-    LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage2
-    LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage2
+    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg"); // TextureImage3
+    LoadTextureImage("../../data/hplaptop_d.jpg"); // TextureImage4
+    LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage5
+    LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
+    LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -304,13 +314,19 @@ int main(int argc, char* argv[])
     BuildTrianglesAndAddToVirtualScene(&cowmodel);
 
     ObjModel coffeetable("../../data/coffee_table.obj","../../data/");
+    ComputeNormals(&coffeetable);
     BuildTrianglesAndAddToVirtualScene(&coffeetable);
 
     ObjModel laptop("../../data/Laptop_High-Polay_HP_BI_2_obj.obj","../../data/");
+    ComputeNormals(&laptop);
     BuildTrianglesAndAddToVirtualScene(&laptop);
 
-  ObjModel bomb("../../data/bomb.obj","../../data/");
+
+    ObjModel bomb("../../data/bomb.obj","../../data/");
+    ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
+
+
 
     if ( argc > 1 )
     {
@@ -420,16 +436,7 @@ model = Matrix_Identity();
     glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
-#define WALL  0
-#define FLOOR 1
-#define CEILING 2
-#define CHAIR 3
-#define COW 4
-#define SPHERE 5
-#define TABLE 6
-#define BOMB 7
-#define LAPTOP 8
-    // esquerda
+
     model = Matrix_Translate(-4.0f,0.0f,0.0f)
             * Matrix_Scale(1.0f, 1.0f, 4.0f)
             * Matrix_Rotate_Z(-M_PI_2);
@@ -801,16 +808,16 @@ void LoadShadersFromFiles()
 
     // Variáveis em "shader_fragment.glsl" para acesso das imagens de textura
     glUseProgram(program_id);
-    // glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
-    // glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
-    glUniform1i(glGetUniformLocation(program_id, "BrickWall"), 0);
-    glUniform1i(glGetUniformLocation(program_id, "WoodFloor"), 1);
-    glUniform1i(glGetUniformLocation(program_id, "GrayCeiling"), 2);
-    glUniform1i(glGetUniformLocation(program_id, "hplaptop_d"), 3);
-    glUniform1i(glGetUniformLocation(program_id, "bomb_difuse_map"), 4);
-    glUniform1i(glGetUniformLocation(program_id, "bomb_normal_map"), 5);
-    glUniform1i(glGetUniformLocation(program_id, "bomb_specular_map"), 6);
 
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage2"), 2);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage3"), 3);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage4"), 4);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage5"), 5);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage6"), 6);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage7"), 7);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
 
     glUseProgram(0);
 }
