@@ -248,13 +248,15 @@ int main(int argc, char* argv[])
     // funções modernas de OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
+    ///SE DECOMENTAR VOLTA O MENU ///////////////////
+   /* const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwWindowHint(GLFW_RED_BITS, mode->redBits);
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
     window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);*/
     if (!window)
     {
         glfwTerminate();
@@ -282,8 +284,12 @@ int main(int argc, char* argv[])
     // Definimos a função de callback que será chamada sempre que a janela for
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
+    ///MENU- DESCOMENTAR PRO MENU
+    /*
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.
+
+    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*/
+    FramebufferSizeCallback(window, 800, 600);//
 
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -386,8 +392,8 @@ int main(int argc, char* argv[])
     glm::mat4 the_projection;
     glm::mat4 the_model;
     glm::mat4 the_view;
-
-    while(true)
+playGame();
+    /*while(true)
     {
         g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa projeção no meu, porque dai estamos usando essa aqui e a do jogo é a outra, logo usamos as duas!
         int opMenu = menu();
@@ -407,7 +413,7 @@ int main(int argc, char* argv[])
             break;
 
         }
-    }
+    }*/
     // Finalizamos o uso dos recursos do sistema operacional
     glfwTerminate();
 
