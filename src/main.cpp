@@ -313,9 +313,8 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage5
     LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
-	LoadTextureImage("../../data/button_console.jpg"); //TextureImage8
-	LoadTextureImage("../../data/Orange.jpg"); //TextureImage9
-    LoadTextureImage("../../data/DoorUV.png"); //TextureImage10
+	LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
+    LoadTextureImage("../../data/DoorUV.png"); //TextureImage19
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -357,16 +356,6 @@ int main(int argc, char* argv[])
     ObjModel bomb("../../data/bomb.obj","../../data/");
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
-
-
-	ObjModel button_console("../../data/button_console.obj", "../../data/");
-	ComputeNormals(&button_console);
-	BuildTrianglesAndAddToVirtualScene(&button_console);
-
-	ObjModel button("../../data/button.obj", "../../data/");
-    ComputeNormals(&button);
-    BuildTrianglesAndAddToVirtualScene(&button);
-
 
 	ObjModel door("../../data/door.obj", "../../data/");
     ComputeNormals(&door);
@@ -716,8 +705,8 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     DrawVirtualObject("HPPlane005_Plane");
 
     // bomb
-    model = Matrix_Translate(+3.05f, -0.9f, -1.225f)
-            * Matrix_Scale(0.15f, 0.15f, 0.15f)
+    model = Matrix_Translate(-2.05f, -0.9f, -1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
             *Matrix_Rotate_Y(M_PI/4);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -1030,8 +1019,6 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage6"), 6);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage7"), 7);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
-    glUniform1i(glGetUniformLocation(program_id, "TextureImage9"), 9);
-    glUniform1i(glGetUniformLocation(program_id, "TextureImage10"), 10);
     glUseProgram(0);
 }
 
