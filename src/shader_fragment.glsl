@@ -30,6 +30,7 @@ uniform mat4 projection;
 #define BOMB 7
 #define LAPTOP 8
 #define BUTTON 9
+#define DOOR 10
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -47,6 +48,7 @@ uniform sampler2D TextureImage6;
 uniform sampler2D TextureImage7;
 uniform sampler2D TextureImage8;
 uniform sampler2D TextureImage9;
+uniform sampler2D TextureImage10;
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
 
@@ -182,12 +184,21 @@ void main()
 
     }
     else if (object_id == BUTTON){
-         U = texcoords.x;
-        V = texcoords.y;
+             U = (position_model.x - minx)/(maxx - minx) ;
+        V = (position_model.y - miny)/(maxy - miny) ;
+
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage8, vec2(U,V)).rgb;
         Ks = vec3(0.2f,0.2f,0.2f);
+        Ka = Kd/2;
+        q = 1;
+    }
+    else if (object_id == DOOR){
+            U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage10, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
     }

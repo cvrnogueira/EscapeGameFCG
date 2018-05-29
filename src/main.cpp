@@ -167,7 +167,7 @@ GLFWwindow* window;
 #define BOMB 7
 #define LAPTOP 8
 #define BUTTON 9
-#define BUTTON 9
+#define DOOR 10
 // esquerda
 glm::vec4 w;
 glm::vec4 u;
@@ -315,6 +315,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
 	LoadTextureImage("../../data/button_console.jpg"); //TextureImage8
 	LoadTextureImage("../../data/Orange.jpg"); //TextureImage9
+    LoadTextureImage("../../data/DoorUV.png"); //TextureImage10
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -357,9 +358,6 @@ int main(int argc, char* argv[])
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
 
-    ObjModel cube("../../data/cube.obj","../../data/");
-    ComputeNormals(&cube);
-    BuildTrianglesAndAddToVirtualScene(&cube);
 
 	ObjModel button_console("../../data/button_console.obj", "../../data/");
 	ComputeNormals(&button_console);
@@ -368,6 +366,12 @@ int main(int argc, char* argv[])
 	ObjModel button("../../data/button.obj", "../../data/");
     ComputeNormals(&button);
     BuildTrianglesAndAddToVirtualScene(&button);
+
+
+	ObjModel door("../../data/door.obj", "../../data/");
+    ComputeNormals(&door);
+    BuildTrianglesAndAddToVirtualScene(&door);
+
 
 
     if ( argc > 1 )
@@ -718,15 +722,14 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
-    DrawVirtualObject("plane"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
+    DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
 
-      //button
-    model = Matrix_Translate(+0.05f, -0.25f, -2.0f)
-            * Matrix_Scale(0.05f, 0.05f, 0.05f)
-            * Matrix_Rotate_X(-3*PI / 2);
+    model = Matrix_Translate(-2.0f, -0.67f, -2.2f)
+            * Matrix_Scale(0.38f, 0.32f, 0.28f)
+            * Matrix_Rotate_Y(-PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, BUTTON);
-    DrawVirtualObject("BUTTON_CONSOLE_01");
+    glUniform1i(object_id_uniform, DOOR);
+    DrawVirtualObject("Cube");
 
 
     ///Oi, cata! resposta: (Oiee Lau!)
@@ -1028,6 +1031,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage7"), 7);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage9"), 9);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage10"), 10);
     glUseProgram(0);
 }
 
@@ -1415,6 +1419,7 @@ double g_LastCursorPosX, g_LastCursorPosY;
 // Função callback chamada sempre que o usuário aperta algum dos botões do mouse
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
         // Se o usuário pressionou o botão esquerdo do mouse, guardamos a
