@@ -1118,10 +1118,11 @@
 	<inttypes.h>
 	<stdint.h>
 
-1527557281 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\main.cpp
+1527559818 source:c:\users\catarina\desktop\ufrgs\fcg\trabfinal\candl\scapegame\src\main.cpp
 	<cmath>
 	<cstdio>
 	<cstdlib>
+	<iostream>
 	<map>
 	<stack>
 	<string>
