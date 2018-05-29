@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-
+#include<iostream>
 // Headers abaixo são específicos de C++
 #include <map>
 #include <stack>
@@ -133,15 +133,10 @@ float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 bool g_UsePerspectiveProjection = true;
 // Razão de proporção da janela (largura/altura). Veja função FramebufferSizeCallback().
 float g_ScreenRatio = 1.0f;
-void colisao();
+void validaMovimento();
 void playGame();
 int menu();
 void optionsMenu();
-struct ObjetoBB
-{
-    glm::vec3 minBB;
-    glm::vec3 maxBB;
-};
 int chooseOption =false;
 bool enterPressed = false;
 bool busyWKey = false;
@@ -149,11 +144,6 @@ bool busySKey = false;
 bool busyJUMPKey = false;
 bool pressW = false;
 bool pressS = false;
-bool pressA = false;
-bool pressD = false;
-bool pressT = false;
-bool pressR = false;
-bool pressE = false;
 bool pressSpace = false;
 GLFWwindow* window;
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
@@ -225,7 +215,7 @@ glm::vec3 sphereBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 
-
+using namespace std;
 int main(int argc, char* argv[])
 {
     // Inicializamos a biblioteca GLFW, utilizada para criar uma janela do
@@ -357,6 +347,8 @@ int main(int argc, char* argv[])
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
 
+
+
 	ObjModel door("../../data/door.obj", "../../data/");
     ComputeNormals(&door);
     BuildTrianglesAndAddToVirtualScene(&door);
@@ -471,7 +463,7 @@ void playGame()
             float l = -r;
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
-        colisao();
+        validaMovimento();
         DrawLevel1(view, projection);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
@@ -828,7 +820,7 @@ void movimento()
 
 }
 
-void colisao()
+void validaMovimento()
 {
     testaColisao = true;
     colisaoChao = false;
@@ -1455,6 +1447,14 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         // variável abaixo para false.
         g_MiddleMouseButtonPressed = false;
     }
+    //deixa essa funcao ai, lau, pls. q eu vou usar ela p ver se a pessoa clicou no note
+   // if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    //{
+      // double xpos, ypos;
+       //getting cursor position
+      // glfwGetCursorPos(window, &xpos, &ypos);
+       //cout << "Cursor Position at (" << xpos << " : " << ypos << endl;
+    //}
 }
 
 // Função callback chamada sempre que o usuário movimentar o cursor do mouse em
