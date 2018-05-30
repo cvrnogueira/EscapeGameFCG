@@ -145,6 +145,10 @@ bool busyJUMPKey = false;
 bool pressW = false;
 bool pressS = false;
 bool pressSpace = false;
+bool JUMPING = false;
+double actualSecond;
+void atualizaPulo();
+int startJump = 0;
 GLFWwindow* window;
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
@@ -477,14 +481,16 @@ void playGame()
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
 
-        DrawLevel1(view, projection);
+
         validaMovimento();
+             DrawLevel1(view, projection);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
 
         glfwSwapBuffers(window);
 
         glfwPollEvents();
+
     }
 
     // Finalizamos o uso dos recursos do sistema operacional
@@ -861,9 +867,8 @@ void movimento()
         novoPos_char += normalize(crossproduct(dir_movimento, up_vector)) * velocidade;
         step = true;
     }
-
-// Movimento Vertical
-    if (colisaoChao)
+    // Movimento Vertical
+	if (colisaoChao)
     {
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
@@ -872,14 +877,14 @@ void movimento()
             }
 
         if (teclas[GLFW_KEY_SPACE])
-        {
-            velocidadeY = 3.0f;
-        }
+		{
+			velocidadeY = 1.0f;
+		}
     }
-    //novoPos_char.y += velocidadeY * deltaTempo;
-   // velocidadeY -= 3.0f * deltaTempo;
-
+	novoPos_char.y += velocidadeY * deltaTempo;
+	velocidadeY -= 1.0f * deltaTempo;
 }
+
 bool collided() {
     for (int cont =2; cont <= 5; cont ++) {
         float A = roomPlanes[cont].normal.x;
@@ -909,7 +914,9 @@ bool collided() {
 
 void validaMovimento()
 {
-    colisaoChao = false;
+    testaColisao = true;
+	colisaoChao = false;
+
     if (!collided())       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
     {
         pos_char.x = novoPos_char.x;
@@ -920,14 +927,28 @@ void validaMovimento()
         novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
     }
+	/// Teste com o plano chao( y <=0 é se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
+	///O movimento vertical é meio foda pq ele usa aquele troço de animação que o sor fez na aula, lembra?
+	///além disso essa função aqui validamovimento() testa se houve colisao, pq tipo, quando tiver colisao com o chao oo personagem para de cair sabe
+	///isso n faria sentido ficar na de cima a movimento() que só soma constantes ao movimento. Na movimento() fica, por exemplo, a soma daqueilo de velocidade que vimos na aula
+	///que é computado nas linhas que tu tinha comentado.
+	///ela precisa ficar fora do if pq naquele caso ali ela não vai ter colisao com o chão e precisa entrar naquelas duas linhas, pq elas é que calculam a velocidade como vimos na aula
+	///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente terça eu te falo
+	if (novoPos_char.y <= 0)
+	{
+		colisaoChao = true;
+
+	}
+	if (colisaoChao)
+	{
+		novoPos_char.y = pos_char.y;
+		velocidadeY = 0.0f;
+	}
+	else
+		pos_char.y = novoPos_char.y;
 
 }
-// Função pra preencher as colisões dos níveis
-void inicializaNiveis()
-{
 
-
-}
 bool checkCollisionCowSphere()
 {
 
@@ -1657,7 +1678,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         pressS = false;
         busySKey = false;
     }
-
 
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
