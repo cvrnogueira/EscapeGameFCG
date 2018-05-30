@@ -776,7 +776,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, BOMB);
     DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
 
-    model = Matrix_Translate(-2.0f, -0.67f, -2.2f)
+    model = Matrix_Translate(-2.5f, -0.67f, -4.2f)
             * Matrix_Scale(0.38f, 0.32f, 0.28f)
             * Matrix_Rotate_Y(-PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
