@@ -934,6 +934,8 @@ void validaMovimento()
 	///que é computado nas linhas que tu tinha comentado.
 	///ela precisa ficar fora do if pq naquele caso ali ela não vai ter colisao com o chão e precisa entrar naquelas duas linhas, pq elas é que calculam a velocidade como vimos na aula
 	///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente terça eu te falo
+
+	///OBS: se quisermos deixar o personagem subir nas mesas e pa dá p fazer facil, mas como ainda os objetos n tem colisao n dá p fazer
 	if (novoPos_char.y <= 0)
 	{
 		colisaoChao = true;
