@@ -111,8 +111,8 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 //PARA CAMERA E MOVIMENTO
 
 #define PI 3.14159265
-glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f); // Posição do Personagem (character) e, consequentemente, da câmera
-glm::vec4 novoPos_char;
+glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Posição do Personagem (character) e, consequentemente, da câmera
+glm::vec4 novoPos_char = glm::vec4(0.0f,0.0f,0.0f,1.0f);
 glm::vec4 front_vector = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f); // Vetor de direção de visualização do personagem e, consequentemente, da câmera
 glm::vec4 up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor up da câmera
 void movimento();
@@ -177,6 +177,11 @@ struct SceneObject
     glm::vec3    bbox_min; // Axis-Aligned Bounding Box do objeto
     glm::vec3    bbox_max;
 };
+struct Plane
+{
+    glm::vec4 normal;
+    float d; ///distance os plane to origin. It is on plane equation
+};
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
@@ -214,6 +219,14 @@ glm::vec3 sphereTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 sphereBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
 glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
+
+//vetores posicao
+glm::vec4 primitives[4] = { glm::vec4(-1.0f,0.0f,1.0f,1.0f),
+                         glm::vec4(1.0f,0.0f,1.0f,1.0f),
+                         glm::vec4(1.0f,0.0f,-1.0f,1.0f),
+                         glm::vec4(-1.0f,0.0f,-1.0f,1.0f) };
+
+Plane roomPlanes[6];
 
 using namespace std;
 int main(int argc, char* argv[])
@@ -463,8 +476,9 @@ void playGame()
             float l = -r;
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
-        validaMovimento();
+
         DrawLevel1(view, projection);
+        validaMovimento();
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
 
@@ -604,6 +618,25 @@ int menu()
     return selectPos;
 
 }
+Plane getPlaneEquation(glm::mat4 model) {
+
+    glm::vec4 origin = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+    glm::vec4 finalPoint[4] = {origin,origin,origin,origin};
+    finalPoint[0] =  model * primitives[0];
+    finalPoint[1] =  model * primitives[1];
+    finalPoint[2] =  model * primitives[2];
+    finalPoint[3] =  model * primitives[3];
+
+    glm::vec4 diagonal1 = finalPoint[3] - finalPoint[1];
+    glm::vec4 diagonal2 = finalPoint[2] - finalPoint[0];
+
+    Plane newPlane;
+    newPlane.normal = glm::normalize(crossproduct(diagonal1, diagonal2));
+
+    newPlane.d = norm((model * origin) - origin);
+
+    return newPlane;
+}
 
 void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 {
@@ -623,12 +656,48 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
 
+     //chao
+    model = Matrix_Translate(0.0f,-1.0f,0.0f)
+            * Matrix_Scale(4.0f, 1.0f, 4.0f);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, FLOOR);
+    DrawVirtualObject("plane");
+    roomPlanes[0] = getPlaneEquation(model);
+
+    /*
+    std::cout << "chao" << std::endl;
+    std::cout << roomPlanes[0].normal.x << std::endl;
+    std::cout << roomPlanes[0].normal.y << std::endl;
+    std::cout << roomPlanes[0].normal.z << std::endl;*/
+
+     // teto
+    model = Matrix_Translate(0.0f,1.0f,0.0f)
+            * Matrix_Scale(4.0f, 1.0f, 4.0f)
+            * Matrix_Rotate_X(M_PI);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, CEILING);
+    DrawVirtualObject("plane");
+    roomPlanes[1] = getPlaneEquation(model);
+    /*
+    std::cout << "teto" << std::endl;
+    std::cout << roomPlanes[1].normal.x << std::endl;
+    std::cout << roomPlanes[1].normal.y << std::endl;
+    std::cout << roomPlanes[1].normal.z << std::endl;*/
+
+    //esquerda
     model = Matrix_Translate(-4.0f,0.0f,0.0f)
             * Matrix_Scale(1.0f, 1.0f, 4.0f)
             * Matrix_Rotate_Z(-M_PI_2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("leftwall");
+    roomPlanes[2] = getPlaneEquation(model);
+    roomPlanes[2].normal = -roomPlanes[2].normal;
+    /*
+    std::cout << "esquerda" << std::endl;
+    std::cout << roomPlanes[2].normal.x << std::endl;
+    std::cout << roomPlanes[2].normal.y << std::endl;
+    std::cout << roomPlanes[2].normal.z << std::endl;*/
 
     //direita
     model = Matrix_Translate(4.0f,0.0f,0.0f)
@@ -637,39 +706,41 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("rightwall");
-
-    // teto
-    model = Matrix_Translate(0.0f,1.0f,0.0f)
-            * Matrix_Scale(4.0f, 1.0f, 4.0f)
-            * Matrix_Rotate_X(M_PI);
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, CEILING);
-    DrawVirtualObject("plane");
-
-    //chao
-    model = Matrix_Translate(0.0f,-1.0f,0.0f)
-            * Matrix_Scale(4.0f, 1.0f, 4.0f);
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, FLOOR);
-    DrawVirtualObject("plane");
+    roomPlanes[3] = getPlaneEquation(model);
+    roomPlanes[3].normal = -roomPlanes[3].normal;
+    /*
+    std::cout << "direita" << std::endl;
+    std::cout << roomPlanes[3].normal.x << std::endl;
+    std::cout << roomPlanes[3].normal.y << std::endl;
+    std::cout << roomPlanes[3].normal.z << std::endl;*/
 
     //fundo
-    model = Matrix_Translate(0.0f,0.0f,-2.0f)
+    model = Matrix_Translate(0.0f,0.0f,-4.0f)
             * Matrix_Scale(4.0f,1.0f,1.0f)
             * Matrix_Rotate_X(M_PI_2);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
+    roomPlanes[4] = getPlaneEquation(model);
+    /*std::cout << "fundo" << std::endl;
+    std::cout << roomPlanes[4].normal.x << std::endl;
+    std::cout << roomPlanes[4].normal.y << std::endl;
+    std::cout << roomPlanes[4].normal.z << std::endl;*/
 
     //frente
-    model = Matrix_Translate(0.0f,0.0f,2.0f)
+    model = Matrix_Translate(0.0f,0.0f,4.0f)
             * Matrix_Scale(4.0f,1.0f,1.0f)
             * Matrix_Rotate_X(-M_PI_2);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
+    roomPlanes[5] = getPlaneEquation(model);
+   /* std::cout << "frente" << std::endl;
+    std::cout << roomPlanes[5].normal.x << std::endl;
+    std::cout << roomPlanes[5].normal.y << std::endl;
+    std::cout << roomPlanes[5].normal.z << std::endl;*/
 
     // COFFEE TABLE
 
@@ -711,16 +782,6 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, DOOR);
     DrawVirtualObject("Cube");
-
-
-    ///Oi, cata! resposta: (Oiee Lau!)
-    /// Vou te explicar o que eu fiz ou tentei fazer pelo menos. Assim, o leo me explicou como se
-    ///faz colisao com a bbox e eu me inspirei no deles pra fazer o nosso. O alg  basicamente traca um
-    ///cubo imaginario nos obj, que eh representado por dois vertices dele! Dai a gente faz a logica
-    /// em cima deles. Mas, precisa saber as dims do obj para ter eles. O que eu fiz foi basicamente
-    ///ir chutando ate conseguir uma aprox do tamanho da vaca e da esfera do arquivo do sor.
-    ///dai coloquei e fiz os pontos e sucesso (eu espero). Mas dai com o tempo vou aproximando melhorzinho
-    ///caso as colisoes fiquem meio trash
 
     float cowLenght = 1.0f;
     float cowWidth = 0.5f;
@@ -815,16 +876,41 @@ void movimento()
             velocidadeY = 3.0f;
         }
     }
-    novoPos_char.y += velocidadeY * deltaTempo;
-    velocidadeY -= 3.0f * deltaTempo;
+    //novoPos_char.y += velocidadeY * deltaTempo;
+   // velocidadeY -= 3.0f * deltaTempo;
 
+}
+bool collided() {
+    for (int cont =2; cont <= 5; cont ++) {
+        float A = roomPlanes[cont].normal.x;
+        float B = roomPlanes[cont].normal.y;
+        float C = roomPlanes[cont].normal.z;
+        float D = roomPlanes[cont].d;
+        float x = novoPos_char.x;
+        float y = novoPos_char.y;
+        float z = novoPos_char.z;
+
+        if (fabs(x*A + y*B + z*C + D) < 0.3) {
+            std::cout << " colidiu" << std::endl;
+            std::cout << " conta = " << (x*A + y*B + z*C + D) << std::endl;
+            std::cout << "cont = " << cont << std::endl;
+            std::cout << "A = " << A << std::endl;
+            std::cout << "B = " << B << std::endl;
+            std::cout << "C = " << C << std::endl;
+            std::cout << "D = " << D << std::endl;
+            std::cout << "x = " << x << std::endl;
+            std::cout << "y = " << y << std::endl;
+            std::cout << "z = " << z << std::endl;
+            return true;
+        }
+    }
+    return false;
 }
 
 void validaMovimento()
 {
-    testaColisao = true;
     colisaoChao = false;
-    if (testaColisao)       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
+    if (!collided())       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
     {
         pos_char.x = novoPos_char.x;
         pos_char.z = novoPos_char.z;
