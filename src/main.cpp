@@ -180,13 +180,20 @@ struct SceneObject
     GLuint       vertex_array_object_id; // ID do VAO onde estão armazenados os atributos do modelo
     glm::vec3    bbox_min; // Axis-Aligned Bounding Box do objeto
     glm::vec3    bbox_max;
+    glm::mat4    model_matrix;
+};
+struct Player {
+
+    glm::vec4 bbox_min = glm::vec4(-0.5f, -1.0f, -0.5f,1.0f);
+    glm::vec4 bbox_max = glm::vec4(0.5f,0.5f,0.5f,1.0f);
+
 };
 struct Plane
 {
     glm::vec4 normal;
     float d; ///distance os plane to origin. It is on plane equation
 };
-
+Player player;
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -231,7 +238,10 @@ glm::vec4 primitives[4] = { glm::vec4(-1.0f,0.0f,1.0f,1.0f),
                          glm::vec4(-1.0f,0.0f,-1.0f,1.0f) };
 
 Plane roomPlanes[6];
-
+//bool checkCollisionCameraBBox(std::string objectName);
+bool collisionCameraBBoxObjecBBox(std::string objectName);
+bool checkCollisionAllRoomObjects();
+std::vector<std::string> roomObjects;
 using namespace std;
 int main(int argc, char* argv[])
 {
@@ -757,6 +767,9 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. è estranho pq eu testei a testura no laptop e funciona, na msa é que não rola. Ve se tu consegue daii
     DrawVirtualObject("coffee_table");
+    g_VirtualScene["coffee_table"].model_matrix = Matrix_Translate(+3.05f, -1.025f, -1.225f)
+                                                    * Matrix_Scale(0.002f, 0.002f, 0.002f);
+    roomObjects.push_back("coffee_table");
 
     //laptop
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
@@ -780,7 +793,11 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Cylinder010"].model_matrix = Matrix_Translate(-2.05f, -0.9f, -1.225f)
+                                                * Matrix_Scale(0.02f, 0.02f, 0.02f);
     DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
+    roomObjects.push_back("Cylinder010");
+
 
     model = Matrix_Translate(-2.5f, -0.67f, -4.2f)
             * Matrix_Scale(0.38f, 0.32f, 0.28f)
@@ -794,16 +811,21 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     float cowHeight = 1.0f;
     float scaleCoef = 1.0f;
     ///TODO: estimular um pouquinho melhor a dimencao da vaca
-    glm::vec3 cowCenter = glm::vec3(0.0f, -0.4f,0.0f);
+    glm::vec3 cowCenter = glm::vec3(+2.0f, -0.4f,-2.0f);
 
     model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
-            * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef)
-            * Matrix_Rotate_Y(-M_PI_2);
+            * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
+            //* Matrix_Rotate_Y(M_PI_2); //cuidado ao girar por numero negativo
 
     //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, COW);
     DrawVirtualObject("cow");
+
+    g_VirtualScene["cow"].model_matrix = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
+                                        * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
+    roomObjects.push_back("cow");
+
     cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
                                    cowCenter.y - cowHeight*scaleCoef/2.0f,
                                    cowCenter.z - cowLenght*scaleCoef/2.0f);
@@ -811,9 +833,9 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
                                 cowCenter.y + cowHeight*scaleCoef/2.0f,
                                 cowCenter.z + cowLenght*scaleCoef/2.0f);
 
-    glm::vec3 centerSphere = glm::vec3(1.0f, 0.0f,0.0f);
+    glm::vec3 centerSphere = glm::vec3(1.0f, 0.8f,1.0f);
     float sphereRadius = 0.5f;
-    float sphereScaleCoef = 0.5f;
+    float sphereScaleCoef = 0.3f;
     //Matrix_Translate(1.0f,-0.5f,-1.0f)
     model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
             * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
@@ -825,16 +847,57 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
                                       centerSphere.y - sphereRadius*sphereScaleCoef,
                                       centerSphere.z - sphereRadius*sphereScaleCoef);
 
-
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, SPHERE);
     DrawVirtualObject("sphere");
-
-    if (checkCollisionCowSphere())
-    {
-        printf("colidiuuuuuuuuu");
-    }
+    g_VirtualScene["sphere"].model_matrix = model;
+    roomObjects.push_back("sphere");
 }
+bool collisionCameraBBoxObjecBBox(std::string objectName) {
+
+
+    glm::vec4 objBBox_max = g_VirtualScene[objectName].model_matrix * glm::vec4(g_VirtualScene[objectName].bbox_max.x,
+                                                                           g_VirtualScene[objectName].bbox_max.y,
+                                                                           g_VirtualScene[objectName].bbox_max.z,
+                                                                           1.0f);
+    glm::vec4 objBBox_min = g_VirtualScene[objectName].model_matrix * glm::vec4(g_VirtualScene[objectName].bbox_min.x,
+                                                                           g_VirtualScene[objectName].bbox_min.y,
+                                                                           g_VirtualScene[objectName].bbox_min.z,
+                                                                           1.0f);
+
+/*    std::cout << "PLAYER Xmin = " << player.bbox_min.x << std::endl;
+    std::cout << "PLAYER Ymin = " << player.bbox_min.y << std::endl;
+    std::cout << "PLAYER Zmin = " << player.bbox_min.z << std::endl;
+
+    std::cout << "PLAYER Xmax = " << player.bbox_max.x << std::endl;
+    std::cout << "PLAYER Ymax = " << player.bbox_max.y << std::endl;
+    std::cout << "PLAYER Zmax = " << player.bbox_max.z << std::endl;
+
+    std::cout << "OBJ minX = " << objBBox_min.x << std::endl;
+    std::cout << "OBJ minY = " << objBBox_min.y << std::endl;
+    std::cout << "OBJ minZ = " << objBBox_min.z << std::endl;
+
+    std::cout << "OBJ maxX = " << objBBox_max.x << std::endl;
+    std::cout << "OBJ maxY = " << objBBox_max.y << std::endl;
+    std::cout << "OBJ maxZ = " << objBBox_max.z << std::endl;*/
+
+
+    glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
+    glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
+
+    return (playerbbox_max.x > objBBox_min.x && playerbbox_min.x < objBBox_max.x) &&
+            (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
+            (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
+}
+bool checkCollisionAllRoomObjects(){
+    for(std::string objectName : roomObjects) {
+        if (collisionCameraBBoxObjecBBox(objectName)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 void movimento()
 {
@@ -911,19 +974,27 @@ bool collided() {
     }
     return false;
 }
+void updateBBox() {
 
+    player.bbox_max = glm::vec4(pos_char.x + 0.5f, pos_char.y + 0.5f, pos_char.z + 0.5f, 1.0f);
+    player.bbox_min = glm::vec4(pos_char.x - 0.5f, pos_char.y - 1.0f, pos_char.z - 0.5f, 1.0f);
+
+}
 void validaMovimento()
 {
     testaColisao = true;
 	colisaoChao = false;
 
-    if (!collided())       // Se testa colisão permanecer true não ocorreu nenhuma colisão e a nova posição é viável para o Personagem
+    if (!collided() && !checkCollisionAllRoomObjects())
     {
+
         pos_char.x = novoPos_char.x;
         pos_char.z = novoPos_char.z;
+        updateBBox();
     }
     else
     {
+        std::cout << " colidiu com algum obj" << std::endl;
         novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
     }
@@ -959,6 +1030,27 @@ bool checkCollisionCowSphere()
            (sphereBottomBackRight.z <= cowTopFrontLeft.z && sphereTopFrontLeft.z >= cowBottomBackRight.z);
 
 }
+
+bool checkCollisionCameraBBox(glm::vec4 bbox_min, glm::vec4 bbox_max)
+{
+
+    std::cout << "Xmin = " << bbox_min.x << std::endl;
+    std::cout << "Ymin = " << bbox_min.y << std::endl;
+    std::cout << "Zmin = " << bbox_min.z << std::endl;
+
+    std::cout << "Xmax = " << bbox_max.x << std::endl;
+    std::cout << "Ymax = " << bbox_max.y << std::endl;
+    std::cout << "Zmax = " << bbox_max.z << std::endl;
+
+    std::cout << "Xcamera = " << pos_char.x << std::endl;
+    std::cout << "Ycamera = " << pos_char.y << std::endl;
+    std::cout << "Zcamera = " << pos_char.z << std::endl;
+
+    return (pos_char.x >= bbox_min.x && pos_char.x <= bbox_max.x) &&
+           (pos_char.y >= bbox_min.y && pos_char.y <= bbox_max.y) &&
+           (pos_char.z >= bbox_min.z && pos_char.z <= bbox_max.z);
+
+}
 void printBBoxesToDebug()
 {
     printf("sphereBottonRight: x = %f \n y = %f \n z = %f \n",
@@ -978,6 +1070,7 @@ void printBBoxesToDebug()
            cowTopFrontLeft.y,
            cowTopFrontLeft.z);
 }
+
 
 // Função que carrega uma imagem para ser utilizada como textura
 void LoadTextureImage(const char* filename)
@@ -1270,8 +1363,12 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
         theobject.rendering_mode = GL_TRIANGLES;       // Índices correspondem ao tipo de rasterização GL_TRIANGLES.
         theobject.vertex_array_object_id = vertex_array_object_id;
 
-        theobject.bbox_min = bbox_min;
-        theobject.bbox_max = bbox_max;
+        glm::vec4 bbox_min_vec4 = glm::vec4(bbox_min.x, bbox_min.y, bbox_min.z, 1.0f);
+        glm::vec4 bbox_max_vec4 = glm::vec4(bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
+
+        theobject.bbox_min = bbox_min;   //_vec4;
+        theobject.bbox_max = bbox_max;    //_vec4;
+        theobject.model_matrix = Matrix_Identity();
 
         g_VirtualScene[model->shapes[shape].name] = theobject;
     }
