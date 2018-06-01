@@ -19,6 +19,7 @@ out vec4 position_world;
 out vec4 position_model;
 out vec4 normal;
 out vec2 texcoords;
+out vec3 cor_v;
 
 void main()
 {
@@ -50,6 +51,8 @@ void main()
     // Posição do vértice atual no sistema de coordenadas global (World).
     position_world = model * model_coefficients;
 
+
+
     // Posição do vértice atual no sistema de coordenadas local do modelo.
     position_model = model_coefficients;
 
@@ -57,6 +60,14 @@ void main()
     // Veja slide 94 do documento "Aula_07_Transformacoes_Geometricas_3D.pdf".
     normal = inverse(transpose(model)) * normal_coefficients;
     normal.w = 0.0;
+    vec4 n = normalize(normal);
+    vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
+    float lambert = max(0.0f, dot(n, l));
+    vec3 Ka = vec3(0.8,0.2,0.2);
+    vec3 Ia = vec3(0.2,0.2,0.2);
+    vec3 ambient_term = Ka * Ia;
+    cor_v = lambert + ambient_term;
+
 
     // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
     texcoords = texture_coefficients;

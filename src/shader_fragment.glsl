@@ -6,6 +6,7 @@
 // "main.cpp".
 in vec4 position_world;
 in vec4 normal;
+in vec3 cor_v;
 
 // Posição do vértice atual no sistema de coordenadas local do modelo.
 in vec4 position_model;
@@ -31,6 +32,7 @@ uniform mat4 projection;
 #define LAPTOP 8
 #define BUTTON 9
 #define DOOR 10
+#define ARMCHAIR 11
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -55,8 +57,14 @@ out vec3 color;
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
 
+#define PHONG 0
+#define BLINN_PHONG 1
+#define LAMBERT 2
+#define VERTEX 3
+
 void main()
 {
+    int illumination_model = PHONG;
     vec4 bbox_center;
 
     float minx = bbox_min.x;
@@ -92,6 +100,8 @@ void main()
 
     vec4 r = -1 * l + 2 * n * dot(n,l);
 
+    vec4 h = vec4(0.0f,0.0f,0.0f,0.0f);
+
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
@@ -100,6 +110,7 @@ void main()
     vec3 Ks;
     vec3 Ka;
     float q = 0.0f;
+    float q_linha = 0.0f;
 
     if ( object_id == WALL)
     {
@@ -129,20 +140,31 @@ void main()
         q = 1;
     }
     else if (object_id == COW){
-        U = (position_model.x - minx)/(maxx - minx) ;
-        V = (position_model.y - miny)/(maxy - miny) ;
+        //U = (position_model.x - minx)/(maxx - minx) ;
+        //V = (position_model.y - miny)/(maxy - miny) ;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        Kd = texture(TextureImage3, vec2(U,V)).rgb;
-        Ka = vec3(0.1f,0.1f,0.1f);
-        Ks = vec3(0.1f,0.1f,0.1f);
-        q = 1;
-    }
-    else if (object_id == SPHERE){
+       // Kd = texture(TextureImage3, vec2(U,V)).rgb;
         Kd = vec3(0.08,0.8,0.4);
         Ks = vec3(0.8,0.8,0.8);
-        Ka = Kd/2;
-        q = 32.0;
+        Ka = vec3(0.1f,0.1f,0.1f);
+        Ks = vec3(0.1f,0.1f,0.1f);
+        q_linha = 80;
+        h = normalize(l + v);
+        illumination_model = BLINN_PHONG;
+    }
+    else if (object_id == SPHERE){
+        //Kd = vec3(0.08,0.8,0.4);
+        //Ks = vec3(0.8,0.8,0.8);
+        //Ka = Kd/2;
+        //q = 32.0;
+        //illumination_model = LAMBERT;
+        ///sim, sabemos que iluminacao por vertex nao eh um modelo de ilumina
+        ///cao. O que queremos dizer aqui eh que a cor sera atribuida pelo
+        ///valor de saida da shader_vertex
+        illumination_model = VERTEX;
+
+
     }
       else if (object_id == TABLE){
            U = texcoords.x;
@@ -153,7 +175,7 @@ void main()
         q = 1;
     }
       else if (object_id == LAPTOP){
-          U = texcoords.x;
+        U = texcoords.x;
         V = texcoords.y;
         Kd = texture(TextureImage4, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
@@ -198,6 +220,12 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
+    }else if (object_id == ARMCHAIR ) {
+        Kd = vec3(0.08,0.8,0.4);
+        //Ks = vec3(0.8,0.8,0.8);
+        Ka = Kd/2;
+        //q = 32.0;
+        illumination_model = LAMBERT;
     }
 
 
@@ -215,10 +243,17 @@ void main()
 
     // Termo especular utilizando o modelo de iluminação de Phong
     vec3 phong_specular_term  = Ks * I * pow(max(0.0,dot(r,v)), q);
+    vec3 blinn_phong_specular_term = Ks * I * pow(max(0.0, dot(h,n)), q_linha);
 
-    color = lambert_diffuse_term + ambient_term + phong_specular_term;
-
-
+    if (illumination_model == PHONG) {
+        color = lambert_diffuse_term + ambient_term + phong_specular_term;
+    } else if (illumination_model == BLINN_PHONG) {
+        color = lambert_diffuse_term + ambient_term + blinn_phong_specular_term;
+    }else if (illumination_model == LAMBERT){
+        color = lambert_diffuse_term + ambient_term;
+    }else {
+        color = cor_v;
+    }
 
     // Equação de Iluminação
    // float lambert = max(0,dot(n,l));

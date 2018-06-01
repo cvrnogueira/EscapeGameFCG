@@ -162,6 +162,7 @@ GLFWwindow* window;
 #define LAPTOP 8
 #define BUTTON 9
 #define DOOR 10
+#define ARMCHAIR 11
 // esquerda
 glm::vec4 w;
 glm::vec4 u;
@@ -337,9 +338,10 @@ int main(int argc, char* argv[])
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
+    /*
     ObjModel bunnymodel("../../data/bunny.obj");
     ComputeNormals(&bunnymodel);
-    BuildTrianglesAndAddToVirtualScene(&bunnymodel);
+    BuildTrianglesAndAddToVirtualScene(&bunnymodel);*/
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -353,9 +355,9 @@ int main(int argc, char* argv[])
     ComputeNormals(&rightwallmodel);
     BuildTrianglesAndAddToVirtualScene(&rightwallmodel);
 
-    ObjModel safeboxmodel("../../data/safebox.obj");
-    ComputeNormals(&safeboxmodel);
-    BuildTrianglesAndAddToVirtualScene(&safeboxmodel);
+    /*ObjModel armchairmodel("../../data/lauraarmchair2.obj","../../data/");
+    ComputeNormals(&armchairmodel);
+    BuildTrianglesAndAddToVirtualScene(&armchairmodel);*/
 
     ObjModel cowmodel("../../data/cow.obj");
     ComputeNormals(&cowmodel);
@@ -373,8 +375,6 @@ int main(int argc, char* argv[])
     ObjModel bomb("../../data/bomb.obj","../../data/");
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
-
-
 
 	ObjModel door("../../data/door.obj", "../../data/");
     ComputeNormals(&door);
@@ -766,7 +766,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. è estranho pq eu testei a testura no laptop e funciona, na msa é que não rola. Ve se tu consegue daii
-    DrawVirtualObject("coffee_table");
+    DrawVirtualObject("coffee_table"); //oi cata! saaad, tentarei!
     g_VirtualScene["coffee_table"].model_matrix = Matrix_Translate(+3.05f, -1.025f, -1.225f)
                                                     * Matrix_Scale(0.002f, 0.002f, 0.002f);
     roomObjects.push_back("coffee_table");
@@ -796,7 +796,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     g_VirtualScene["Cylinder010"].model_matrix = Matrix_Translate(-2.05f, -0.9f, -1.225f)
                                                 * Matrix_Scale(0.02f, 0.02f, 0.02f);
     DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
-    roomObjects.push_back("Cylinder010");
+    roomObjects.push_back("Cylinder010"); //oi cata, nao tive tempo, mas depois eu tentarei
 
 
     model = Matrix_Translate(-2.5f, -0.67f, -4.2f)
@@ -805,6 +805,12 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, DOOR);
     DrawVirtualObject("Cube");
+
+    /*model = Matrix_Translate(2.0f,-0.4f,2.0f)
+            * Matrix_Scale(10.0f, 10.5f, 10.5f);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, ARMCHAIR);
+    DrawVirtualObject("new");*/ //nao funfou uma cadeira tri que eu fiz, mas um dia talvez!
 
     float cowLenght = 1.0f;
     float cowWidth = 0.5f;
@@ -833,7 +839,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
                                 cowCenter.y + cowHeight*scaleCoef/2.0f,
                                 cowCenter.z + cowLenght*scaleCoef/2.0f);
 
-    glm::vec3 centerSphere = glm::vec3(1.0f, 0.8f,1.0f);
+    glm::vec3 centerSphere = glm::vec3(-2.5f, -0.7f,-3.7f);
     float sphereRadius = 0.5f;
     float sphereScaleCoef = 0.3f;
     //Matrix_Translate(1.0f,-0.5f,-1.0f)
