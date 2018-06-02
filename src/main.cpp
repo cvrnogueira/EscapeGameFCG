@@ -355,10 +355,6 @@ int main(int argc, char* argv[])
     ComputeNormals(&rightwallmodel);
     BuildTrianglesAndAddToVirtualScene(&rightwallmodel);
 
-    /*ObjModel armchairmodel("../../data/lauraarmchair2.obj","../../data/");
-    ComputeNormals(&armchairmodel);
-    BuildTrianglesAndAddToVirtualScene(&armchairmodel);*/
-
     ObjModel cowmodel("../../data/cow.obj");
     ComputeNormals(&cowmodel);
     BuildTrianglesAndAddToVirtualScene(&cowmodel);
@@ -379,6 +375,11 @@ int main(int argc, char* argv[])
 	ObjModel door("../../data/door.obj", "../../data/");
     ComputeNormals(&door);
     BuildTrianglesAndAddToVirtualScene(&door);
+
+
+	ObjModel armchair("../../data/3dstylish-fav001.obj", "../../data/");
+    ComputeNormals(&armchair);
+    BuildTrianglesAndAddToVirtualScene(&armchair);
 
 
 
@@ -806,11 +807,20 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, DOOR);
     DrawVirtualObject("Cube");
 
-    /*model = Matrix_Translate(2.0f,-0.4f,2.0f)
-            * Matrix_Scale(10.0f, 10.5f, 10.5f);
+    model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+            * Matrix_Scale(0.04f, 0.04f, 0.04f)
+            * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
-    DrawVirtualObject("new");*/ //nao funfou uma cadeira tri que eu fiz, mas um dia talvez!
+    DrawVirtualObject("Line02");
+     roomObjects.push_back("Line02");
+           model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+            * Matrix_Scale(0.04f, 0.04f, 0.04f)
+            * Matrix_Rotate_Y(1 * PI / 2);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, ARMCHAIR);
+    DrawVirtualObject("cuadrado");
+     roomObjects.push_back("cuadrado");
 
     float cowLenght = 1.0f;
     float cowWidth = 0.5f;

@@ -220,8 +220,10 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
-    }else if (object_id == ARMCHAIR ) {
-        Kd = vec3(0.08,0.8,0.4);
+    }
+
+      else if (object_id == ARMCHAIR){
+             Kd = vec3(0.08,0.8,0.4);
         //Ks = vec3(0.8,0.8,0.8);
         Ka = Kd/2;
         //q = 32.0;
