@@ -183,7 +183,8 @@ struct SceneObject
     glm::vec3    bbox_max;
     glm::mat4    model_matrix;
 };
-struct Player {
+struct Player
+{
 
     glm::vec4 bbox_min = glm::vec4(-0.5f, -1.0f, -0.5f,1.0f);
     glm::vec4 bbox_max = glm::vec4(0.5f,0.5f,0.5f,1.0f);
@@ -234,9 +235,10 @@ glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 
 //vetores posicao
 glm::vec4 primitives[4] = { glm::vec4(-1.0f,0.0f,1.0f,1.0f),
-                         glm::vec4(1.0f,0.0f,1.0f,1.0f),
-                         glm::vec4(1.0f,0.0f,-1.0f,1.0f),
-                         glm::vec4(-1.0f,0.0f,-1.0f,1.0f) };
+                            glm::vec4(1.0f,0.0f,1.0f,1.0f),
+                            glm::vec4(1.0f,0.0f,-1.0f,1.0f),
+                            glm::vec4(-1.0f,0.0f,-1.0f,1.0f)
+                          };
 
 Plane roomPlanes[6];
 //bool checkCollisionCameraBBox(std::string objectName);
@@ -268,13 +270,13 @@ int main(int argc, char* argv[])
 
     window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
     ///SE DECOMENTAR VOLTA O MENU ///////////////////
-   /* const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-    window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);*/
+    /* const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+     glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+     window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
+     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);*/
     if (!window)
     {
         glfwTerminate();
@@ -331,7 +333,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_difuse_map.jpg"); // TextureImage5
     LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
-	LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
+    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
     LoadTextureImage("../../data/DoorUV.png"); //TextureImage19
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -372,12 +374,12 @@ int main(int argc, char* argv[])
     ComputeNormals(&bomb);
     BuildTrianglesAndAddToVirtualScene(&bomb);
 
-	ObjModel door("../../data/door.obj", "../../data/");
+    ObjModel door("../../data/door.obj", "../../data/");
     ComputeNormals(&door);
     BuildTrianglesAndAddToVirtualScene(&door);
 
 
-	ObjModel armchair("../../data/3dstylish-fav001.obj", "../../data/");
+    ObjModel armchair("../../data/3dstylish-fav001.obj", "../../data/");
     ComputeNormals(&armchair);
     BuildTrianglesAndAddToVirtualScene(&armchair);
 
@@ -405,7 +407,7 @@ int main(int argc, char* argv[])
     glm::mat4 the_projection;
     glm::mat4 the_model;
     glm::mat4 the_view;
-playGame();
+    playGame();
     /*while(true)
     {
         g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa projeção no meu, porque dai estamos usando essa aqui e a do jogo é a outra, logo usamos as duas!
@@ -494,7 +496,7 @@ void playGame()
 
 
         validaMovimento();
-             DrawLevel1(view, projection);
+        DrawLevel1(view, projection);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         TextRendering_ShowFramesPerSecond(window);
 
@@ -635,7 +637,8 @@ int menu()
     return selectPos;
 
 }
-Plane getPlaneEquation(glm::mat4 model) {
+Plane getPlaneEquation(glm::mat4 model)
+{
 
     glm::vec4 origin = glm::vec4(0.0f,0.0f,0.0f,1.0f);
     glm::vec4 finalPoint[4] = {origin,origin,origin,origin};
@@ -673,7 +676,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
 
-     //chao
+    //chao
     model = Matrix_Translate(0.0f,-1.0f,0.0f)
             * Matrix_Scale(4.0f, 1.0f, 4.0f);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -687,7 +690,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     std::cout << roomPlanes[0].normal.y << std::endl;
     std::cout << roomPlanes[0].normal.z << std::endl;*/
 
-     // teto
+    // teto
     model = Matrix_Translate(0.0f,1.0f,0.0f)
             * Matrix_Scale(4.0f, 1.0f, 4.0f)
             * Matrix_Rotate_X(M_PI);
@@ -754,10 +757,10 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, WALL);
     DrawVirtualObject("plane");
     roomPlanes[5] = getPlaneEquation(model);
-   /* std::cout << "frente" << std::endl;
-    std::cout << roomPlanes[5].normal.x << std::endl;
-    std::cout << roomPlanes[5].normal.y << std::endl;
-    std::cout << roomPlanes[5].normal.z << std::endl;*/
+    /* std::cout << "frente" << std::endl;
+     std::cout << roomPlanes[5].normal.x << std::endl;
+     std::cout << roomPlanes[5].normal.y << std::endl;
+     std::cout << roomPlanes[5].normal.z << std::endl;*/
 
     // COFFEE TABLE
 
@@ -769,7 +772,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. è estranho pq eu testei a testura no laptop e funciona, na msa é que não rola. Ve se tu consegue daii
     DrawVirtualObject("coffee_table"); //oi cata! saaad, tentarei!
     g_VirtualScene["coffee_table"].model_matrix = Matrix_Translate(+3.05f, -1.025f, -1.225f)
-                                                    * Matrix_Scale(0.002f, 0.002f, 0.002f);
+            * Matrix_Scale(0.002f, 0.002f, 0.002f);
     roomObjects.push_back("coffee_table");
 
     //laptop
@@ -795,7 +798,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
     g_VirtualScene["Cylinder010"].model_matrix = Matrix_Translate(-2.05f, -0.9f, -1.225f)
-                                                * Matrix_Scale(0.02f, 0.02f, 0.02f);
+            * Matrix_Scale(0.02f, 0.02f, 0.02f);
     DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
     roomObjects.push_back("Cylinder010"); //oi cata, nao tive tempo, mas depois eu tentarei
 
@@ -812,15 +815,19 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
             * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
+    g_VirtualScene["Line02"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+                                            * Matrix_Scale(0.04f, 0.04f, 0.04f);
     DrawVirtualObject("Line02");
-     roomObjects.push_back("Line02");
-           model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+    roomObjects.push_back("Line02");
+    model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
             * Matrix_Scale(0.04f, 0.04f, 0.04f)
             * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
+    g_VirtualScene["cuadrado"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+            * Matrix_Scale(0.04f, 0.04f, 0.04f);
     DrawVirtualObject("cuadrado");
-     roomObjects.push_back("cuadrado");
+    roomObjects.push_back("cuadrado");
 
     float cowLenght = 1.0f;
     float cowWidth = 0.5f;
@@ -831,7 +838,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
             * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
-            //* Matrix_Rotate_Y(M_PI_2); //cuidado ao girar por numero negativo
+    //* Matrix_Rotate_Y(M_PI_2); //cuidado ao girar por numero negativo
 
     //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -839,7 +846,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     DrawVirtualObject("cow");
 
     g_VirtualScene["cow"].model_matrix = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
-                                        * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
+                                         * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
     roomObjects.push_back("cow");
 
     cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
@@ -869,45 +876,49 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     g_VirtualScene["sphere"].model_matrix = model;
     roomObjects.push_back("sphere");
 }
-bool collisionCameraBBoxObjecBBox(std::string objectName) {
+bool collisionCameraBBoxObjecBBox(std::string objectName)
+{
 
 
     glm::vec4 objBBox_max = g_VirtualScene[objectName].model_matrix * glm::vec4(g_VirtualScene[objectName].bbox_max.x,
-                                                                           g_VirtualScene[objectName].bbox_max.y,
-                                                                           g_VirtualScene[objectName].bbox_max.z,
-                                                                           1.0f);
+                            g_VirtualScene[objectName].bbox_max.y,
+                            g_VirtualScene[objectName].bbox_max.z,
+                            1.0f);
     glm::vec4 objBBox_min = g_VirtualScene[objectName].model_matrix * glm::vec4(g_VirtualScene[objectName].bbox_min.x,
-                                                                           g_VirtualScene[objectName].bbox_min.y,
-                                                                           g_VirtualScene[objectName].bbox_min.z,
-                                                                           1.0f);
+                            g_VirtualScene[objectName].bbox_min.y,
+                            g_VirtualScene[objectName].bbox_min.z,
+                            1.0f);
 
-/*    std::cout << "PLAYER Xmin = " << player.bbox_min.x << std::endl;
-    std::cout << "PLAYER Ymin = " << player.bbox_min.y << std::endl;
-    std::cout << "PLAYER Zmin = " << player.bbox_min.z << std::endl;
+    /*    std::cout << "PLAYER Xmin = " << player.bbox_min.x << std::endl;
+        std::cout << "PLAYER Ymin = " << player.bbox_min.y << std::endl;
+        std::cout << "PLAYER Zmin = " << player.bbox_min.z << std::endl;
 
-    std::cout << "PLAYER Xmax = " << player.bbox_max.x << std::endl;
-    std::cout << "PLAYER Ymax = " << player.bbox_max.y << std::endl;
-    std::cout << "PLAYER Zmax = " << player.bbox_max.z << std::endl;
+        std::cout << "PLAYER Xmax = " << player.bbox_max.x << std::endl;
+        std::cout << "PLAYER Ymax = " << player.bbox_max.y << std::endl;
+        std::cout << "PLAYER Zmax = " << player.bbox_max.z << std::endl;
 
-    std::cout << "OBJ minX = " << objBBox_min.x << std::endl;
-    std::cout << "OBJ minY = " << objBBox_min.y << std::endl;
-    std::cout << "OBJ minZ = " << objBBox_min.z << std::endl;
+        std::cout << "OBJ minX = " << objBBox_min.x << std::endl;
+        std::cout << "OBJ minY = " << objBBox_min.y << std::endl;
+        std::cout << "OBJ minZ = " << objBBox_min.z << std::endl;
 
-    std::cout << "OBJ maxX = " << objBBox_max.x << std::endl;
-    std::cout << "OBJ maxY = " << objBBox_max.y << std::endl;
-    std::cout << "OBJ maxZ = " << objBBox_max.z << std::endl;*/
+        std::cout << "OBJ maxX = " << objBBox_max.x << std::endl;
+        std::cout << "OBJ maxY = " << objBBox_max.y << std::endl;
+        std::cout << "OBJ maxZ = " << objBBox_max.z << std::endl;*/
 
 
     glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
     glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
 
     return (playerbbox_max.x > objBBox_min.x && playerbbox_min.x < objBBox_max.x) &&
-            (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
-            (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
+           (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
+           (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
 }
-bool checkCollisionAllRoomObjects(){
-    for(std::string objectName : roomObjects) {
-        if (collisionCameraBBoxObjecBBox(objectName)) {
+bool checkCollisionAllRoomObjects()
+{
+    for(std::string objectName : roomObjects)
+    {
+        if (collisionCameraBBoxObjecBBox(objectName))
+        {
             return true;
         }
     }
@@ -947,7 +958,7 @@ void movimento()
         step = true;
     }
     // Movimento Vertical
-	if (colisaoChao)
+    if (colisaoChao)
     {
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
@@ -956,16 +967,18 @@ void movimento()
             }
 
         if (teclas[GLFW_KEY_SPACE])
-		{
-			velocidadeY = 1.0f;
-		}
+        {
+            velocidadeY = 1.0f;
+        }
     }
-	novoPos_char.y += velocidadeY * deltaTempo;
-	velocidadeY -= 1.0f * deltaTempo;
+    novoPos_char.y += velocidadeY * deltaTempo;
+    velocidadeY -= 1.0f * deltaTempo;
 }
 
-bool collided() {
-    for (int cont =2; cont <= 5; cont ++) {
+bool collided()
+{
+    for (int cont =2; cont <= 5; cont ++)
+    {
         float A = roomPlanes[cont].normal.x;
         float B = roomPlanes[cont].normal.y;
         float C = roomPlanes[cont].normal.z;
@@ -974,7 +987,8 @@ bool collided() {
         float y = novoPos_char.y;
         float z = novoPos_char.z;
 
-        if (fabs(x*A + y*B + z*C + D) < 0.3) {
+        if (fabs(x*A + y*B + z*C + D) < 0.3)
+        {
             std::cout << " colidiu" << std::endl;
             std::cout << " conta = " << (x*A + y*B + z*C + D) << std::endl;
             std::cout << "cont = " << cont << std::endl;
@@ -990,7 +1004,8 @@ bool collided() {
     }
     return false;
 }
-void updateBBox() {
+void updateBBox()
+{
 
     player.bbox_max = glm::vec4(pos_char.x + 0.5f, pos_char.y + 0.5f, pos_char.z + 0.5f, 1.0f);
     player.bbox_min = glm::vec4(pos_char.x - 0.5f, pos_char.y - 1.0f, pos_char.z - 0.5f, 1.0f);
@@ -999,7 +1014,7 @@ void updateBBox() {
 void validaMovimento()
 {
     testaColisao = true;
-	colisaoChao = false;
+    colisaoChao = false;
 
     if (!collided() && !checkCollisionAllRoomObjects())
     {
@@ -1014,27 +1029,27 @@ void validaMovimento()
         novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
     }
-	/// Teste com o plano chao( y <=0 é se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
-	///O movimento vertical é meio foda pq ele usa aquele troço de animação que o sor fez na aula, lembra?
-	///além disso essa função aqui validamovimento() testa se houve colisao, pq tipo, quando tiver colisao com o chao oo personagem para de cair sabe
-	///isso n faria sentido ficar na de cima a movimento() que só soma constantes ao movimento. Na movimento() fica, por exemplo, a soma daqueilo de velocidade que vimos na aula
-	///que é computado nas linhas que tu tinha comentado.
-	///ela precisa ficar fora do if pq naquele caso ali ela não vai ter colisao com o chão e precisa entrar naquelas duas linhas, pq elas é que calculam a velocidade como vimos na aula
-	///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente terça eu te falo
+    /// Teste com o plano chao( y <=0 é se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
+    ///O movimento vertical é meio foda pq ele usa aquele troço de animação que o sor fez na aula, lembra?
+    ///além disso essa função aqui validamovimento() testa se houve colisao, pq tipo, quando tiver colisao com o chao oo personagem para de cair sabe
+    ///isso n faria sentido ficar na de cima a movimento() que só soma constantes ao movimento. Na movimento() fica, por exemplo, a soma daqueilo de velocidade que vimos na aula
+    ///que é computado nas linhas que tu tinha comentado.
+    ///ela precisa ficar fora do if pq naquele caso ali ela não vai ter colisao com o chão e precisa entrar naquelas duas linhas, pq elas é que calculam a velocidade como vimos na aula
+    ///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente terça eu te falo
 
-	///OBS: se quisermos deixar o personagem subir nas mesas e pa dá p fazer facil, mas como ainda os objetos n tem colisao n dá p fazer
-	if (novoPos_char.y <= 0)
-	{
-		colisaoChao = true;
+    ///OBS: se quisermos deixar o personagem subir nas mesas e pa dá p fazer facil, mas como ainda os objetos n tem colisao n dá p fazer
+    if (novoPos_char.y <= 0)
+    {
+        colisaoChao = true;
 
-	}
-	if (colisaoChao)
-	{
-		novoPos_char.y = pos_char.y;
-		velocidadeY = 0.0f;
-	}
-	else
-		pos_char.y = novoPos_char.y;
+    }
+    if (colisaoChao)
+    {
+        novoPos_char.y = pos_char.y;
+        velocidadeY = 0.0f;
+    }
+    else
+        pos_char.y = novoPos_char.y;
 
 }
 
@@ -1670,12 +1685,12 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         g_MiddleMouseButtonPressed = false;
     }
     //deixa essa funcao ai, lau, pls. q eu vou usar ela p ver se a pessoa clicou no note
-   // if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    // if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     //{
-      // double xpos, ypos;
-       //getting cursor position
-      // glfwGetCursorPos(window, &xpos, &ypos);
-       //cout << "Cursor Position at (" << xpos << " : " << ypos << endl;
+    // double xpos, ypos;
+    //getting cursor position
+    // glfwGetCursorPos(window, &xpos, &ypos);
+    //cout << "Cursor Position at (" << xpos << " : " << ypos << endl;
     //}
 }
 
