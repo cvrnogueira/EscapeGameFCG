@@ -55,9 +55,11 @@
 			<Add option="-Wall" />
 			<Add option="-Wno-unused-function" />
 			<Add directory="include" />
+			<Add directory="include/irrklang" />
 		</Compiler>
 		<Linker>
 			<Add option="lib\libglfw3.a -lgdi32 -lopengl32" />
+			<Add library="lib/libirrKlang.a" />
 			<Add directory="lib" />
 		</Linker>
 		<Unit filename="Game.hpp" />
