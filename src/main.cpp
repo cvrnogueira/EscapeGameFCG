@@ -28,12 +28,20 @@
 
 #include <stb_image.h>
 
+// Bibliotecas audio
+#include <irrklang/include/irrKlang.h>
+
 // Headers locais, definidos na pasta "include/"
 #include "utils.h"
 #include "matrices.h"
 
+
 #define M_PI_2 1.57079632679489661923
 #define M_PI   3.14159265358979323846
+
+using namespace irrklang;
+ISoundEngine* engine =createIrrKlangDevice();
+
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -319,6 +327,7 @@ int main(int argc, char* argv[])
 
     printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, renderer, glversion, glslversion);
 
+
     LoadShadersFromFiles();
 
     // Carregamos duas imagens para serem utilizadas como textura
@@ -444,6 +453,8 @@ void playGame()
         fprintf(stderr, "ERROR: glfwInit() failed.\n");
         std::exit(EXIT_FAILURE);
     }
+
+    engine->setSoundVolume(0.7);
 
 // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -963,11 +974,13 @@ void movimento()
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
             {
+               engine->play2D("../../data/audio/Footstep.wav");
                 tempoLastStep = 0;
             }
 
         if (teclas[GLFW_KEY_SPACE])
         {
+            engine->play2D("../../data/audio/jump.wav");
             velocidadeY = 1.0f;
         }
     }
