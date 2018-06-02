@@ -134,6 +134,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection);
 float velocidadeY = 0.0f;
 bool firstMouse = true;
 bool colisaoChao = true;
+bool stopPassos = true;
 bool testaColisao = false; // Inicializado com false, só muda qnd tem movimentação
 float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
@@ -974,13 +975,13 @@ void movimento()
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
             {
-               engine->play2D("../../data/audio/Footstep.wav");
+               if(stopPassos ==false) engine->play2D("../../data/audio/Footstep.wav");
                 tempoLastStep = 0;
             }
 
         if (teclas[GLFW_KEY_SPACE])
         {
-            engine->play2D("../../data/audio/jump.wav");
+            if(stopPassos ==false) engine->play2D("../../data/audio/jump.wav");
             velocidadeY = 1.0f;
         }
     }
@@ -1031,13 +1032,14 @@ void validaMovimento()
 
     if (!collided() && !checkCollisionAllRoomObjects())
     {
-
+        stopPassos = false;
         pos_char.x = novoPos_char.x;
         pos_char.z = novoPos_char.z;
         updateBBox();
     }
     else
     {
+         stopPassos = true;
         std::cout << " colidiu com algum obj" << std::endl;
         novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
