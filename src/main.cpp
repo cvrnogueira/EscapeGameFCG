@@ -183,7 +183,7 @@ float g_AngleY = 0.0f;
 
 
 
-#define SECONDS 10
+#define SECONDS 300
 
 // esquerda
 glm::vec4 w;
@@ -1450,7 +1450,7 @@ void ComputeNormals(ObjModel* model)
 
 void fimJogo()
 {
-
+//TODO: testar dai se o player acabou o jogo perdendo ou n
 
     float startPos = -0.5f;
     float startSize = 2.5f;
@@ -1567,8 +1567,8 @@ void fimJogo()
         glUniform1i(object_id_uniform, SPHERE2);
         DrawVirtualObject("sphere");
 
-
-        TextRendering_PrintString(window, "Tic tac, a bomba explodiu! Você saiu do mundo :(", 0.0f, startPos, startSize);
+        if(lostGame == true) TextRendering_PrintString(window, "Tic tac, a bomba explodiu! Você saiu do mundo :(", 0.0f, startPos, startSize);
+        else TextRendering_PrintString(window, "Parabéns! Você continua nesse mundo :)", 0.0f, startPos, startSize);
         TextRendering_PrintString(window, "Sair", 0.0f, exitPos, exitSize);
 
         glfwSwapBuffers(window);
