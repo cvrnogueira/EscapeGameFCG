@@ -34,7 +34,7 @@ uniform mat4 projection;
 #define DOOR 10
 #define ARMCHAIR 11
 #define AXES 12
-#define COW2 12
+#define COW2 13
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
