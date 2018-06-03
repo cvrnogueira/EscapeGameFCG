@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include<iostream>
-// Headers abaixo s√£o espec√≠ficos de C++
+// Headers abaixo s„o especÌficos de C++
 #include <map>
 #include <stack>
 #include <string>
@@ -15,10 +15,10 @@
 #include <algorithm>
 
 // Headers das bibliotecas OpenGL
-#include <glad/glad.h>   // Cria√ß√£o de contexto OpenGL 3.3
-#include <GLFW/glfw3.h>  // Cria√ß√£o de janelas do sistema operacional
+#include <glad/glad.h>   // CriaÁ„o de contexto OpenGL 3.3
+#include <GLFW/glfw3.h>  // CriaÁ„o de janelas do sistema operacional
 
-// Headers da biblioteca GLM: cria√ß√£o de matrizes e vetores.
+// Headers da biblioteca GLM: criaÁ„o de matrizes e vetores.
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -44,7 +44,7 @@ ISoundEngine* engine =createIrrKlangDevice();
 
 
 
-// Estrutura que representa um modelo geom√©trico carregado a partir de um
+// Estrutura que representa um modelo geomÈtrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
 struct ObjModel
 {
@@ -52,7 +52,7 @@ struct ObjModel
     std::vector<tinyobj::shape_t>     shapes;
     std::vector<tinyobj::material_t>  materials;
 
-    // Este construtor l√™ o modelo de um arquivo utilizando a biblioteca tinyobjloader.
+    // Este construtor lÍ o modelo de um arquivo utilizando a biblioteca tinyobjloader.
     // Veja: https://github.com/syoyo/tinyobjloader
     ObjModel(const char* filename, const char* basepath = NULL, bool triangulate = true)
     {
@@ -72,25 +72,25 @@ struct ObjModel
 };
 
 
-// Declara√ß√£o de fun√ß√µes utilizadas para pilha de matrizes de modelagem.
+// DeclaraÁ„o de funÁıes utilizadas para pilha de matrizes de modelagem.
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
 
-// Declara√ß√£o de v√°rias fun√ß√µes utilizadas em main().  Essas est√£o definidas
-// logo ap√≥s a defini√ß√£o de main() neste arquivo.
-void BuildTrianglesAndAddToVirtualScene(ObjModel*); // Constr√≥i representa√ß√£o de um ObjModel como malha de tri√¢ngulos para renderiza√ß√£o
-void ComputeNormals(ObjModel* model); // Computa normais de um ObjModel, caso n√£o existam.
-void LoadShadersFromFiles(); // Carrega os shaders de v√©rtice e fragmento, criando um programa de GPU
-void LoadTextureImage(const char* filename); // Fun√ß√£o que carrega imagens de textura
+// DeclaraÁ„o de v·rias funÁıes utilizadas em main().  Essas est„o definidas
+// logo apÛs a definiÁ„o de main() neste arquivo.
+void BuildTrianglesAndAddToVirtualScene(ObjModel*); // ConstrÛi representaÁ„o de um ObjModel como malha de tri‚ngulos para renderizaÁ„o
+void ComputeNormals(ObjModel* model); // Computa normais de um ObjModel, caso n„o existam.
+void LoadShadersFromFiles(); // Carrega os shaders de vÈrtice e fragmento, criando um programa de GPU
+void LoadTextureImage(const char* filename); // FunÁ„o que carrega imagens de textura
 void DrawVirtualObject(const char* object_name); // Desenha um objeto armazenado em g_VirtualScene
 GLuint LoadShader_Vertex(const char* filename);   // Carrega um vertex shader
 GLuint LoadShader_Fragment(const char* filename); // Carrega um fragment shader
-void LoadShader(const char* filename, GLuint shader_id); // Fun√ß√£o utilizada pelas duas acima
+void LoadShader(const char* filename, GLuint shader_id); // FunÁ„o utilizada pelas duas acima
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id); // Cria um programa de GPU
-void PrintObjModelInfo(ObjModel*); // Fun√ß√£o para debugging
+void PrintObjModelInfo(ObjModel*); // FunÁ„o para debugging
 
-// Declara√ß√£o de fun√ß√µes auxiliares para renderizar texto dentro da janela
-// OpenGL. Estas fun√ß√µes est√£o definidas no arquivo "textrendering.cpp".
+// DeclaraÁ„o de funÁıes auxiliares para renderizar texto dentro da janela
+// OpenGL. Estas funÁıes est„o definidas no arquivo "textrendering.cpp".
 void TextRendering_Init();
 float TextRendering_LineHeight(GLFWwindow* window);
 float TextRendering_CharWidth(GLFWwindow* window);
@@ -100,47 +100,47 @@ void TextRendering_PrintVector(GLFWwindow* window, glm::vec4 v, float x, float y
 void TextRendering_PrintMatrixVectorProduct(GLFWwindow* window, glm::mat4 M, glm::vec4 v, float x, float y, float scale = 1.0f);
 void TextRendering_PrintMatrixVectorProductDivW(GLFWwindow* window, glm::mat4 M, glm::vec4 v, float x, float y, float scale = 1.0f);
 
-// Fun√ß√µes abaixo renderizam como texto na janela OpenGL algumas matrizes e
-// outras informa√ß√µes do programa. Definidas ap√≥s main().
+// FunÁıes abaixo renderizam como texto na janela OpenGL algumas matrizes e
+// outras informaÁıes do programa. Definidas apÛs main().
 void TextRendering_ShowModelViewProjection(GLFWwindow* window, glm::mat4 projection, glm::mat4 view, glm::mat4 model, glm::vec4 p_model);
 void TextRendering_ShowEulerAngles(GLFWwindow* window);
 void TextRendering_ShowProjection(GLFWwindow* window);
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window);
 
-// Fun√ß√µes callback para comunica√ß√£o com o sistema operacional e intera√ß√£o do
-// usu√°rio. Veja mais coment√°rios nas defini√ß√µes das mesmas, abaixo.
+// FunÁıes callback para comunicaÁ„o com o sistema operacional e interaÁ„o do
+// usu·rio. Veja mais coment·rios nas definiÁıes das mesmas, abaixo.
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void ErrorCallback(int error, const char* description);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-//====================================================================DEFINI√á√ïES QUE A CATA FEZ AGR=======================================================
+//====================================================================DEFINI«’ES QUE A CATA FEZ AGR=======================================================
 //PARA CAMERA E MOVIMENTO
 
 #define PI 3.14159265
-glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Posi√ß√£o do Personagem (character) e, consequentemente, da c√¢mera
+glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // PosiÁ„o do Personagem (character) e, consequentemente, da c‚mera
 glm::vec4 novoPos_char = glm::vec4(0.0f,0.0f,0.0f,1.0f);
-glm::vec4 front_vector = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f); // Vetor de dire√ß√£o de visualiza√ß√£o do personagem e, consequentemente, da c√¢mera
-glm::vec4 up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor up da c√¢mera
+glm::vec4 front_vector = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f); // Vetor de direÁ„o de visualizaÁ„o do personagem e, consequentemente, da c‚mera
+glm::vec4 up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor up da c‚mera
 void movimento();
 float deltaTempo = 0.0f;
 float ultimaFrame = 0.0f;
 float tempoLastStep = 0.0f;
 float tempoLastTransport = 0.0f;
 float field_of_view = PI / 3.0f;
-bool teclas[200]; // Vetor que Armazena se teclas foram pressionadas, usando-se o √≠ndice do vetor para identificar a tecla em si
+bool teclas[200]; // Vetor que Armazena se teclas foram pressionadas, usando-se o Ìndice do vetor para identificar a tecla em si
 void DrawLevel1(glm::mat4 view, glm::mat4 projection);
 float velocidadeY = 0.0f;
 bool firstMouse = true;
 bool colisaoChao = true;
 bool stopPassos = true;
-bool testaColisao = false; // Inicializado com false, s√≥ muda qnd tem movimenta√ß√£o
-float g_CameraTheta = 0.0f; // √Çngulo no plano ZX em rela√ß√£o ao eixo Z
-float g_CameraPhi = 0.0f;   // √Çngulo em rela√ß√£o ao eixo Y
-float g_CameraDistance = 3.5f; // Dist√¢ncia da c√¢mera para a origem
+bool testaColisao = false; // Inicializado com false, sÛ muda qnd tem movimentaÁ„o
+float g_CameraTheta = 0.0f; // ¬ngulo no plano ZX em relaÁ„o ao eixo Z
+float g_CameraPhi = 0.0f;   // ¬ngulo em relaÁ„o ao eixo Y
+float g_CameraDistance = 3.5f; // Dist‚ncia da c‚mera para a origem
 bool g_UsePerspectiveProjection = true;
-// Raz√£o de propor√ß√£o da janela (largura/altura). Veja fun√ß√£o FramebufferSizeCallback().
+// Raz„o de proporÁ„o da janela (largura/altura). Veja funÁ„o FramebufferSizeCallback().
 float g_ScreenRatio = 1.0f;
 void validaMovimento();
 void playGame();
@@ -159,7 +159,7 @@ double actualSecond;
 void atualizaPulo();
 int startJump = 0;
 GLFWwindow* window;
-//====================================================================DEFINI√á√ïES QUE A CATA FEZ AGR=======================================================
+//====================================================================DEFINI«’ES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
 #define FLOOR 1
 #define CEILING 2
@@ -172,22 +172,28 @@ GLFWwindow* window;
 #define BUTTON 9
 #define DOOR 10
 #define ARMCHAIR 11
+#define AXES 12
+
+
+
+#define SECONDS 10
+
 // esquerda
 glm::vec4 w;
 glm::vec4 u;
-bool checkCollisionCowSphere() ;
-void printBBoxesToDebug() ;
+
+void BuildLine();
 
 
-// Definimos uma estrutura que armazenar√° dados necess√°rios para renderizar
+// Definimos uma estrutura que armazenar· dados necess·rios para renderizar
 // cada objeto da cena virtual.
 struct SceneObject
 {
     std::string  name;        // Nome do objeto
-    void*        first_index; // √çndice do primeiro v√©rtice dentro do vetor indices[] definido em BuildTrianglesAndAddToVirtualScene()
-    int          num_indices; // N√∫mero de √≠ndices do objeto dentro do vetor indices[] definido em BuildTrianglesAndAddToVirtualScene()
-    GLenum       rendering_mode; // Modo de rasteriza√ß√£o (GL_TRIANGLES, GL_TRIANGLE_STRIP, etc.)
-    GLuint       vertex_array_object_id; // ID do VAO onde est√£o armazenados os atributos do modelo
+    void*        first_index; // Õndice do primeiro vÈrtice dentro do vetor indices[] definido em BuildTrianglesAndAddToVirtualScene()
+    int          num_indices; // N˙mero de Ìndices do objeto dentro do vetor indices[] definido em BuildTrianglesAndAddToVirtualScene()
+    GLenum       rendering_mode; // Modo de rasterizaÁ„o (GL_TRIANGLES, GL_TRIANGLE_STRIP, etc.)
+    GLuint       vertex_array_object_id; // ID do VAO onde est„o armazenados os atributos do modelo
     glm::vec3    bbox_min; // Axis-Aligned Bounding Box do objeto
     glm::vec3    bbox_max;
     glm::mat4    model_matrix;
@@ -205,25 +211,25 @@ struct Plane
     float d; ///distance os plane to origin. It is on plane equation
 };
 Player player;
-// Abaixo definimos vari√°veis globais utilizadas em v√°rias fun√ß√µes do c√≥digo.
+// Abaixo definimos vari·veis globais utilizadas em v·rias funÁıes do cÛdigo.
 
-// A cena virtual √© uma lista de objetos nomeados, guardados em um dicion√°rio
-// (map).  Veja dentro da fun√ß√£o BuildTrianglesAndAddToVirtualScene() como que s√£o inclu√≠dos
-// objetos dentro da vari√°vel g_VirtualScene, e veja na fun√ß√£o main() como
-// estes s√£o acessados.
+// A cena virtual È uma lista de objetos nomeados, guardados em um dicion·rio
+// (map).  Veja dentro da funÁ„o BuildTrianglesAndAddToVirtualScene() como que s„o incluÌdos
+// objetos dentro da vari·vel g_VirtualScene, e veja na funÁ„o main() como
+// estes s„o acessados.
 std::map<std::string, SceneObject> g_VirtualScene;
 
 
-// "g_LeftMouseButtonPressed = true" se o usu√°rio est√° com o bot√£o esquerdo do mouse
-// pressionado no momento atual. Veja fun√ß√£o MouseButtonCallback().
+// "g_LeftMouseButtonPressed = true" se o usu·rio est· com o bot„o esquerdo do mouse
+// pressionado no momento atual. Veja funÁ„o MouseButtonCallback().
 bool g_LeftMouseButtonPressed = false;
-bool g_RightMouseButtonPressed = false; // An√°logo para bot√£o direito do mouse
-bool g_MiddleMouseButtonPressed = false; // An√°logo para bot√£o do meio do mouse
+bool g_RightMouseButtonPressed = false; // An·logo para bot„o direito do mouse
+bool g_MiddleMouseButtonPressed = false; // An·logo para bot„o do meio do mouse
 
-// Vari√°vel que controla se o texto informativo ser√° mostrado na tela.
+// Vari·vel que controla se o texto informativo ser· mostrado na tela.
 bool g_ShowInfoText = true;
 
-// Vari√°veis que definem um programa de GPU (shaders). Veja fun√ß√£o LoadShadersFromFiles().
+// Vari·veis que definem um programa de GPU (shaders). Veja funÁ„o LoadShadersFromFiles().
 GLuint vertex_shader_id;
 GLuint fragment_shader_id;
 GLuint program_id = 0;
@@ -234,13 +240,9 @@ GLint object_id_uniform;
 GLint bbox_min_uniform;
 GLint bbox_max_uniform;
 
-// N√∫mero de texturas carregadas pela fun√ß√£o LoadTextureImage()
+// N˙mero de texturas carregadas pela funÁ„o LoadTextureImage()
 GLuint g_NumLoadedTextures = 0;
 
-glm::vec3 sphereTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
-glm::vec3 sphereBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
-glm::vec3 cowTopFrontLeft = glm::vec3(0.0f,0.0f,0.0f);
-glm::vec3 cowBottomBackRight = glm::vec3(0.0f,0.0f,0.0f);
 
 //vetores posicao
 glm::vec4 primitives[4] = { glm::vec4(-1.0f,0.0f,1.0f,1.0f),
@@ -254,6 +256,11 @@ Plane roomPlanes[6];
 bool collisionCameraBBoxObjecBBox(std::string objectName);
 bool checkCollisionAllRoomObjects();
 std::vector<std::string> roomObjects;
+bool isPointInsideBBOX(glm::vec3 point);
+
+int seconds = SECONDS; //tempo de jogo
+int time = (int)glfwGetTime();
+void updateTime();
 using namespace std;
 int main(int argc, char* argv[])
 {
@@ -266,15 +273,15 @@ int main(int argc, char* argv[])
         std::exit(EXIT_FAILURE);
     }
 
-    // Definimos o callback para impress√£o de erros da GLFW no terminal
+    // Definimos o callback para impress„o de erros da GLFW no terminal
     glfwSetErrorCallback(ErrorCallback);
 
-    // Pedimos para utilizar OpenGL vers√£o 3.3 (ou superior)
+    // Pedimos para utilizar OpenGL vers„o 3.3 (ou superior)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    // Pedimos para utilizar o perfil "core", isto √©, utilizaremos somente as
-    // fun√ß√µes modernas de OpenGL.
+    // Pedimos para utilizar o perfil "core", isto È, utilizaremos somente as
+    // funÁıes modernas de OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
@@ -293,34 +300,34 @@ int main(int argc, char* argv[])
         std::exit(EXIT_FAILURE);
     }
 
-    // Definimos a fun√ß√£o de callback que ser√° chamada sempre que o usu√°rio
+    // Definimos a funÁ„o de callback que ser· chamada sempre que o usu·rio
     // pressionar alguma tecla do teclado ...
     glfwSetKeyCallback(window, KeyCallback);
-    // ... ou clicar os bot√µes do mouse ...
+    // ... ou clicar os botıes do mouse ...
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
     // ... ou movimentar o cursor do mouse em cima da janela ...
     glfwSetCursorPosCallback(window, CursorPosCallback);
     // ... ou rolar a "rodinha" do mouse.
     glfwSetScrollCallback(window, ScrollCallback);
 
-    // Indicamos que as chamadas OpenGL dever√£o renderizar nesta janela
+    // Indicamos que as chamadas OpenGL dever„o renderizar nesta janela
     glfwMakeContextCurrent(window);
 
-    // Carregamento de todas fun√ß√µes definidas por OpenGL 3.3, utilizando a
+    // Carregamento de todas funÁıes definidas por OpenGL 3.3, utilizando a
     // biblioteca GLAD.
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
-    // Definimos a fun√ß√£o de callback que ser√° chamada sempre que a janela for
-    // redimensionada, por consequ√™ncia alterando o tamanho do "framebuffer"
-    // (regi√£o de mem√≥ria onde s√£o armazenados os pixels da imagem).
+    // Definimos a funÁ„o de callback que ser· chamada sempre que a janela for
+    // redimensionada, por consequÍncia alterando o tamanho do "framebuffer"
+    // (regi„o de memÛria onde s„o armazenados os pixels da imagem).
     ///MENU- DESCOMENTAR PRO MENU
     /*
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-    FramebufferSizeCallback(window, mode->width, mode->height); // For√ßamos a chamada do callback acima, para definir g_ScreenRatio.*/
+    FramebufferSizeCallback(window, mode->width, mode->height); // ForÁamos a chamada do callback acima, para definir g_ScreenRatio.*/
     FramebufferSizeCallback(window, 800, 600);//
 
-    // Imprimimos no terminal informa√ß√µes sobre a GPU do sistema
+    // Imprimimos no terminal informaÁıes sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
     const GLubyte *renderer    = glGetString(GL_RENDERER);
     const GLubyte *glversion   = glGetString(GL_VERSION);
@@ -345,7 +352,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
     LoadTextureImage("../../data/DoorUV.png"); //TextureImage19
-    // Constru√≠mos a representa√ß√£o de objetos geom√©tricos atrav√©s de malhas de tri√¢ngulos
+    // ConstruÌmos a representaÁ„o de objetos geomÈtricos atravÈs de malhas de tri‚ngulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
@@ -393,6 +400,7 @@ int main(int argc, char* argv[])
     ComputeNormals(&armchair);
     BuildTrianglesAndAddToVirtualScene(&armchair);
 
+    BuildLine();
 
 
     if ( argc > 1 )
@@ -401,18 +409,18 @@ int main(int argc, char* argv[])
         BuildTrianglesAndAddToVirtualScene(&model);
     }
 
-    // Inicializamos o c√≥digo para renderiza√ß√£o de texto.
+    // Inicializamos o cÛdigo para renderizaÁ„o de texto.
     TextRendering_Init();
 
     // Habilitamos o Z-buffer. Veja slide 66 do documento "Aula_13_Clipping_and_Culling.pdf".
     glEnable(GL_DEPTH_TEST);
 
-    // Habilitamos o Backface Culling. Veja slides 22 √† 34 do documento "Aula_13_Clipping_and_Culling.pdf".
+    // Habilitamos o Backface Culling. Veja slides 22 ‡ 34 do documento "Aula_13_Clipping_and_Culling.pdf".
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    // Vari√°veis auxiliares utilizadas para chamada √† fun√ß√£o
+    // Vari·veis auxiliares utilizadas para chamada ‡ funÁ„o
     // TextRendering_ShowModelViewProjection(), armazenando matrizes 4x4.
     glm::mat4 the_projection;
     glm::mat4 the_model;
@@ -420,7 +428,7 @@ int main(int argc, char* argv[])
     playGame();
     /*while(true)
     {
-        g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa proje√ß√£o no meu, porque dai estamos usando essa aqui e a do jogo √© a outra, logo usamos as duas!
+        g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa projeÁ„o no meu, porque dai estamos usando essa aqui e a do jogo È a outra, logo usamos as duas!
         int opMenu = menu();
         switch(opMenu)
         {
@@ -457,48 +465,48 @@ void playGame()
 
     engine->setSoundVolume(0.7);
 
-// Ficamos em loop, renderizando, at√© que o usu√°rio feche a janela
+// Ficamos em loop, renderizando, atÈ que o usu·rio feche a janela
     while (!glfwWindowShouldClose(window))
     {
 
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
-        // os shaders de v√©rtice e fragmentos).
-        // os shaders de v√©rtice e fragmentos).
+        // os shaders de vÈrtice e fragmentos).
+        // os shaders de vÈrtice e fragmentos).
         float tempoAtual = glfwGetTime();
         deltaTempo = tempoAtual - ultimaFrame;
         ultimaFrame = tempoAtual;
 
 
-        // Computamos a matriz "View" utilizando os par√¢metros da c√¢mera para
-        // definir o sistema de coordenadas da c√¢mera.  Veja slide 162 do
+        // Computamos a matriz "View" utilizando os par‚metros da c‚mera para
+        // definir o sistema de coordenadas da c‚mera.  Veja slide 162 do
         // documento "Aula_08_Sistemas_de_Coordenadas.pdf".
         glm::mat4 view = Matrix_Camera_View(pos_char, front_vector, up_vector);
-        // Agora computamos a matriz de Proje√ß√£o.
+        // Agora computamos a matriz de ProjeÁ„o.
         glm::mat4 projection;
         glm::mat4 model;
 
-        // Note que, no sistema de coordenadas da c√¢mera, os planos near e far
-        // est√£o no sentido negativo! Veja slides 180-183 do documento
+        // Note que, no sistema de coordenadas da c‚mera, os planos near e far
+        // est„o no sentido negativo! Veja slides 180-183 do documento
         // "Aula_09_Projecoes.pdf".
-        float nearplane = -0.1f;  // Posi√ß√£o do "near plane"
-        float farplane = -40.0f; // Posi√ß√£o do "far plane"
+        float nearplane = -0.1f;  // PosiÁ„o do "near plane"
+        float farplane = -40.0f; // PosiÁ„o do "far plane"
 
 
 
         if (g_UsePerspectiveProjection)
         {
-            // Proje√ß√£o Perspectiva.
-            // Para defini√ß√£o do field of view (FOV), veja slide 199 do
+            // ProjeÁ„o Perspectiva.
+            // Para definiÁ„o do field of view (FOV), veja slide 199 do
             // documento "Aula_09_Projecoes.pdf".
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else
         {
-            // Proje√ß√£o Ortogr√°fica.
-            // Para defini√ß√£o dos valores l, r, b, t ("left", "right", "bottom", "top"),
+            // ProjeÁ„o Ortogr·fica.
+            // Para definiÁ„o dos valores l, r, b, t ("left", "right", "bottom", "top"),
             // veja slide 206 do documento "Aula_09_Projecoes.pdf".
-            // Para simular um "zoom" ortogr√°fico, computamos o valor de "t"
-            // utilizando a vari√°vel g_CameraDistance.
+            // Para simular um "zoom" ortogr·fico, computamos o valor de "t"
+            // utilizando a vari·vel g_CameraDistance.
             float t = 1.5f*g_CameraDistance / 2.5f;
             float b = -t;
             float r = t*g_ScreenRatio;
@@ -569,7 +577,7 @@ int menu()
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
-        // e tamb√©m resetamos todos os pixels do Z-buffer (depth buffer).
+        // e tambÈm resetamos todos os pixels do Z-buffer (depth buffer).
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(program_id);
@@ -578,42 +586,42 @@ int menu()
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
-        // Abaixo definimos as var√°veis que efetivamente definem a c√¢mera virtual.
+        // Abaixo definimos as var·veis que efetivamente definem a c‚mera virtual.
         // Veja slide 165 do documento "Aula_08_Sistemas_de_Coordenadas.pdf".
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da c√¢mera
-        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a c√¢mera (look-at) estar√° sempre olhando
-        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a c√¢mera est√° virada
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "c√©u" (eito Y global)
+        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da c‚mera
+        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a c‚mera (look-at) estar· sempre olhando
+        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a c‚mera est· virada
+        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "cÈu" (eito Y global)
 
-        // Computamos a matriz "View" utilizando os par√¢metros da c√¢mera para
-        // definir o sistema de coordenadas da c√¢mera.  Veja slide 169 do
+        // Computamos a matriz "View" utilizando os par‚metros da c‚mera para
+        // definir o sistema de coordenadas da c‚mera.  Veja slide 169 do
         // documento "Aula_08_Sistemas_de_Coordenadas.pdf".
         glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
 
-        // Agora computamos a matriz de Proje√ß√£o.
+        // Agora computamos a matriz de ProjeÁ„o.
         glm::mat4 projection;
 
-        // Note que, no sistema de coordenadas da c√¢mera, os planos near e far
-        // est√£o no sentido negativo! Veja slides 198-200 do documento
+        // Note que, no sistema de coordenadas da c‚mera, os planos near e far
+        // est„o no sentido negativo! Veja slides 198-200 do documento
         // "Aula_09_Projecoes.pdf".
-        float nearplane = -0.1f;  // Posi√ß√£o do "near plane"
-        float farplane  = -100.0f; // Posi√ß√£o do "far plane"
+        float nearplane = -0.1f;  // PosiÁ„o do "near plane"
+        float farplane  = -100.0f; // PosiÁ„o do "far plane"
 
         if (g_UsePerspectiveProjection)
         {
-            // Proje√ß√£o Perspectiva.
-            // Para defini√ß√£o do field of view (FOV), veja slide 234 do
+            // ProjeÁ„o Perspectiva.
+            // Para definiÁ„o do field of view (FOV), veja slide 234 do
             // documento "Aula_09_Projecoes.pdf".
             float field_of_view = 3.141592 / 3.0f;
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else
         {
-            // Proje√ß√£o Ortogr√°fica.
-            // Para defini√ß√£o dos valores l, r, b, t ("left", "right", "bottom", "top"),
+            // ProjeÁ„o Ortogr·fica.
+            // Para definiÁ„o dos valores l, r, b, t ("left", "right", "bottom", "top"),
             // veja slide 243 do documento "Aula_09_Projecoes.pdf".
-            // Para simular um "zoom" ortogr√°fico, computamos o valor de "t"
-            // utilizando a vari√°vel g_CameraDistance.
+            // Para simular um "zoom" ortogr·fico, computamos o valor de "t"
+            // utilizando a vari·vel g_CameraDistance.
             float t = 1.5f*g_CameraDistance/2.5f;
             float b = -t;
             float r = t*g_ScreenRatio;
@@ -621,10 +629,10 @@ int menu()
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
 
-        glm::mat4 model = Matrix_Identity(); // Transforma√ß√£o identidade de modelagem
+        glm::mat4 model = Matrix_Identity(); // TransformaÁ„o identidade de modelagem
         // model = Matrix_Rotate_Y((float)glfwGetTime() * 0.1f);
-        // Enviamos as matrizes "view" e "projection" para a placa de v√≠deo
-        // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas s√£o
+        // Enviamos as matrizes "view" e "projection" para a placa de vÌdeo
+        // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas s„o
         // efetivamente aplicadas em todos os pontos.
         glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
@@ -638,9 +646,9 @@ int menu()
         glfwSwapBuffers(window);
 
 
-        // Verificamos com o sistema operacional se houve alguma intera√ß√£o do
-        // usu√°rio (teclado, mouse, ...). Caso positivo, as fun√ß√µes de callback
-        // definidas anteriormente usando glfwSet*Callback() ser√£o chamadas
+        // Verificamos com o sistema operacional se houve alguma interaÁ„o do
+        // usu·rio (teclado, mouse, ...). Caso positivo, as funÁıes de callback
+        // definidas anteriormente usando glfwSet*Callback() ser„o chamadas
         // pela biblioteca GLFW.
         glfwPollEvents();
     }
@@ -672,17 +680,17 @@ Plane getPlaneEquation(glm::mat4 model)
 
 void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 {
-    glm::mat4 model = Matrix_Identity(); // Transforma√ß√£o identidade de modelagem
+    glm::mat4 model = Matrix_Identity(); // TransformaÁ„o identidade de modelagem
     //           R     G     B     A
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
-    // e tamb√©m resetamos todos os pixels do Z-buffer (depth buffer).
+    // e tambÈm resetamos todos os pixels do Z-buffer (depth buffer).
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     model = Matrix_Identity();
     glUseProgram(program_id);
-    // Enviamos as matrizes "view" e "projection" para a placa de v√≠deo
-    // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas s√£o
+    // Enviamos as matrizes "view" e "projection" para a placa de vÌdeo
+    // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas s„o
     // efetivamente aplicadas em todos os pontos.
     glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
@@ -761,7 +769,8 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     std::cout << roomPlanes[4].normal.z << std::endl;*/
 
     //frente
-    model = Matrix_Translate(0.0f,0.0f,4.0f)
+    model =   Matrix_Rotate_Z(M_PI)
+            * Matrix_Translate(0.0f,0.0f,4.0f)
             * Matrix_Scale(4.0f,1.0f,1.0f)
             * Matrix_Rotate_X(-M_PI_2);
 
@@ -781,7 +790,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
             * Matrix_Rotate_Y(1 * PI / 8);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. √® estranho pq eu testei a testura no laptop e funciona, na msa √© que n√£o rola. Ve se tu consegue daii
+    glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. Ë estranho pq eu testei a testura no laptop e funciona, na msa È que n„o rola. Ve se tu consegue daii
     DrawVirtualObject("coffee_table"); //oi cata! saaad, tentarei!
     g_VirtualScene["coffee_table"].model_matrix = Matrix_Translate(+3.05f, -1.025f, -1.225f)
             * Matrix_Scale(0.002f, 0.002f, 0.002f);
@@ -811,7 +820,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, BOMB);
     g_VirtualScene["Cylinder010"].model_matrix = Matrix_Translate(-2.05f, -0.9f, -1.225f)
             * Matrix_Scale(0.02f, 0.02f, 0.02f);
-    DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt p√©ssimo
+    DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt pÈssimo
     roomObjects.push_back("Cylinder010"); //oi cata, nao tive tempo, mas depois eu tentarei
 
 
@@ -823,71 +832,142 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     DrawVirtualObject("Cube");
 
     model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-            * Matrix_Scale(0.04f, 0.04f, 0.04f)
-            * Matrix_Rotate_Y(1 * PI / 2);
+            * Matrix_Scale(0.04f, 0.04f, 0.04f);
+           // * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
+    DrawVirtualObject("Line02");
     g_VirtualScene["Line02"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
                                             * Matrix_Scale(0.04f, 0.04f, 0.04f);
-    DrawVirtualObject("Line02");
     roomObjects.push_back("Line02");
+
     model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-            * Matrix_Scale(0.04f, 0.04f, 0.04f)
-            * Matrix_Rotate_Y(1 * PI / 2);
+            * Matrix_Scale(0.04f, 0.04f, 0.04f);
+            //* Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
-    g_VirtualScene["cuadrado"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-            * Matrix_Scale(0.04f, 0.04f, 0.04f);
     DrawVirtualObject("cuadrado");
+    g_VirtualScene["cuadrado"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+                                                * Matrix_Scale(0.04f, 0.04f, 0.04f);
     roomObjects.push_back("cuadrado");
 
-    float cowLenght = 1.0f;
-    float cowWidth = 0.5f;
-    float cowHeight = 1.0f;
-    float scaleCoef = 1.0f;
-    ///TODO: estimular um pouquinho melhor a dimencao da vaca
-    glm::vec3 cowCenter = glm::vec3(+2.0f, -0.4f,-2.0f);
 
+    float scaleCoef = 1.0f;
+    glm::vec3 cowCenter = glm::vec3(+2.0f, -0.4f,-2.0f);
     model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
             * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
-    //* Matrix_Rotate_Y(M_PI_2); //cuidado ao girar por numero negativo
-
-    //chutei dim da vaca como sendo comprimetno=0,5 altura=0,5 larg=0,1
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, COW);
     DrawVirtualObject("cow");
-
-    g_VirtualScene["cow"].model_matrix = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
-                                         * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
+    g_VirtualScene["cow"].model_matrix = model;
     roomObjects.push_back("cow");
-
-    cowBottomBackRight = glm::vec3(cowCenter.x + cowWidth*scaleCoef/2.0f,
-                                   cowCenter.y - cowHeight*scaleCoef/2.0f,
-                                   cowCenter.z - cowLenght*scaleCoef/2.0f);
-    cowTopFrontLeft = glm::vec3(cowCenter.x - cowWidth*scaleCoef/2.0f,
-                                cowCenter.y + cowHeight*scaleCoef/2.0f,
-                                cowCenter.z + cowLenght*scaleCoef/2.0f);
-
+/*
     glm::vec3 centerSphere = glm::vec3(-2.5f, -0.7f,-3.7f);
-    float sphereRadius = 0.5f;
     float sphereScaleCoef = 0.3f;
-    //Matrix_Translate(1.0f,-0.5f,-1.0f)
     model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
             * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
-
-    sphereTopFrontLeft = glm::vec3(centerSphere.x - sphereRadius*sphereScaleCoef,
-                                   centerSphere.y + sphereRadius*sphereScaleCoef,
-                                   centerSphere.z + sphereRadius*sphereScaleCoef);
-    sphereBottomBackRight = glm::vec3(centerSphere.x + sphereRadius*sphereScaleCoef,
-                                      centerSphere.y - sphereRadius*sphereScaleCoef,
-                                      centerSphere.z - sphereRadius*sphereScaleCoef);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, SPHERE);
     DrawVirtualObject("sphere");
     g_VirtualScene["sphere"].model_matrix = model;
-    roomObjects.push_back("sphere");
+    roomObjects.push_back("sphere");*/
+
+    glLineWidth(10.0f);
+    model = Matrix_Translate(-2.5f,0.0f,-3.7f); //Matrix_Translate(0.0f,0.0f,0.0f);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, AXES);
+    DrawVirtualObject("axes");
+
+    updateTime();
+    if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 ) {
+
+        std::cout << "Perdeu o jogo!!" << std::endl;
+    }
+
+
+
+
 }
+void updateTime() {
+
+    if((time != (int)glfwGetTime()) && seconds > 0)
+    {
+        time =(int)glfwGetTime();
+        seconds--;
+    }
+
+    char buffer[44];
+    int numchars=44;
+    sprintf ( buffer, "Voce tem    %d   segundos", seconds );
+    float lineheight = TextRendering_LineHeight(window);
+    float charwidth = TextRendering_CharWidth(window);
+    TextRendering_PrintString(window, buffer, 1.0f-(numchars + 1)*charwidth, 1.0f-lineheight, 1.0f);
+
+}
+void BuildLine()
+{
+    GLfloat model_coefficients[] = {
+    //    X      Y     Z     W
+         -1.0f,  1.0f,  0.0f, 1.0f, // posiÁ„o do vÈrtice 8
+         1.0f,  1.0f,  0.0f, 1.0f, // posiÁ„o do vÈrtice 9
+         1.0f,  -1.0f,  0.0f, 1.0f, // posiÁ„o do vÈrtice 9
+         -1.0f,  -1.0f,  0.0f, 1.0f // posiÁ„o do vÈrtice 9
+
+    };
+    GLuint VBO_model_coefficients_id;
+    glGenBuffers(1, &VBO_model_coefficients_id);
+    GLuint vertex_array_object_id;
+    glGenVertexArrays(1, &vertex_array_object_id);
+    glBindVertexArray(vertex_array_object_id);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_model_coefficients_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(model_coefficients), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(model_coefficients), model_coefficients);
+    GLuint location = 0; // "(location = 0)" em "shader_vertex.glsl"
+    GLint  number_of_dimensions = 4; // vec4 em "shader_vertex.glsl"
+    glVertexAttribPointer(location, number_of_dimensions, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(location);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    GLuint indices[] = {0, 2, 1, 3};
+
+    // Criamos um terceiro objeto virtual (SceneObject) que se refere aos eixos XYZ.
+    SceneObject axes;
+    axes.name           = "axes";
+    axes.first_index    = (void*)(0*sizeof(GLuint)); // Primeiro Ìndice est· em indices[60]
+    axes.num_indices    = 4; // ⁄ltimo Ìndice est· em indices[65]; total de 6 Ìndices.
+    axes.rendering_mode = GL_LINES; // Õndices correspondem ao tipo de rasterizaÁ„o GL_LINES.
+    axes.vertex_array_object_id = vertex_array_object_id;
+    g_VirtualScene["axes"] = axes;
+
+    // Criamos um buffer OpenGL para armazenar os Ìndices acima
+    GLuint indices_id;
+    glGenBuffers(1, &indices_id);
+
+    // "Ligamos" o buffer. Note que o tipo agora È GL_ELEMENT_ARRAY_BUFFER.
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_id);
+
+    // Alocamos memÛria para o buffer.
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), NULL, GL_STATIC_DRAW);
+
+    // Copiamos os valores do array indices[] para dentro do buffer.
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(indices), indices);
+
+    glBindVertexArray(0);
+}
+bool isPointInsideBBOX(glm::vec3 point){
+
+    glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
+    glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
+
+
+    return (point.x >= playerbbox_min.x && point.x <= playerbbox_max.x) &&
+           (point.y >= playerbbox_min.y && point.y <= playerbbox_max.y) &&
+           (point.z >= playerbbox_min.z && point.z <= playerbbox_max.z);
+
+}
+
+
 bool collisionCameraBBoxObjecBBox(std::string objectName)
 {
 
@@ -1041,18 +1121,18 @@ void validaMovimento()
     {
          stopPassos = true;
         std::cout << " colidiu com algum obj" << std::endl;
-        novoPos_char.x = pos_char.x;
+       novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
     }
-    /// Teste com o plano chao( y <=0 √© se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
-    ///O movimento vertical √© meio foda pq ele usa aquele tro√ßo de anima√ß√£o que o sor fez na aula, lembra?
-    ///al√©m disso essa fun√ß√£o aqui validamovimento() testa se houve colisao, pq tipo, quando tiver colisao com o chao oo personagem para de cair sabe
-    ///isso n faria sentido ficar na de cima a movimento() que s√≥ soma constantes ao movimento. Na movimento() fica, por exemplo, a soma daqueilo de velocidade que vimos na aula
-    ///que √© computado nas linhas que tu tinha comentado.
-    ///ela precisa ficar fora do if pq naquele caso ali ela n√£o vai ter colisao com o ch√£o e precisa entrar naquelas duas linhas, pq elas √© que calculam a velocidade como vimos na aula
-    ///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente ter√ßa eu te falo
+    /// Teste com o plano chao( y <=0 È se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
+    ///O movimento vertical È meio foda pq ele usa aquele troÁo de animaÁ„o que o sor fez na aula, lembra?
+    ///alÈm disso essa funÁ„o aqui validamovimento() testa se houve colisao, pq tipo, quando tiver colisao com o chao oo personagem para de cair sabe
+    ///isso n faria sentido ficar na de cima a movimento() que sÛ soma constantes ao movimento. Na movimento() fica, por exemplo, a soma daqueilo de velocidade que vimos na aula
+    ///que È computado nas linhas que tu tinha comentado.
+    ///ela precisa ficar fora do if pq naquele caso ali ela n„o vai ter colisao com o ch„o e precisa entrar naquelas duas linhas, pq elas È que calculam a velocidade como vimos na aula
+    ///e preciso da velo sendo calculada all time. Sei q dps de ler tudo isso tu ainda ta mais confusa, pessoalmente terÁa eu te falo
 
-    ///OBS: se quisermos deixar o personagem subir nas mesas e pa d√° p fazer facil, mas como ainda os objetos n tem colisao n d√° p fazer
+    ///OBS: se quisermos deixar o personagem subir nas mesas e pa d· p fazer facil, mas como ainda os objetos n tem colisao n d· p fazer
     if (novoPos_char.y <= 0)
     {
         colisaoChao = true;
@@ -1065,15 +1145,6 @@ void validaMovimento()
     }
     else
         pos_char.y = novoPos_char.y;
-
-}
-
-bool checkCollisionCowSphere()
-{
-
-    return (sphereBottomBackRight.x >= cowTopFrontLeft.x && sphereTopFrontLeft.x <= cowBottomBackRight.x) &&
-           (sphereBottomBackRight.y <= cowTopFrontLeft.y && sphereTopFrontLeft.y >= cowBottomBackRight.y) &&
-           (sphereBottomBackRight.z <= cowTopFrontLeft.z && sphereTopFrontLeft.z >= cowBottomBackRight.z);
 
 }
 
@@ -1097,28 +1168,9 @@ bool checkCollisionCameraBBox(glm::vec4 bbox_min, glm::vec4 bbox_max)
            (pos_char.z >= bbox_min.z && pos_char.z <= bbox_max.z);
 
 }
-void printBBoxesToDebug()
-{
-    printf("sphereBottonRight: x = %f \n y = %f \n z = %f \n",
-           sphereBottomBackRight.x,
-           sphereBottomBackRight.y,
-           sphereBottomBackRight.z);
-    printf("sphereTopFrontLeft: x = %f \n y = %f \n z = %f \n",
-           sphereTopFrontLeft.x,
-           sphereTopFrontLeft.y,
-           sphereTopFrontLeft.z);
-    printf("cowBottonRight: x = %f \n y = %f \n z = %f \n",
-           cowBottomBackRight.x,
-           cowBottomBackRight.y,
-           cowBottomBackRight.z);
-    printf("cowTopFrontLeft: x = %f \n y = %f \n z = %f \n",
-           cowTopFrontLeft.x,
-           cowTopFrontLeft.y,
-           cowTopFrontLeft.z);
-}
 
 
-// Fun√ß√£o que carrega uma imagem para ser utilizada como textura
+// FunÁ„o que carrega uma imagem para ser utilizada como textura
 void LoadTextureImage(const char* filename)
 {
     printf("Carregando imagem \"%s\"... ", filename);
@@ -1148,7 +1200,7 @@ void LoadTextureImage(const char* filename)
     glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // Par√¢metros de amostragem da textura. Falaremos sobre eles em uma pr√≥xima aula.
+    // Par‚metros de amostragem da textura. Falaremos sobre eles em uma prÛxima aula.
     glSamplerParameteri(sampler_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glSamplerParameteri(sampler_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -1170,26 +1222,26 @@ void LoadTextureImage(const char* filename)
     g_NumLoadedTextures += 1;
 }
 
-// Fun√ß√£o que desenha um objeto armazenado em g_VirtualScene. Veja defini√ß√£o
-// dos objetos na fun√ß√£o BuildTrianglesAndAddToVirtualScene().
+// FunÁ„o que desenha um objeto armazenado em g_VirtualScene. Veja definiÁ„o
+// dos objetos na funÁ„o BuildTrianglesAndAddToVirtualScene().
 void DrawVirtualObject(const char* object_name)
 {
     // "Ligamos" o VAO. Informamos que queremos utilizar os atributos de
-    // v√©rtices apontados pelo VAO criado pela fun√ß√£o BuildTrianglesAndAddToVirtualScene(). Veja
-    // coment√°rios detalhados dentro da defini√ß√£o de BuildTrianglesAndAddToVirtualScene().
+    // vÈrtices apontados pelo VAO criado pela funÁ„o BuildTrianglesAndAddToVirtualScene(). Veja
+    // coment·rios detalhados dentro da definiÁ„o de BuildTrianglesAndAddToVirtualScene().
     glBindVertexArray(g_VirtualScene[object_name].vertex_array_object_id);
 
-    // Setamos as vari√°veis "bbox_min" e "bbox_max" do fragment shader
-    // com os par√¢metros da axis-aligned bounding box (AABB) do modelo.
+    // Setamos as vari·veis "bbox_min" e "bbox_max" do fragment shader
+    // com os par‚metros da axis-aligned bounding box (AABB) do modelo.
     glm::vec3 bbox_min = g_VirtualScene[object_name].bbox_min;
     glm::vec3 bbox_max = g_VirtualScene[object_name].bbox_max;
     glUniform4f(bbox_min_uniform, bbox_min.x, bbox_min.y, bbox_min.z, 1.0f);
     glUniform4f(bbox_max_uniform, bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
 
-    // Pedimos para a GPU rasterizar os v√©rtices dos eixos XYZ
-    // apontados pelo VAO como linhas. Veja a defini√ß√£o de
-    // g_VirtualScene[""] dentro da fun√ß√£o BuildTrianglesAndAddToVirtualScene(), e veja
-    // a documenta√ß√£o da fun√ß√£o glDrawElements() em
+    // Pedimos para a GPU rasterizar os vÈrtices dos eixos XYZ
+    // apontados pelo VAO como linhas. Veja a definiÁ„o de
+    // g_VirtualScene[""] dentro da funÁ„o BuildTrianglesAndAddToVirtualScene(), e veja
+    // a documentaÁ„o da funÁ„o glDrawElements() em
     // http://docs.gl/gl3/glDrawElements.
     glDrawElements(
         g_VirtualScene[object_name].rendering_mode,
@@ -1198,19 +1250,19 @@ void DrawVirtualObject(const char* object_name)
         (void*)g_VirtualScene[object_name].first_index
     );
 
-    // "Desligamos" o VAO, evitando assim que opera√ß√µes posteriores venham a
+    // "Desligamos" o VAO, evitando assim que operaÁıes posteriores venham a
     // alterar o mesmo. Isso evita bugs.
     glBindVertexArray(0);
 }
 
-// Fun√ß√£o que carrega os shaders de v√©rtices e de fragmentos que ser√£o
-// utilizados para renderiza√ß√£o. Veja slide 217 e 219 do documento
+// FunÁ„o que carrega os shaders de vÈrtices e de fragmentos que ser„o
+// utilizados para renderizaÁ„o. Veja slide 217 e 219 do documento
 // "Aula_03_Rendering_Pipeline_Grafico.pdf".
 //
 void LoadShadersFromFiles()
 {
     // Note que o caminho para os arquivos "shader_vertex.glsl" e
-    // "shader_fragment.glsl" est√£o fixados, sendo que assumimos a exist√™ncia
+    // "shader_fragment.glsl" est„o fixados, sendo que assumimos a existÍncia
     // da seguinte estrutura no sistema de arquivos:
     //
     //    + FCG_Lab_01/
@@ -1237,17 +1289,17 @@ void LoadShadersFromFiles()
     // Criamos um programa de GPU utilizando os shaders carregados acima.
     program_id = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
 
-    // Buscamos o endere√ßo das vari√°veis definidas dentro do Vertex Shader.
-    // Utilizaremos estas vari√°veis para enviar dados para a placa de v√≠deo
+    // Buscamos o endereÁo das vari·veis definidas dentro do Vertex Shader.
+    // Utilizaremos estas vari·veis para enviar dados para a placa de vÌdeo
     // (GPU)! Veja arquivo "shader_vertex.glsl" e "shader_fragment.glsl".
-    model_uniform           = glGetUniformLocation(program_id, "model"); // Vari√°vel da matriz "model"
-    view_uniform            = glGetUniformLocation(program_id, "view"); // Vari√°vel da matriz "view" em shader_vertex.glsl
-    projection_uniform      = glGetUniformLocation(program_id, "projection"); // Vari√°vel da matriz "projection" em shader_vertex.glsl
-    object_id_uniform       = glGetUniformLocation(program_id, "object_id"); // Vari√°vel "object_id" em shader_fragment.glsl
+    model_uniform           = glGetUniformLocation(program_id, "model"); // Vari·vel da matriz "model"
+    view_uniform            = glGetUniformLocation(program_id, "view"); // Vari·vel da matriz "view" em shader_vertex.glsl
+    projection_uniform      = glGetUniformLocation(program_id, "projection"); // Vari·vel da matriz "projection" em shader_vertex.glsl
+    object_id_uniform       = glGetUniformLocation(program_id, "object_id"); // Vari·vel "object_id" em shader_fragment.glsl
     bbox_min_uniform        = glGetUniformLocation(program_id, "bbox_min");
     bbox_max_uniform        = glGetUniformLocation(program_id, "bbox_max");
 
-    // Vari√°veis em "shader_fragment.glsl" para acesso das imagens de textura
+    // Vari·veis em "shader_fragment.glsl" para acesso das imagens de textura
     glUseProgram(program_id);
 
     glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
@@ -1262,17 +1314,17 @@ void LoadShadersFromFiles()
     glUseProgram(0);
 }
 
-// Fun√ß√£o que computa as normais de um ObjModel, caso elas n√£o tenham sido
+// FunÁ„o que computa as normais de um ObjModel, caso elas n„o tenham sido
 // especificadas dentro do arquivo ".obj"
 void ComputeNormals(ObjModel* model)
 {
     if ( !model->attrib.normals.empty() )
         return;
 
-    // Primeiro computamos as normais para todos os TRI√ÇNGULOS.
-    // Segundo, computamos as normais dos V√âRTICES atrav√©s do m√©todo proposto
-    // por Gourad, onde a normal de cada v√©rtice vai ser a m√©dia das normais de
-    // todas as faces que compartilham este v√©rtice.
+    // Primeiro computamos as normais para todos os TRI¬NGULOS.
+    // Segundo, computamos as normais dos V…RTICES atravÈs do mÈtodo proposto
+    // por Gourad, onde a normal de cada vÈrtice vai ser a mÈdia das normais de
+    // todas as faces que compartilham este vÈrtice.
 
     size_t num_vertices = model->attrib.vertices.size() / 3;
 
@@ -1325,7 +1377,7 @@ void ComputeNormals(ObjModel* model)
     }
 }
 
-// Constr√≥i tri√¢ngulos para futura renderiza√ß√£o a partir de um ObjModel.
+// ConstrÛi tri‚ngulos para futura renderizaÁ„o a partir de um ObjModel.
 void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
 {
     GLuint vertex_array_object_id;
@@ -1340,6 +1392,7 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
     for (size_t shape = 0; shape < model->shapes.size(); ++shape)
     {
         size_t first_index = indices.size();
+
         size_t num_triangles = model->shapes[shape].mesh.num_face_vertices.size();
 
         const float minval = std::numeric_limits<float>::min();
@@ -1374,10 +1427,10 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
                 bbox_max.y = std::max(bbox_max.y, vy);
                 bbox_max.z = std::max(bbox_max.z, vz);
 
-                // Inspecionando o c√≥digo da tinyobjloader, o aluno Bernardo
+                // Inspecionando o cÛdigo da tinyobjloader, o aluno Bernardo
                 // Sulzbach (2017/1) apontou que a maneira correta de testar se
-                // existem normais e coordenadas de textura no ObjModel √©
-                // comparando se o √≠ndice retornado √© -1. Fazemos isso abaixo.
+                // existem normais e coordenadas de textura no ObjModel È
+                // comparando se o Ìndice retornado È -1. Fazemos isso abaixo.
 
                 if ( idx.normal_index != -1 )
                 {
@@ -1404,9 +1457,9 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
 
         SceneObject theobject;
         theobject.name           = model->shapes[shape].name;
-        theobject.first_index    = (void*)first_index; // Primeiro √≠ndice
-        theobject.num_indices    = last_index - first_index + 1; // N√∫mero de indices
-        theobject.rendering_mode = GL_TRIANGLES;       // √çndices correspondem ao tipo de rasteriza√ß√£o GL_TRIANGLES.
+        theobject.first_index    = (void*)first_index; // Primeiro Ìndice
+        theobject.num_indices    = last_index - first_index + 1; // N˙mero de indices
+        theobject.rendering_mode = GL_TRIANGLES;       // Õndices correspondem ao tipo de rasterizaÁ„o GL_TRIANGLES.
         theobject.vertex_array_object_id = vertex_array_object_id;
 
         glm::vec4 bbox_min_vec4 = glm::vec4(bbox_min.x, bbox_min.y, bbox_min.z, 1.0f);
@@ -1468,11 +1521,11 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model)
     glBindVertexArray(0);
 }
 
-// Carrega um Vertex Shader de um arquivo GLSL. Veja defini√ß√£o de LoadShader() abaixo.
+// Carrega um Vertex Shader de um arquivo GLSL. Veja definiÁ„o de LoadShader() abaixo.
 GLuint LoadShader_Vertex(const char* filename)
 {
     // Criamos um identificador (ID) para este shader, informando que o mesmo
-    // ser√° aplicado nos v√©rtices.
+    // ser· aplicado nos vÈrtices.
     GLuint vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
 
     // Carregamos e compilamos o shader
@@ -1482,11 +1535,11 @@ GLuint LoadShader_Vertex(const char* filename)
     return vertex_shader_id;
 }
 
-// Carrega um Fragment Shader de um arquivo GLSL . Veja defini√ß√£o de LoadShader() abaixo.
+// Carrega um Fragment Shader de um arquivo GLSL . Veja definiÁ„o de LoadShader() abaixo.
 GLuint LoadShader_Fragment(const char* filename)
 {
     // Criamos um identificador (ID) para este shader, informando que o mesmo
-    // ser√° aplicado nos fragmentos.
+    // ser· aplicado nos fragmentos.
     GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
     // Carregamos e compilamos o shader
@@ -1496,12 +1549,12 @@ GLuint LoadShader_Fragment(const char* filename)
     return fragment_shader_id;
 }
 
-// Fun√ß√£o auxilar, utilizada pelas duas fun√ß√µes acima. Carrega c√≥digo de GPU de
-// um arquivo GLSL e faz sua compila√ß√£o.
+// FunÁ„o auxilar, utilizada pelas duas funÁıes acima. Carrega cÛdigo de GPU de
+// um arquivo GLSL e faz sua compilaÁ„o.
 void LoadShader(const char* filename, GLuint shader_id)
 {
-    // Lemos o arquivo de texto indicado pela vari√°vel "filename"
-    // e colocamos seu conte√∫do em mem√≥ria, apontado pela vari√°vel
+    // Lemos o arquivo de texto indicado pela vari·vel "filename"
+    // e colocamos seu conte˙do em memÛria, apontado pela vari·vel
     // "shader_string".
     std::ifstream file;
     try
@@ -1520,25 +1573,25 @@ void LoadShader(const char* filename, GLuint shader_id)
     const GLchar* shader_string = str.c_str();
     const GLint   shader_string_length = static_cast<GLint>( str.length() );
 
-    // Define o c√≥digo do shader GLSL, contido na string "shader_string"
+    // Define o cÛdigo do shader GLSL, contido na string "shader_string"
     glShaderSource(shader_id, 1, &shader_string, &shader_string_length);
 
-    // Compila o c√≥digo do shader GLSL (em tempo de execu√ß√£o)
+    // Compila o cÛdigo do shader GLSL (em tempo de execuÁ„o)
     glCompileShader(shader_id);
 
-    // Verificamos se ocorreu algum erro ou "warning" durante a compila√ß√£o
+    // Verificamos se ocorreu algum erro ou "warning" durante a compilaÁ„o
     GLint compiled_ok;
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled_ok);
 
     GLint log_length = 0;
     glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &log_length);
 
-    // Alocamos mem√≥ria para guardar o log de compila√ß√£o.
-    // A chamada "new" em C++ √© equivalente ao "malloc()" do C.
+    // Alocamos memÛria para guardar o log de compilaÁ„o.
+    // A chamada "new" em C++ È equivalente ao "malloc()" do C.
     GLchar* log = new GLchar[log_length];
     glGetShaderInfoLog(shader_id, log_length, &log_length, log);
 
-    // Imprime no terminal qualquer erro ou "warning" de compila√ß√£o
+    // Imprime no terminal qualquer erro ou "warning" de compilaÁ„o
     if ( log_length != 0 )
     {
         std::string  output;
@@ -1565,18 +1618,18 @@ void LoadShader(const char* filename, GLuint shader_id)
         fprintf(stderr, "%s", output.c_str());
     }
 
-    // A chamada "delete" em C++ √© equivalente ao "free()" do C
+    // A chamada "delete" em C++ È equivalente ao "free()" do C
     delete [] log;
 }
 
-// Esta fun√ß√£o cria um programa de GPU, o qual cont√©m obrigatoriamente um
+// Esta funÁ„o cria um programa de GPU, o qual contÈm obrigatoriamente um
 // Vertex Shader e um Fragment Shader.
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id)
 {
     // Criamos um identificador (ID) para este programa de GPU
     GLuint program_id = glCreateProgram();
 
-    // Defini√ß√£o dos dois shaders GLSL que devem ser executados pelo programa
+    // DefiniÁ„o dos dois shaders GLSL que devem ser executados pelo programa
     glAttachShader(program_id, vertex_shader_id);
     glAttachShader(program_id, fragment_shader_id);
 
@@ -1593,8 +1646,8 @@ GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id)
         GLint log_length = 0;
         glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &log_length);
 
-        // Alocamos mem√≥ria para guardar o log de compila√ß√£o.
-        // A chamada "new" em C++ √© equivalente ao "malloc()" do C.
+        // Alocamos memÛria para guardar o log de compilaÁ„o.
+        // A chamada "new" em C++ È equivalente ao "malloc()" do C.
         GLchar* log = new GLchar[log_length];
 
         glGetProgramInfoLog(program_id, log_length, &log_length, log);
@@ -1606,13 +1659,13 @@ GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id)
         output += log;
         output += "\n== End of link log\n";
 
-        // A chamada "delete" em C++ √© equivalente ao "free()" do C
+        // A chamada "delete" em C++ È equivalente ao "free()" do C
         delete [] log;
 
         fprintf(stderr, "%s", output.c_str());
     }
 
-    // Os "Shader Objects" podem ser marcados para dele√ß√£o ap√≥s serem linkados
+    // Os "Shader Objects" podem ser marcados para deleÁ„o apÛs serem linkados
     glDeleteShader(vertex_shader_id);
     glDeleteShader(fragment_shader_id);
 
@@ -1620,83 +1673,83 @@ GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id)
     return program_id;
 }
 
-// Defini√ß√£o da fun√ß√£o que ser√° chamada sempre que a janela do sistema
-// operacional for redimensionada, por consequ√™ncia alterando o tamanho do
-// "framebuffer" (regi√£o de mem√≥ria onde s√£o armazenados os pixels da imagem).
+// DefiniÁ„o da funÁ„o que ser· chamada sempre que a janela do sistema
+// operacional for redimensionada, por consequÍncia alterando o tamanho do
+// "framebuffer" (regi„o de memÛria onde s„o armazenados os pixels da imagem).
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    // Indicamos que queremos renderizar em toda regi√£o do framebuffer. A
-    // fun√ß√£o "glViewport" define o mapeamento das "normalized device
-    // coordinates" (NDC) para "pixel coordinates".  Essa √© a opera√ß√£o de
+    // Indicamos que queremos renderizar em toda regi„o do framebuffer. A
+    // funÁ„o "glViewport" define o mapeamento das "normalized device
+    // coordinates" (NDC) para "pixel coordinates".  Essa È a operaÁ„o de
     // "Screen Mapping" ou "Viewport Mapping" vista em aula (slide 183 do
     // documento "Aula_03_Rendering_Pipeline_Grafico.pdf").
     glViewport(0, 0, width, height);
-    // Atualizamos tamb√©m a raz√£o que define a propor√ß√£o da janela (largura /
-    // altura), a qual ser√° utilizada na defini√ß√£o das matrizes de proje√ß√£o,
-    // tal que n√£o ocorra distor√ß√µes durante o processo de "Screen Mapping"
-    // acima, quando NDC √© mapeado para coordenadas de pixels. Veja slide 199
+    // Atualizamos tambÈm a raz„o que define a proporÁ„o da janela (largura /
+    // altura), a qual ser· utilizada na definiÁ„o das matrizes de projeÁ„o,
+    // tal que n„o ocorra distorÁıes durante o processo de "Screen Mapping"
+    // acima, quando NDC È mapeado para coordenadas de pixels. Veja slide 199
     // do documento "Aula_09_Projecoes.pdf".
     //
-    // O cast para float √© necess√°rio pois n√∫meros inteiros s√£o arredondados ao
+    // O cast para float È necess·rio pois n˙meros inteiros s„o arredondados ao
     // ser divididos!
     g_ScreenRatio = (float)width / height;
 }
 
-// Vari√°veis globais que armazenam a √∫ltima posi√ß√£o do cursor do mouse, para
+// Vari·veis globais que armazenam a ˙ltima posiÁ„o do cursor do mouse, para
 // que possamos calcular quanto que o mouse se movimentou entre dois instantes
 // de tempo. Utilizadas no callback CursorPosCallback() abaixo.
 double g_LastCursorPosX, g_LastCursorPosY;
 
-// Fun√ß√£o callback chamada sempre que o usu√°rio aperta algum dos bot√µes do mouse
+// FunÁ„o callback chamada sempre que o usu·rio aperta algum dos botıes do mouse
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        // Se o usu√°rio pressionou o bot√£o esquerdo do mouse, guardamos a
-        // posi√ß√£o atual do cursor nas vari√°veis g_LastCursorPosX e
-        // g_LastCursorPosY.  Tamb√©m, setamos a vari√°vel
-        // g_LeftMouseButtonPressed como true, para saber que o usu√°rio est√°
-        // com o bot√£o esquerdo pressionado.
+        // Se o usu·rio pressionou o bot„o esquerdo do mouse, guardamos a
+        // posiÁ„o atual do cursor nas vari·veis g_LastCursorPosX e
+        // g_LastCursorPosY.  TambÈm, setamos a vari·vel
+        // g_LeftMouseButtonPressed como true, para saber que o usu·rio est·
+        // com o bot„o esquerdo pressionado.
         glfwGetCursorPos(window, &g_LastCursorPosX, &g_LastCursorPosY);
         g_LeftMouseButtonPressed = true;
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
-        // Quando o usu√°rio soltar o bot√£o esquerdo do mouse, atualizamos a
-        // vari√°vel abaixo para false.
+        // Quando o usu·rio soltar o bot„o esquerdo do mouse, atualizamos a
+        // vari·vel abaixo para false.
         g_LeftMouseButtonPressed = false;
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
     {
-        // Se o usu√°rio pressionou o bot√£o esquerdo do mouse, guardamos a
-        // posi√ß√£o atual do cursor nas vari√°veis g_LastCursorPosX e
-        // g_LastCursorPosY.  Tamb√©m, setamos a vari√°vel
-        // g_RightMouseButtonPressed como true, para saber que o usu√°rio est√°
-        // com o bot√£o esquerdo pressionado.
+        // Se o usu·rio pressionou o bot„o esquerdo do mouse, guardamos a
+        // posiÁ„o atual do cursor nas vari·veis g_LastCursorPosX e
+        // g_LastCursorPosY.  TambÈm, setamos a vari·vel
+        // g_RightMouseButtonPressed como true, para saber que o usu·rio est·
+        // com o bot„o esquerdo pressionado.
         glfwGetCursorPos(window, &g_LastCursorPosX, &g_LastCursorPosY);
         g_RightMouseButtonPressed = true;
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
     {
-        // Quando o usu√°rio soltar o bot√£o esquerdo do mouse, atualizamos a
-        // vari√°vel abaixo para false.
+        // Quando o usu·rio soltar o bot„o esquerdo do mouse, atualizamos a
+        // vari·vel abaixo para false.
         g_RightMouseButtonPressed = false;
     }
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS)
     {
-        // Se o usu√°rio pressionou o bot√£o esquerdo do mouse, guardamos a
-        // posi√ß√£o atual do cursor nas vari√°veis g_LastCursorPosX e
-        // g_LastCursorPosY.  Tamb√©m, setamos a vari√°vel
-        // g_MiddleMouseButtonPressed como true, para saber que o usu√°rio est√°
-        // com o bot√£o esquerdo pressionado.
+        // Se o usu·rio pressionou o bot„o esquerdo do mouse, guardamos a
+        // posiÁ„o atual do cursor nas vari·veis g_LastCursorPosX e
+        // g_LastCursorPosY.  TambÈm, setamos a vari·vel
+        // g_MiddleMouseButtonPressed como true, para saber que o usu·rio est·
+        // com o bot„o esquerdo pressionado.
         glfwGetCursorPos(window, &g_LastCursorPosX, &g_LastCursorPosY);
         g_MiddleMouseButtonPressed = true;
     }
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE)
     {
-        // Quando o usu√°rio soltar o bot√£o esquerdo do mouse, atualizamos a
-        // vari√°vel abaixo para false.
+        // Quando o usu·rio soltar o bot„o esquerdo do mouse, atualizamos a
+        // vari·vel abaixo para false.
         g_MiddleMouseButtonPressed = false;
     }
     //deixa essa funcao ai, lau, pls. q eu vou usar ela p ver se a pessoa clicou no note
@@ -1709,7 +1762,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     //}
 }
 
-// Fun√ß√£o callback chamada sempre que o usu√°rio movimentar o cursor do mouse em
+// FunÁ„o callback chamada sempre que o usu·rio movimentar o cursor do mouse em
 // cima da janela OpenGL.
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -1726,12 +1779,12 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     float dx = xpos - g_LastCursorPosX;
     float dy = ypos - g_LastCursorPosY;
 
-    // Atualizamos par√¢metros da c√¢mera com os deslocamentos
+    // Atualizamos par‚metros da c‚mera com os deslocamentos
 
     g_CameraTheta -= 0.01f*dx;
     g_CameraPhi += 0.01f*dy;
 
-    // Em coordenadas esf√©ricas, o √¢ngulo phi deve ficar entre -pi/2 e +pi/2.
+    // Em coordenadas esfÈricas, o ‚ngulo phi deve ficar entre -pi/2 e +pi/2.
     float phimax = 3.141592f / 2;
     float phimin = -phimax;
 
@@ -1741,8 +1794,8 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     if (g_CameraPhi < phimin)
         g_CameraPhi = phimin;
 
-    // Atualizamos as vari√°veis globais para armazenar a posi√ß√£o atual do
-    // cursor como sendo a √∫ltima posi√ß√£o conhecida do cursor.
+    // Atualizamos as vari·veis globais para armazenar a posiÁ„o atual do
+    // cursor como sendo a ˙ltima posiÁ„o conhecida do cursor.
 
 
 
@@ -1760,29 +1813,29 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 }
 
 
-// Fun√ß√£o callback chamada sempre que o usu√°rio movimenta a "rodinha" do mouse.
+// FunÁ„o callback chamada sempre que o usu·rio movimenta a "rodinha" do mouse.
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    // Atualizamos a dist√¢ncia da c√¢mera para a origem utilizando a
-    // movimenta√ß√£o da "rodinha", simulando um ZOOM.
+    // Atualizamos a dist‚ncia da c‚mera para a origem utilizando a
+    // movimentaÁ„o da "rodinha", simulando um ZOOM.
     g_CameraDistance -= 0.1f*yoffset;
 
-    // Uma c√¢mera look-at nunca pode estar exatamente "em cima" do ponto para
-    // onde ela est√° olhando, pois isto gera problemas de divis√£o por zero na
-    // defini√ß√£o do sistema de coordenadas da c√¢mera. Isto √©, a vari√°vel abaixo
-    // nunca pode ser zero. Vers√µes anteriores deste c√≥digo possu√≠am este bug,
+    // Uma c‚mera look-at nunca pode estar exatamente "em cima" do ponto para
+    // onde ela est· olhando, pois isto gera problemas de divis„o por zero na
+    // definiÁ„o do sistema de coordenadas da c‚mera. Isto È, a vari·vel abaixo
+    // nunca pode ser zero. Versıes anteriores deste cÛdigo possuÌam este bug,
     // o qual foi detectado pelo aluno Vinicius Fraga (2017/2).
     const float verysmallnumber = std::numeric_limits<float>::epsilon();
     if (g_CameraDistance < verysmallnumber)
         g_CameraDistance = verysmallnumber;
 }
 
-// Defini√ß√£o da fun√ß√£o que ser√° chamada sempre que o usu√°rio pressionar alguma
+// DefiniÁ„o da funÁ„o que ser· chamada sempre que o usu·rio pressionar alguma
 // tecla do teclado. Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 {
 
-    // Se o usu√°rio pressionar a tecla ESC, fechamos a janela.
+    // Se o usu·rio pressionar a tecla ESC, fechamos a janela.
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -1798,13 +1851,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     {
         pressS = true;
     }
-    // Se o usu√°rio apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
+    // Se o usu·rio apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
     {
         g_ShowInfoText = !g_ShowInfoText;
     }
 
-    // Se o usu√°rio apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
+    // Se o usu·rio apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
         LoadShadersFromFiles();
@@ -1837,16 +1890,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
 }
 
-// Definimos o callback para impress√£o de erros da GLFW no terminal
+// Definimos o callback para impress„o de erros da GLFW no terminal
 void ErrorCallback(int error, const char* description)
 {
     fprintf(stderr, "ERROR: GLFW: %s\n", description);
 }
 
-// Esta fun√ß√£o recebe um v√©rtice com coordenadas de modelo p_model e passa o
+// Esta funÁ„o recebe um vÈrtice com coordenadas de modelo p_model e passa o
 // mesmo por todos os sistemas de coordenadas armazenados nas matrizes model,
 // view, e projection; e escreve na tela as matrizes e pontos resultantes
-// dessas transforma√ß√µes.
+// dessas transformaÁıes.
 void TextRendering_ShowModelViewProjection(
     GLFWwindow* window,
     glm::mat4 projection,
@@ -1873,7 +1926,7 @@ void TextRendering_ShowModelViewProjection(
     TextRendering_PrintMatrixVectorProductDivW(window, projection, p_camera, -1.0f, 1.0f-14*pad, 1.0f);
 }
 
-// Escrevemos na tela qual matriz de proje√ß√£o est√° sendo utilizada.
+// Escrevemos na tela qual matriz de projeÁ„o est· sendo utilizada.
 void TextRendering_ShowProjection(GLFWwindow* window)
 {
     if ( !g_ShowInfoText )
@@ -1888,15 +1941,15 @@ void TextRendering_ShowProjection(GLFWwindow* window)
         TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
 }
 
-// Escrevemos na tela o n√∫mero de quadros renderizados por segundo (frames per
+// Escrevemos na tela o n˙mero de quadros renderizados por segundo (frames per
 // second).
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
 {
     if ( !g_ShowInfoText )
         return;
 
-    // Vari√°veis est√°ticas (static) mant√©m seus valores entre chamadas
-    // subsequentes da fun√ß√£o!
+    // Vari·veis est·ticas (static) mantÈm seus valores entre chamadas
+    // subsequentes da funÁ„o!
     static float old_seconds = (float)glfwGetTime();
     static int   ellapsed_frames = 0;
     static char  buffer[20] = "?? fps";
@@ -1904,10 +1957,10 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
 
     ellapsed_frames += 1;
 
-    // Recuperamos o n√∫mero de segundos que passou desde a execu√ß√£o do programa
+    // Recuperamos o n˙mero de segundos que passou desde a execuÁ„o do programa
     float seconds = (float)glfwGetTime();
 
-    // N√∫mero de segundos desde o √∫ltimo c√°lculo do fps
+    // N˙mero de segundos desde o ˙ltimo c·lculo do fps
     float ellapsed_seconds = seconds - old_seconds;
 
     if ( ellapsed_seconds > 1.0f )
@@ -1924,8 +1977,8 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
     TextRendering_PrintString(window, buffer, 1.0f-(numchars + 1)*charwidth, 1.0f-lineheight, 1.0f);
 }
 
-// Fun√ß√£o para debugging: imprime no terminal todas informa√ß√µes de um modelo
-// geom√©trico carregado de um arquivo ".obj".
+// FunÁ„o para debugging: imprime no terminal todas informaÁıes de um modelo
+// geomÈtrico carregado de um arquivo ".obj".
 // Veja: https://github.com/syoyo/tinyobjloader/blob/22883def8db9ef1f3ffb9b404318e7dd25fdbb51/loader_example.cc#L98
 void PrintObjModelInfo(ObjModel* model)
 {

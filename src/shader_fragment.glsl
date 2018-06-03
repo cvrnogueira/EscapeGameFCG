@@ -2,24 +2,24 @@
 
 // Atributos de fragmentos recebidos como entrada ("in") pelo Fragment Shader.
 // Neste exemplo, este atributo foi gerado pelo rasterizador como a
-// interpola√ß√£o da cor de cada v√©rtice, definidas em "shader_vertex.glsl" e
+// interpolaÁ„o da cor de cada vÈrtice, definidas em "shader_vertex.glsl" e
 // "main.cpp".
 in vec4 position_world;
 in vec4 normal;
 in vec3 cor_v;
 
-// Posi√ß√£o do v√©rtice atual no sistema de coordenadas local do modelo.
+// PosiÁ„o do vÈrtice atual no sistema de coordenadas local do modelo.
 in vec4 position_model;
 
 // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
 in vec2 texcoords;
 
-// Matrizes computadas no c√≥digo C++ e enviadas para a GPU
+// Matrizes computadas no cÛdigo C++ e enviadas para a GPU
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-// Identificador que define qual objeto est√° sendo desenhado no momento
+// Identificador que define qual objeto est· sendo desenhado no momento
 
 #define WALL  0
 #define FLOOR 1
@@ -33,13 +33,15 @@ uniform mat4 projection;
 #define BUTTON 9
 #define DOOR 10
 #define ARMCHAIR 11
+#define AXES 12
+
 uniform int object_id;
 
-// Par√¢metros da axis-aligned bounding box (AABB) do modelo
+// Par‚metros da axis-aligned bounding box (AABB) do modelo
 uniform vec4 bbox_min;
 uniform vec4 bbox_max;
 
-// Vari√°veis para acesso das imagens de textura
+// Vari·veis para acesso das imagens de textura
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
@@ -50,7 +52,7 @@ uniform sampler2D TextureImage6;
 uniform sampler2D TextureImage7;
 uniform sampler2D TextureImage8;
 uniform sampler2D TextureImage9;
-// O valor de sa√≠da ("out") de um Fragment Shader √© a cor final do fragmento.
+// O valor de saÌda ("out") de um Fragment Shader È a cor final do fragmento.
 out vec3 color;
 
 // Constantes
@@ -76,26 +78,26 @@ void main()
     float minz = bbox_min.z;
     float maxz = bbox_max.z;
 
-    // Obtemos a posi√ß√£o da c√¢mera utilizando a inversa da matriz que define o
-    // sistema de coordenadas da c√¢mera.
+    // Obtemos a posiÁ„o da c‚mera utilizando a inversa da matriz que define o
+    // sistema de coordenadas da c‚mera.
     vec4 origin = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 camera_position = inverse(view) * origin;
 
-    // O fragmento atual √© coberto por um ponto que percente √† superf√≠cie de um
-    // dos objetos virtuais da cena. Este ponto, p, possui uma posi√ß√£o no
-    // sistema de coordenadas global (World coordinates). Esta posi√ß√£o √© obtida
-    // atrav√©s da interpola√ß√£o, feita pelo rasterizador, da posi√ß√£o de cada
-    // v√©rtice.
+    // O fragmento atual È coberto por um ponto que percente ‡ superfÌcie de um
+    // dos objetos virtuais da cena. Este ponto, p, possui uma posiÁ„o no
+    // sistema de coordenadas global (World coordinates). Esta posiÁ„o È obtida
+    // atravÈs da interpolaÁ„o, feita pelo rasterizador, da posiÁ„o de cada
+    // vÈrtice.
     vec4 p = position_world;
 
     // Normal do fragmento atual, interpolada pelo rasterizador a partir das
-    // normais de cada v√©rtice.
+    // normais de cada vÈrtice.
     vec4 n = normalize(normal);
 
-    // Vetor que define o sentido da fonte de luz em rela√ß√£o ao ponto atual.
+    // Vetor que define o sentido da fonte de luz em relaÁ„o ao ponto atual.
     vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
 
-    // Vetor que define o sentido da c√¢mera em rela√ß√£o ao ponto atual.
+    // Vetor que define o sentido da c‚mera em relaÁ„o ao ponto atual.
     vec4 v = normalize(camera_position - p);
 
     vec4 r = -1 * l + 2 * n * dot(n,l);
@@ -143,7 +145,7 @@ void main()
         //U = (position_model.x - minx)/(maxx - minx) ;
         //V = (position_model.y - miny)/(maxy - miny) ;
 
-        // Obtemos a reflet√¢ncia difusa a partir da leitura da imagem TextureImage0
+        // Obtemos a reflet‚ncia difusa a partir da leitura da imagem TextureImage0
        // Kd = texture(TextureImage3, vec2(U,V)).rgb;
         Kd = vec3(0.08,0.8,0.4);
         Ks = vec3(0.8,0.8,0.8);
@@ -187,7 +189,7 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
 
-        // Obtemos a reflet√¢ncia difusa a partir da leitura da imagem TextureImage0
+        // Obtemos a reflet‚ncia difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage5, vec2(U,V)).rgb;
 
         vec3 n_aux = texture(TextureImage6, vec2(U,V)).rbg;
@@ -196,7 +198,7 @@ void main()
         Ks = texture(TextureImage7, vec2(U,V)).rgb;
         float q = 10.0;
 
-        // Equa√ß√£o de Ilumina√ß√£o
+        // EquaÁ„o de IluminaÁ„o
         float lambert = max(0,dot(n,l));
         float phong = pow(max(0.0,dot(r,v)), q);
         color = (Kd * (lambert + 0.01)) + (Ks * (phong + 0.01));
@@ -207,7 +209,7 @@ void main()
         V = (position_model.y - miny)/(maxy - miny) ;
 
 
-        // Obtemos a reflet√¢ncia difusa a partir da leitura da imagem TextureImage0
+        // Obtemos a reflet‚ncia difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage8, vec2(U,V)).rgb;
         Ks = vec3(0.2f,0.2f,0.2f);
         Ka = Kd/2;
@@ -228,6 +230,8 @@ void main()
         Ka = Kd/2;
         //q = 32.0;
         illumination_model = LAMBERT;
+    }else {
+        illumination_model = VERTEX;
     }
 
 
@@ -243,7 +247,7 @@ void main()
     // Termo ambiente
     vec3 ambient_term = Ka * Ia;
 
-    // Termo especular utilizando o modelo de ilumina√ß√£o de Phong
+    // Termo especular utilizando o modelo de iluminaÁ„o de Phong
     vec3 phong_specular_term  = Ks * I * pow(max(0.0,dot(r,v)), q);
     vec3 blinn_phong_specular_term = Ks * I * pow(max(0.0, dot(h,n)), q_linha);
 
@@ -257,12 +261,12 @@ void main()
         color = cor_v;
     }
 
-    // Equa√ß√£o de Ilumina√ß√£o
+    // EquaÁ„o de IluminaÁ„o
    // float lambert = max(0,dot(n,l));
 
     //color = Kd0 * (lambert + 0.01);
 
-    // Cor final com corre√ß√£o gamma, considerando monitor sRGB.
+    // Cor final com correÁ„o gamma, considerando monitor sRGB.
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
    color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
 }

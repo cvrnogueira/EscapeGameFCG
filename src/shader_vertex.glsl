@@ -62,10 +62,12 @@ void main()
     normal.w = 0.0;
     vec4 n = normalize(normal);
     vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
-    float lambert = max(0.0f, dot(n, l));
-    vec3 Ka = vec3(0.8,0.2,0.2);
+    vec3 I = vec3(1.0,1.0,1.0);
+    vec3 Kd = vec3(1.0f,0.2f,0.2f);
+    vec3 Ka = Kd/2;
     vec3 Ia = vec3(0.2,0.2,0.2);
     vec3 ambient_term = Ka * Ia;
+    vec3 lambert = Kd * I * max(0.0f, dot(n, l));
     cor_v = lambert + ambient_term;
 
 
