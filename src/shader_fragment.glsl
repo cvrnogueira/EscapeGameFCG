@@ -34,7 +34,7 @@ uniform mat4 projection;
 #define DOOR 10
 #define ARMCHAIR 11
 #define AXES 12
-
+#define COW2 12
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -141,12 +141,17 @@ void main()
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
         q = 1;
     }
-    else if (object_id == COW){
-        //U = (position_model.x - minx)/(maxx - minx) ;
-        //V = (position_model.y - miny)/(maxy - miny) ;
+        else if (object_id == COW2){
+  U = (position_model.x - minx)/(maxx - minx) ;
+        V = (position_model.y - miny)/(maxy - miny) ;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-       // Kd = texture(TextureImage3, vec2(U,V)).rgb;
+        Kd = texture(TextureImage3, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
+        q = 1;
+    }
+    else if (object_id == COW){
         Kd = vec3(0.08,0.8,0.4);
         Ks = vec3(0.8,0.8,0.8);
         Ka = vec3(0.1f,0.1f,0.1f);

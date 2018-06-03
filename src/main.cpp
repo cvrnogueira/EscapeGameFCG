@@ -119,8 +119,8 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 //PARA CAMERA E MOVIMENTO
 
 #define PI 3.14159265
-glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Posição do Personagem (character) e, consequentemente, da câmera
-glm::vec4 novoPos_char = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+glm::vec4 pos_char = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f); // Posição do Personagem (character) e, consequentemente, da câmera
+glm::vec4 novoPos_char;
 glm::vec4 front_vector = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f); // Vetor de direção de visualização do personagem e, consequentemente, da câmera
 glm::vec4 up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor up da câmera
 void movimento();
@@ -173,7 +173,7 @@ GLFWwindow* window;
 #define DOOR 10
 #define ARMCHAIR 11
 #define AXES 12
-
+#define COW2 12
 
 
 #define SECONDS 10
@@ -284,15 +284,13 @@ int main(int argc, char* argv[])
     // funções modernas de OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(800, 600, "nome, nome", NULL, NULL);
-    ///SE DECOMENTAR VOLTA O MENU ///////////////////
-    /* const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
      glfwWindowHint(GLFW_RED_BITS, mode->redBits);
      glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
      glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
      glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
      window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
-     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);*/
+     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
     {
         glfwTerminate();
@@ -320,12 +318,10 @@ int main(int argc, char* argv[])
     // Definimos a função de callback que será chamada sempre que a janela for
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
-    ///MENU- DESCOMENTAR PRO MENU
-    /*
+
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*/
-    FramebufferSizeCallback(window, 800, 600);//
+    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -425,10 +421,10 @@ int main(int argc, char* argv[])
     glm::mat4 the_projection;
     glm::mat4 the_model;
     glm::mat4 the_view;
-    playGame();
-    /*while(true)
+
+    while(true)
     {
-        g_UsePerspectiveProjection = false; /// Oi, lau! Aqui a gente seta par usar essa projeção no meu, porque dai estamos usando essa aqui e a do jogo é a outra, logo usamos as duas!
+        g_UsePerspectiveProjection = false;
         int opMenu = menu();
         switch(opMenu)
         {
@@ -446,7 +442,7 @@ int main(int argc, char* argv[])
             break;
 
         }
-    }*/
+    }
     // Finalizamos o uso dos recursos do sistema operacional
     glfwTerminate();
 
@@ -574,7 +570,7 @@ int menu()
         }
 
 
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
         // e também resetamos todos os pixels do Z-buffer (depth buffer).
@@ -637,7 +633,7 @@ int menu()
         glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(object_id_uniform, COW);
+        glUniform1i(object_id_uniform, COW2);
         DrawVirtualObject("cow");
 
         TextRendering_PrintString(window, "Start", 0.0f, startPos, startSize);
@@ -682,7 +678,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 {
     glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
     //           R     G     B     A
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
     // e também resetamos todos os pixels do Z-buffer (depth buffer).
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
