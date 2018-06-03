@@ -921,27 +921,6 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     roomObjects.push_back("cuadrado");
 
 
-    float scaleCoef = 1.0f;
-    glm::vec3 cowCenter = glm::vec3(+2.0f, -0.4f,-2.0f);
-    model = Matrix_Translate(cowCenter.x,cowCenter.y,cowCenter.z)
-            * Matrix_Scale(scaleCoef,scaleCoef,scaleCoef);
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, COW);
-    DrawVirtualObject("cow");
-    g_VirtualScene["cow"].model_matrix = model;
-    roomObjects.push_back("cow");
-    /*
-        glm::vec3 centerSphere = glm::vec3(-2.5f, -0.7f,-3.7f);
-        float sphereScaleCoef = 0.3f;
-        model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
-                * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
-
-        glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(object_id_uniform, SPHERE);
-        DrawVirtualObject("sphere");
-        g_VirtualScene["sphere"].model_matrix = model;
-        roomObjects.push_back("sphere");*/
-
     glLineWidth(10.0f);
     model = Matrix_Translate(-2.5f,0.0f,-3.7f); //Matrix_Translate(0.0f,0.0f,0.0f);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));

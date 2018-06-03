@@ -151,7 +151,7 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
         q = 1;
-    }
+    }/*
     else if (object_id == COW){
         Kd = vec3(0.08,0.8,0.4);
         Ks = vec3(0.8,0.8,0.8);
@@ -160,20 +160,7 @@ void main()
         q_linha = 80;
         h = normalize(l + v);
         illumination_model = BLINN_PHONG;
-    }
-    else if (object_id == SPHERE){
-        //Kd = vec3(0.08,0.8,0.4);
-        //Ks = vec3(0.8,0.8,0.8);
-        //Ka = Kd/2;
-        //q = 32.0;
-        //illumination_model = LAMBERT;
-        ///sim, sabemos que iluminacao por vertex nao eh um modelo de ilumina
-        ///cao. O que queremos dizer aqui eh que a cor sera atribuida pelo
-        ///valor de saida da shader_vertex
-        illumination_model = VERTEX;
-
-
-    }
+    }*/
       else if (object_id == TABLE){
            U = texcoords.x;
         V = texcoords.y;
@@ -181,6 +168,8 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
+        illumination_model = BLINN_PHONG;
+
     }
       else if (object_id == LAPTOP){
         U = texcoords.x;
