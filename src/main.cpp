@@ -159,6 +159,8 @@ double actualSecond;
 void atualizaPulo();
 int startJump = 0;
 GLFWwindow* window;
+GLFWwindow* charadaWindow;
+void escreveMsgNaTela(GLFWwindow* charadaWindow);
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
 #define FLOOR 1
@@ -284,13 +286,38 @@ int main(int argc, char* argv[])
     // funções modernas de OpenGL.
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
+    //===================================================================================================================
+    charadaWindow = glfwCreateWindow(300, 300,"Terminal", nullptr, nullptr); //onde largura e altura são os valores que tu achar melhor pro joguinho
+    if (charadaWindow == nullptr)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    // Definimos a função de callback que será chamada sempre que o usuário
+    // pressionar alguma tecla do teclado ...
+    glfwSetKeyCallback(charadaWindow, KeyCallback);
+    // ... ou clicar os botões do mouse ...
+    glfwSetMouseButtonCallback(charadaWindow, MouseButtonCallback);
+    // ... ou movimentar o cursor do mouse em cima da janela ...
+    glfwSetCursorPosCallback(charadaWindow, CursorPosCallback);
+    // ... ou rolar a "rodinha" do mouse.
+    glfwSetScrollCallback(charadaWindow, ScrollCallback);
+
+    // Indicamos que as chamadas OpenGL deverão renderizar nesta janela
+    glfwMakeContextCurrent(charadaWindow);
+
+
+    //==================================================================================================================
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-     glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-     window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
-     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
     {
         glfwTerminate();
@@ -311,6 +338,9 @@ int main(int argc, char* argv[])
     // Indicamos que as chamadas OpenGL deverão renderizar nesta janela
     glfwMakeContextCurrent(window);
 
+
+
+
     // Carregamento de todas funções definidas por OpenGL 3.3, utilizando a
     // biblioteca GLAD.
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
@@ -319,8 +349,12 @@ int main(int argc, char* argv[])
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
 
-    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+    glfwMakeContextCurrent(charadaWindow);
+    glfwSetFramebufferSizeCallback(charadaWindow, FramebufferSizeCallback);
+    FramebufferSizeCallback(charadaWindow, 800, 600);
 
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
     FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 
     // Imprimimos no terminal informações sobre a GPU do sistema
@@ -449,6 +483,23 @@ int main(int argc, char* argv[])
     // Fim do programa
     return 0;
 }
+
+void escreveMsgNaTela(GLFWwindow* charadaWindow)
+{
+
+    float pad = TextRendering_LineHeight(charadaWindow);
+
+    char buffer[80];
+    snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
+
+    float lineheight = TextRendering_LineHeight(charadaWindow);
+    float charwidth = TextRendering_CharWidth(charadaWindow);
+    TextRendering_PrintString(charadaWindow, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
+
+
+
+
+}
 ///Coloca pra jogar
 void playGame()
 {
@@ -461,9 +512,13 @@ void playGame()
 
     engine->setSoundVolume(0.7);
 
+
+
 // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
+
+
 
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
         // os shaders de vértice e fragmentos).
@@ -568,7 +623,16 @@ int menu()
         default:
             break;
         }
+        glfwMakeContextCurrent(charadaWindow);
 
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //fundo preto
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glfwSwapBuffers(charadaWindow);
+        escreveMsgNaTela(charadaWindow);
+
+        glfwMakeContextCurrent(window);
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -677,8 +741,9 @@ Plane getPlaneEquation(glm::mat4 model)
 void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 {
     glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
+
     //           R     G     B     A
-glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // "Pintamos" todos os pixels do framebuffer com a cor definida acima,
     // e também resetamos todos os pixels do Z-buffer (depth buffer).
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -766,9 +831,9 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     //frente
     model =   Matrix_Rotate_Z(M_PI)
-            * Matrix_Translate(0.0f,0.0f,4.0f)
-            * Matrix_Scale(4.0f,1.0f,1.0f)
-            * Matrix_Rotate_X(-M_PI_2);
+              * Matrix_Translate(0.0f,0.0f,4.0f)
+              * Matrix_Scale(4.0f,1.0f,1.0f)
+              * Matrix_Rotate_X(-M_PI_2);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
@@ -829,7 +894,7 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
-           // * Matrix_Rotate_Y(1 * PI / 2);
+    // * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("Line02");
@@ -839,12 +904,12 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
-            //* Matrix_Rotate_Y(1 * PI / 2);
+    //* Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("cuadrado");
     g_VirtualScene["cuadrado"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-                                                * Matrix_Scale(0.04f, 0.04f, 0.04f);
+            * Matrix_Scale(0.04f, 0.04f, 0.04f);
     roomObjects.push_back("cuadrado");
 
 
@@ -857,17 +922,17 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     DrawVirtualObject("cow");
     g_VirtualScene["cow"].model_matrix = model;
     roomObjects.push_back("cow");
-/*
-    glm::vec3 centerSphere = glm::vec3(-2.5f, -0.7f,-3.7f);
-    float sphereScaleCoef = 0.3f;
-    model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
-            * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
+    /*
+        glm::vec3 centerSphere = glm::vec3(-2.5f, -0.7f,-3.7f);
+        float sphereScaleCoef = 0.3f;
+        model = Matrix_Translate(centerSphere.x,centerSphere.y,centerSphere.z)
+                * Matrix_Scale(sphereScaleCoef,sphereScaleCoef,sphereScaleCoef);
 
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, SPHERE);
-    DrawVirtualObject("sphere");
-    g_VirtualScene["sphere"].model_matrix = model;
-    roomObjects.push_back("sphere");*/
+        glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(object_id_uniform, SPHERE);
+        DrawVirtualObject("sphere");
+        g_VirtualScene["sphere"].model_matrix = model;
+        roomObjects.push_back("sphere");*/
 
     glLineWidth(10.0f);
     model = Matrix_Translate(-2.5f,0.0f,-3.7f); //Matrix_Translate(0.0f,0.0f,0.0f);
@@ -876,7 +941,8 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     DrawVirtualObject("axes");
 
     updateTime();
-    if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 ) {
+    if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 )
+    {
 
         std::cout << "Perdeu o jogo!!" << std::endl;
     }
@@ -885,7 +951,8 @@ glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
 }
-void updateTime() {
+void updateTime()
+{
 
     if((time != (int)glfwGetTime()) && seconds > 0)
     {
@@ -903,12 +970,13 @@ void updateTime() {
 }
 void BuildLine()
 {
-    GLfloat model_coefficients[] = {
-    //    X      Y     Z     W
-         -1.0f,  1.0f,  0.0f, 1.0f, // posição do vértice 8
-         1.0f,  1.0f,  0.0f, 1.0f, // posição do vértice 9
-         1.0f,  -1.0f,  0.0f, 1.0f, // posição do vértice 9
-         -1.0f,  -1.0f,  0.0f, 1.0f // posição do vértice 9
+    GLfloat model_coefficients[] =
+    {
+        //    X      Y     Z     W
+        -1.0f,  1.0f,  0.0f, 1.0f, // posição do vértice 8
+        1.0f,  1.0f,  0.0f, 1.0f, // posição do vértice 9
+        1.0f,  -1.0f,  0.0f, 1.0f, // posição do vértice 9
+        -1.0f,  -1.0f,  0.0f, 1.0f // posição do vértice 9
 
     };
     GLuint VBO_model_coefficients_id;
@@ -951,7 +1019,8 @@ void BuildLine()
 
     glBindVertexArray(0);
 }
-bool isPointInsideBBOX(glm::vec3 point){
+bool isPointInsideBBOX(glm::vec3 point)
+{
 
     glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
     glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
@@ -1051,7 +1120,7 @@ void movimento()
         if (step && testaColisao)
             if (tempoLastStep > 0.5f)
             {
-               if(stopPassos ==false) engine->play2D("../../data/audio/Footstep.wav");
+                if(stopPassos ==false) engine->play2D("../../data/audio/Footstep.wav");
                 tempoLastStep = 0;
             }
 
@@ -1115,9 +1184,9 @@ void validaMovimento()
     }
     else
     {
-         stopPassos = true;
+        stopPassos = true;
         std::cout << " colidiu com algum obj" << std::endl;
-       novoPos_char.x = pos_char.x;
+        novoPos_char.x = pos_char.x;
         novoPos_char.z = pos_char.z;
     }
     /// Teste com o plano chao( y <=0 é se a pessoa ta no chao dnv, antes disso ela ta com y maior q zero pq ta no ar)
