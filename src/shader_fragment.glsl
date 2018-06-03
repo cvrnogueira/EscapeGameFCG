@@ -35,6 +35,7 @@ uniform mat4 projection;
 #define ARMCHAIR 11
 #define AXES 12
 #define COW2 13
+#define SPHERE2 14
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -228,6 +229,16 @@ void main()
         Ka = Kd/2;
         q = 1;
     }
+    else if(object_id == SPHERE2){
+         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        vec4 p = position_model - bbox_center;
+        float anguloro = length(p);
+        float anguloteta = atan(p.x, p.z);
+        float angulofi = asin(p.y/anguloro);
+
+        U = (anguloteta + M_PI)/(2*M_PI);
+        V = (angulofi + M_PI_2)/M_PI;
+    }
 
       else if (object_id == ARMCHAIR){
              Kd = vec3(0.08,0.8,0.4);
@@ -239,7 +250,23 @@ void main()
         illumination_model = VERTEX;
     }
 
+   if(object_id ==SPHERE2){
 
+    // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+    vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+
+    vec3 Kd1 = texture(TextureImage8, vec2(U,V)).rgb;
+
+    // Equação de Iluminação
+    float lambert = max(0,dot(n,l));
+
+    color = Kd0 * (lambert + 0.01);
+    color = Kd1 * (1 - pow(lambert,0.2)) +  Kd0 * (lambert + 0.01);
+    // Cor final com correção gamma, considerando monitor sRGB.
+    // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
+    color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+   }
+   else{
 
     vec3 I = vec3(1.0,1.0,1.0);
 
@@ -274,4 +301,6 @@ void main()
     // Cor final com correção gamma, considerando monitor sRGB.
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
    color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
+   }
+
 }
