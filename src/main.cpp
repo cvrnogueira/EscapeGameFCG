@@ -18,6 +18,7 @@
 #include <glad/glad.h>   // Criação de contexto OpenGL 3.3
 #include <GLFW/glfw3.h>  // Criação de janelas do sistema operacional
 
+
 // Headers da biblioteca GLM: criação de matrizes e vetores.
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
@@ -820,14 +821,14 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     //laptop
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
             * Matrix_Scale(0.2f, 0.2f, 0.2f)
-            * Matrix_Rotate_Y(1 * PI / 8);
+            * Matrix_Rotate_Y(-PI);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane002");
 
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
             * Matrix_Scale(0.2f, 0.2f, 0.2f)
-            * Matrix_Rotate_Y(1 * PI / 8);
+            * Matrix_Rotate_Y(-PI);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane005_Plane");
@@ -2508,15 +2509,15 @@ void checkNoteClick()
     );
 
     float intersection_distance; // Output of TestRayOBBIntersection()
-    glm::vec3 aabb_min(-0.25f, -0.25f, -0.25f);
-    glm::vec3 aabb_max( 0.25f,  0.25f,  0.25f);
+    glm::vec3 aabb_min(-0.3f, -0.3f, -0.3f);
+    glm::vec3 aabb_max( 0.3f,  0.3f,  0.3f);
 
     // The ModelMatrix transforms :
     // - the mesh to its desired position and orientation
     // - but also the AABB (defined with aabb_min and aabb_max) into an OBB
 
 
-    glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f)* Matrix_Rotate_Y(1 * PI / 8);
+    glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f)* Matrix_Rotate_Y(-PI);
 
 
     if ( TestRayOBBIntersection(
@@ -2529,6 +2530,97 @@ void checkNoteClick()
        )
     {
         printf("cliqueiii");
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
+   glMatrixMode(GL_MODELVIEW);     // To operate on model-view matrix
+
+   // Render a color-cube consisting of 6 quads with different colors
+   glLoadIdentity();                 // Reset the model-view matrix
+   glTranslatef(1.5f, 0.0f, -7.0f);  // Move right and into the screen
+
+   glBegin(GL_QUADS);                // Begin drawing the color cube with 6 quads
+      // Top face (y = 1.0f)
+      // Define vertices in counter-clockwise (CCW) order with normal pointing out
+      glColor3f(0.0f, 1.0f, 0.0f);     // Green
+      glVertex3f( 1.0f, 1.0f, -1.0f);
+      glVertex3f(-1.0f, 1.0f, -1.0f);
+      glVertex3f(-1.0f, 1.0f,  1.0f);
+      glVertex3f( 1.0f, 1.0f,  1.0f);
+
+      // Bottom face (y = -1.0f)
+      glColor3f(1.0f, 0.5f, 0.0f);     // Orange
+      glVertex3f( 1.0f, -1.0f,  1.0f);
+      glVertex3f(-1.0f, -1.0f,  1.0f);
+      glVertex3f(-1.0f, -1.0f, -1.0f);
+      glVertex3f( 1.0f, -1.0f, -1.0f);
+
+      // Front face  (z = 1.0f)
+      glColor3f(1.0f, 0.0f, 0.0f);     // Red
+      glVertex3f( 1.0f,  1.0f, 1.0f);
+      glVertex3f(-1.0f,  1.0f, 1.0f);
+      glVertex3f(-1.0f, -1.0f, 1.0f);
+      glVertex3f( 1.0f, -1.0f, 1.0f);
+
+      // Back face (z = -1.0f)
+      glColor3f(1.0f, 1.0f, 0.0f);     // Yellow
+      glVertex3f( 1.0f, -1.0f, -1.0f);
+      glVertex3f(-1.0f, -1.0f, -1.0f);
+      glVertex3f(-1.0f,  1.0f, -1.0f);
+      glVertex3f( 1.0f,  1.0f, -1.0f);
+
+      // Left face (x = -1.0f)
+      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
+      glVertex3f(-1.0f,  1.0f,  1.0f);
+      glVertex3f(-1.0f,  1.0f, -1.0f);
+      glVertex3f(-1.0f, -1.0f, -1.0f);
+      glVertex3f(-1.0f, -1.0f,  1.0f);
+
+      // Right face (x = 1.0f)
+      glColor3f(1.0f, 0.0f, 1.0f);     // Magenta
+      glVertex3f(1.0f,  1.0f, -1.0f);
+      glVertex3f(1.0f,  1.0f,  1.0f);
+      glVertex3f(1.0f, -1.0f,  1.0f);
+      glVertex3f(1.0f, -1.0f, -1.0f);
+   glEnd();  // End of drawing color-cube
+
+   // Render a pyramid consists of 4 triangles
+   glLoadIdentity();                  // Reset the model-view matrix
+   glTranslatef(-1.5f, 0.0f, -6.0f);  // Move left and into the screen
+
+   glBegin(GL_TRIANGLES);           // Begin drawing the pyramid with 4 triangles
+      // Front
+      glColor3f(1.0f, 0.0f, 0.0f);     // Red
+      glVertex3f( 0.0f, 1.0f, 0.0f);
+      glColor3f(0.0f, 1.0f, 0.0f);     // Green
+      glVertex3f(-1.0f, -1.0f, 1.0f);
+      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
+      glVertex3f(1.0f, -1.0f, 1.0f);
+
+      // Right
+      glColor3f(1.0f, 0.0f, 0.0f);     // Red
+      glVertex3f(0.0f, 1.0f, 0.0f);
+      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
+      glVertex3f(1.0f, -1.0f, 1.0f);
+      glColor3f(0.0f, 1.0f, 0.0f);     // Green
+      glVertex3f(1.0f, -1.0f, -1.0f);
+
+      // Back
+      glColor3f(1.0f, 0.0f, 0.0f);     // Red
+      glVertex3f(0.0f, 1.0f, 0.0f);
+      glColor3f(0.0f, 1.0f, 0.0f);     // Green
+      glVertex3f(1.0f, -1.0f, -1.0f);
+      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
+      glVertex3f(-1.0f, -1.0f, -1.0f);
+
+      // Left
+      glColor3f(1.0f,0.0f,0.0f);       // Red
+      glVertex3f( 0.0f, 1.0f, 0.0f);
+      glColor3f(0.0f,0.0f,1.0f);       // Blue
+      glVertex3f(-1.0f,-1.0f,-1.0f);
+      glColor3f(0.0f,1.0f,0.0f);       // Green
+      glVertex3f(-1.0f,-1.0f, 1.0f);
+   glEnd();   // Done drawing the pyramid
+glFinish();
+//        glfwSwapBuffers(); // Swap the front and back frame buffers (double buffering)
     }
 }
 
