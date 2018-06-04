@@ -315,26 +315,6 @@ int main(int argc, char* argv[])
 
 
     //===================================================================================================================
-    charadaWindow = glfwCreateWindow(300, 300,"Terminal", nullptr, nullptr); //onde largura e altura são os valores que tu achar melhor pro joguinho
-    if (charadaWindow == nullptr)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // Definimos a função de callback que será chamada sempre que o usuário
-    // pressionar alguma tecla do teclado ...
-    glfwSetKeyCallback(charadaWindow, KeyCallback);
-    // ... ou clicar os botões do mouse ...
-    glfwSetMouseButtonCallback(charadaWindow, MouseButtonCallback);
-    // ... ou movimentar o cursor do mouse em cima da janela ...
-    glfwSetCursorPosCallback(charadaWindow, CursorPosCallback);
-    // ... ou rolar a "rodinha" do mouse.
-    glfwSetScrollCallback(charadaWindow, ScrollCallback);
-
-    // Indicamos que as chamadas OpenGL deverão renderizar nesta janela
-    glfwMakeContextCurrent(charadaWindow);
 
 
     //==================================================================================================================
@@ -378,9 +358,6 @@ int main(int argc, char* argv[])
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
 //===============================================================================================================================================
-    glfwMakeContextCurrent(charadaWindow);
-    glfwSetFramebufferSizeCallback(charadaWindow, FramebufferSizeCallback);
-    FramebufferSizeCallback(charadaWindow, 300, 300);
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
@@ -623,14 +600,6 @@ int menu()
         default:
             break;
         }
-        glfwMakeContextCurrent(charadaWindow);
-
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //fundo preto
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glfwSwapBuffers(charadaWindow);
-        escreveMsgNaTela(charadaWindow);
 
         glfwMakeContextCurrent(window);
 
@@ -837,8 +806,8 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     // COFFEE TABLE
 
-    model = Matrix_Translate(+3.05f, -1.025f, -1.225f)
-            * Matrix_Scale(0.002f, 0.002f, 0.002f)
+    model = Matrix_Translate(+2.80f, -1.025f, -1.225f)
+            * Matrix_Scale(0.003f, 0.002f, 0.002f)
             * Matrix_Rotate_Y(1 * PI / 8);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -850,7 +819,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     //laptop
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-            * Matrix_Scale(0.2f, 0.2f, 0.2)
+            * Matrix_Scale(0.2f, 0.2f, 0.2f)
             * Matrix_Rotate_Y(1 * PI / 8);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
