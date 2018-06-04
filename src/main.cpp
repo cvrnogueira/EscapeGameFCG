@@ -515,10 +515,6 @@ void escreveMsgNaTela(GLFWwindow* charadaWindow)
 
     char buffer[80];
     snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
-
-    float lineheight = TextRendering_LineHeight(charadaWindow);
-    float charwidth = TextRendering_CharWidth(charadaWindow);
-
     TextRendering_PrintString(charadaWindow,buffer, 0.0f, 0.0f, 1.0f);
     // TextRendering_PrintString(charadaWindow, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
 
@@ -854,14 +850,14 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     //laptop
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-            * Matrix_Scale(0.15f, 0.15f, 0.15)
+            * Matrix_Scale(0.2f, 0.2f, 0.2)
             * Matrix_Rotate_Y(1 * PI / 8);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane002");
 
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-            * Matrix_Scale(0.15f, 0.15f, 0.15)
+            * Matrix_Scale(0.2f, 0.2f, 0.2f)
             * Matrix_Rotate_Y(1 * PI / 8);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
@@ -934,10 +930,7 @@ void updateTime()
     }
 
     char buffer[44];
-    int numchars=44;
     sprintf ( buffer, "Voce tem    %d   segundos", seconds );
-    float lineheight = TextRendering_LineHeight(window);
-    float charwidth = TextRendering_CharWidth(window);
     TextRendering_PrintString(window,buffer, 0.60f, 0.90f, 1.0f);
 }
 void BuildLine()
@@ -2407,7 +2400,7 @@ bool TestRayOBBIntersection(
     // Intersection method from Real-Time Rendering and Essential Mathematics for Games
 
     float tMin = 0.0f;
-    float tMax = 40.0f;
+   	float tMax = 100000.0f;
 
     glm::vec3 OBBposition_worldspace(ModelMatrix[3].x, ModelMatrix[3].y, ModelMatrix[3].z);
 
@@ -2546,8 +2539,8 @@ void checkNoteClick()
     );
 
     float intersection_distance; // Output of TestRayOBBIntersection()
-    glm::vec3 aabb_min(-1.0f, -1.0f, -1.0f);
-    glm::vec3 aabb_max( 1.0f,  1.0f,  1.0f);
+    glm::vec3 aabb_min(-0.25f, -0.25f, -0.25f);
+    glm::vec3 aabb_max( 0.25f,  0.25f,  0.25f);
 
     // The ModelMatrix transforms :
     // - the mesh to its desired position and orientation
