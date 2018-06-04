@@ -164,6 +164,28 @@ void escreveMsgNaTela(GLFWwindow* charadaWindow);
 bool lostGame = false;
 void fimJogo();
 float g_AngleY = 0.0f;
+void ScreenPosToWorldRay(
+    int mouseX, int mouseY,             // Mouse position, in pixels, from bottom-left corner of the window
+    int screenWidth, int screenHeight,  // Window size, in pixels
+    glm::mat4 ViewMatrix,               // Camera position and orientation
+    glm::mat4 ProjectionMatrix,         // Camera parameters (ratio, field of view, near and far planes)
+    glm::vec3& out_origin,              // Ouput : Origin of the ray. /!\ Starts at the near plane, so if you want the ray to start at the camera's position instead, ignore this.
+    glm::vec3& out_direction            // Ouput : Direction, in world space, of the ray that goes "through" the mouse.
+);
+bool TestRayOBBIntersection(
+    glm::vec3 ray_origin,        // Ray origin, in world space
+    glm::vec3 ray_direction,     // Ray direction (NOT target position!), in world space. Must be normalize()'d.
+    glm::vec3 aabb_min,          // Minimum X,Y,Z coords of the mesh when not transformed at all.
+    glm::vec3 aabb_max,          // Maximum X,Y,Z coords. Often aabb_min*-1 if your mesh is centered, but it's not always the case.
+    glm::mat4 ModelMatrix,       // Transformation applied to the mesh (which will thus be also applied to its bounding box)
+    float& intersection_distance // Output : distance between ray_origin and the intersection with the OBB
+);
+const GLFWvidmode* mode;
+double widthScreen;
+double heigthScreen;
+glm::mat4 viewVar;
+glm::mat4 projectionVar;
+void checkNoteClick();
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
 #define FLOOR 1
@@ -316,13 +338,15 @@ int main(int argc, char* argv[])
 
 
     //==================================================================================================================
-    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwWindowHint(GLFW_RED_BITS, mode->redBits);
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-    window = glfwCreateWindow(mode->width, mode->height, "Scape Game Topper", NULL, NULL);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    widthScreen =1024;
+    heigthScreen = 736;
+    window = glfwCreateWindow(1024, 736, "Scape Game Topper", NULL, NULL);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
     {
         glfwTerminate();
@@ -360,7 +384,8 @@ int main(int argc, char* argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
+    FramebufferSizeCallback(window, 1024,736);
+   // FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 //======================================================================================================================================================
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -455,12 +480,6 @@ int main(int argc, char* argv[])
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    // Variáveis auxiliares utilizadas para chamada à função
-    // TextRendering_ShowModelViewProjection(), armazenando matrizes 4x4.
-    glm::mat4 the_projection;
-    glm::mat4 the_model;
-    glm::mat4 the_view;
-
     while(true)
     {
         g_UsePerspectiveProjection = false;
@@ -538,10 +557,7 @@ void playGame()
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slide 162 do
         // documento "Aula_08_Sistemas_de_Coordenadas.pdf".
-        glm::mat4 view = Matrix_Camera_View(pos_char, front_vector, up_vector);
-        // Agora computamos a matriz de Projeção.
-        glm::mat4 projection;
-        glm::mat4 model;
+        viewVar = Matrix_Camera_View(pos_char, front_vector, up_vector);
 
         // Note que, no sistema de coordenadas da câmera, os planos near e far
         // estão no sentido negativo! Veja slides 180-183 do documento
@@ -549,32 +565,12 @@ void playGame()
         float nearplane = -0.1f;  // Posição do "near plane"
         float farplane = -40.0f; // Posição do "far plane"
 
-
-
-        if (g_UsePerspectiveProjection)
-        {
-            // Projeção Perspectiva.
-            // Para definição do field of view (FOV), veja slide 199 do
-            // documento "Aula_09_Projecoes.pdf".
-            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
-        }
-        else
-        {
-            // Projeção Ortográfica.
-            // Para definição dos valores l, r, b, t ("left", "right", "bottom", "top"),
-            // veja slide 206 do documento "Aula_09_Projecoes.pdf".
-            // Para simular um "zoom" ortográfico, computamos o valor de "t"
-            // utilizando a variável g_CameraDistance.
-            float t = 1.5f*g_CameraDistance / 2.5f;
-            float b = -t;
-            float r = t*g_ScreenRatio;
-            float l = -r;
-            projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
-        }
+        // Projeção Perspectiva.
+        projectionVar = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
 
 
         validaMovimento();
-        DrawLevel1(view, projection);
+        DrawLevel1(viewVar, projectionVar);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
         if(lostGame == true) fimJogo();
         TextRendering_ShowFramesPerSecond(window);
@@ -649,10 +645,10 @@ int menu()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(program_id);
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+        float d = g_CameraDistance;
+        float y = d*sin(g_CameraPhi);
+        float z = d*cos(g_CameraPhi)*cos(g_CameraTheta);
+        float x = d*cos(g_CameraPhi)*sin(g_CameraTheta);
 
         // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
         // Veja slide 165 do documento "Aula_08_Sistemas_de_Coordenadas.pdf".
@@ -675,16 +671,7 @@ int menu()
         float nearplane = -0.1f;  // Posição do "near plane"
         float farplane  = -100.0f; // Posição do "far plane"
 
-        if (g_UsePerspectiveProjection)
-        {
-            // Projeção Perspectiva.
-            // Para definição do field of view (FOV), veja slide 234 do
-            // documento "Aula_09_Projecoes.pdf".
-            float field_of_view = 3.141592 / 3.0f;
-            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
-        }
-        else
-        {
+
             // Projeção Ortográfica.
             // Para definição dos valores l, r, b, t ("left", "right", "bottom", "top"),
             // veja slide 243 do documento "Aula_09_Projecoes.pdf".
@@ -695,7 +682,7 @@ int menu()
             float r = t*g_ScreenRatio;
             float l = -r;
             projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
-        }
+
 
         glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
         // model = Matrix_Rotate_Y((float)glfwGetTime() * 0.1f);
@@ -1914,6 +1901,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         // Quando o usuário soltar o botão esquerdo do mouse, atualizamos a
         // variável abaixo para false.
         g_LeftMouseButtonPressed = false;
+        checkNoteClick();
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
     {
@@ -2353,6 +2341,232 @@ void PrintObjModelInfo(ObjModel* model)
             printf("  material.%s = %s\n", it->first.c_str(), it->second.c_str());
         }
         printf("\n");
+    }
+}
+
+void ScreenPosToWorldRay(
+    int mouseX, int mouseY,             // Mouse position, in pixels, from bottom-left corner of the window
+    int screenWidth, int screenHeight,  // Window size, in pixels
+    glm::mat4 ViewMatrix,               // Camera position and orientation
+    glm::mat4 ProjectionMatrix,         // Camera parameters (ratio, field of view, near and far planes)
+    glm::vec3& out_origin,              // Ouput : Origin of the ray. /!\ Starts at the near plane, so if you want the ray to start at the camera's position instead, ignore this.
+    glm::vec3& out_direction            // Ouput : Direction, in world space, of the ray that goes "through" the mouse.
+)
+{
+
+    // The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
+    glm::vec4 lRayStart_NDC(
+        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
+        -1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+        1.0f
+    );
+    glm::vec4 lRayEnd_NDC(
+        ((float)mouseX/(float)screenWidth  - 0.5f) * 2.0f,
+        ((float)mouseY/(float)screenHeight - 0.5f) * 2.0f,
+        0.0,
+        1.0f
+    );
+
+
+    // The Projection matrix goes from Camera Space to NDC.
+    // So inverse(ProjectionMatrix) goes from NDC to Camera Space.
+    glm::mat4 InverseProjectionMatrix = glm::inverse(ProjectionMatrix);
+
+    // The View Matrix goes from World Space to Camera Space.
+    // So inverse(ViewMatrix) goes from Camera Space to World Space.
+    glm::mat4 InverseViewMatrix = glm::inverse(ViewMatrix);
+
+    glm::vec4 lRayStart_camera = InverseProjectionMatrix * lRayStart_NDC;
+    lRayStart_camera/=lRayStart_camera.w;
+    glm::vec4 lRayStart_world  = InverseViewMatrix       * lRayStart_camera;
+    lRayStart_world /=lRayStart_world .w;
+    glm::vec4 lRayEnd_camera   = InverseProjectionMatrix * lRayEnd_NDC;
+    lRayEnd_camera  /=lRayEnd_camera  .w;
+    glm::vec4 lRayEnd_world    = InverseViewMatrix       * lRayEnd_camera;
+    lRayEnd_world   /=lRayEnd_world   .w;
+
+    glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+    lRayDir_world = glm::normalize(lRayDir_world);
+
+
+    out_origin = glm::vec3(lRayStart_world);
+    out_direction = glm::normalize(lRayDir_world);
+}
+
+bool TestRayOBBIntersection(
+    glm::vec3 ray_origin,        // Ray origin, in world space
+    glm::vec3 ray_direction,     // Ray direction (NOT target position!), in world space. Must be normalize()'d.
+    glm::vec3 aabb_min,          // Minimum X,Y,Z coords of the mesh when not transformed at all.
+    glm::vec3 aabb_max,          // Maximum X,Y,Z coords. Often aabb_min*-1 if your mesh is centered, but it's not always the case.
+    glm::mat4 ModelMatrix,       // Transformation applied to the mesh (which will thus be also applied to its bounding box)
+    float& intersection_distance // Output : distance between ray_origin and the intersection with the OBB
+)
+{
+
+    // Intersection method from Real-Time Rendering and Essential Mathematics for Games
+
+    float tMin = 0.0f;
+    float tMax = 40.0f;
+
+    glm::vec3 OBBposition_worldspace(ModelMatrix[3].x, ModelMatrix[3].y, ModelMatrix[3].z);
+
+    glm::vec3 delta = OBBposition_worldspace - ray_origin;
+
+    // Test intersection with the 2 planes perpendicular to the OBB's X axis
+    {
+        glm::vec3 xaxis(ModelMatrix[0].x, ModelMatrix[0].y, ModelMatrix[0].z);
+        float e = glm::dot(xaxis, delta);
+        float f = glm::dot(ray_direction, xaxis);
+
+        if ( fabs(f) > 0.001f )  // Standard case
+        {
+
+            float t1 = (e+aabb_min.x)/f; // Intersection with the "left" plane
+            float t2 = (e+aabb_max.x)/f; // Intersection with the "right" plane
+            // t1 and t2 now contain distances betwen ray origin and ray-plane intersections
+
+            // We want t1 to represent the nearest intersection,
+            // so if it's not the case, invert t1 and t2
+            if (t1>t2)
+            {
+                float w=t1;
+                t1=t2;
+                t2=w; // swap t1 and t2
+            }
+
+            // tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
+            if ( t2 < tMax )
+                tMax = t2;
+            // tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
+            if ( t1 > tMin )
+                tMin = t1;
+
+            // And here's the trick :
+            // If "far" is closer than "near", then there is NO intersection.
+            // See the images in the tutorials for the visual explanation.
+            if (tMax < tMin )
+                return false;
+
+        }
+        else   // Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
+        {
+            if(-e+aabb_min.x > 0.0f || -e+aabb_max.x < 0.0f)
+                return false;
+        }
+    }
+
+
+    // Test intersection with the 2 planes perpendicular to the OBB's Y axis
+    // Exactly the same thing than above.
+    {
+        glm::vec3 yaxis(ModelMatrix[1].x, ModelMatrix[1].y, ModelMatrix[1].z);
+        float e = glm::dot(yaxis, delta);
+        float f = glm::dot(ray_direction, yaxis);
+
+        if ( fabs(f) > 0.001f )
+        {
+
+            float t1 = (e+aabb_min.y)/f;
+            float t2 = (e+aabb_max.y)/f;
+
+            if (t1>t2)
+            {
+                float w=t1;
+                t1=t2;
+                t2=w;
+            }
+
+            if ( t2 < tMax )
+                tMax = t2;
+            if ( t1 > tMin )
+                tMin = t1;
+            if (tMin > tMax)
+                return false;
+
+        }
+        else
+        {
+            if(-e+aabb_min.y > 0.0f || -e+aabb_max.y < 0.0f)
+                return false;
+        }
+    }
+
+
+    // Test intersection with the 2 planes perpendicular to the OBB's Z axis
+    // Exactly the same thing than above.
+    {
+        glm::vec3 zaxis(ModelMatrix[2].x, ModelMatrix[2].y, ModelMatrix[2].z);
+        float e = glm::dot(zaxis, delta);
+        float f = glm::dot(ray_direction, zaxis);
+
+        if ( fabs(f) > 0.001f )
+        {
+
+            float t1 = (e+aabb_min.z)/f;
+            float t2 = (e+aabb_max.z)/f;
+
+            if (t1>t2)
+            {
+                float w=t1;
+                t1=t2;
+                t2=w;
+            }
+
+            if ( t2 < tMax )
+                tMax = t2;
+            if ( t1 > tMin )
+                tMin = t1;
+            if (tMin > tMax)
+                return false;
+
+        }
+        else
+        {
+            if(-e+aabb_min.z > 0.0f || -e+aabb_max.z < 0.0f)
+                return false;
+        }
+    }
+
+    intersection_distance = tMin;
+    return true;
+
+}
+void checkNoteClick()
+{
+    glm::vec3 ray_origin;
+    glm::vec3 ray_direction;
+    ScreenPosToWorldRay(
+        widthScreen/2, heigthScreen/2,
+        widthScreen, heigthScreen,
+        viewVar,
+        projectionVar,
+        ray_origin,
+        ray_direction
+    );
+
+    float intersection_distance; // Output of TestRayOBBIntersection()
+    glm::vec3 aabb_min(-1.0f, -1.0f, -1.0f);
+    glm::vec3 aabb_max( 1.0f,  1.0f,  1.0f);
+
+    // The ModelMatrix transforms :
+    // - the mesh to its desired position and orientation
+    // - but also the AABB (defined with aabb_min and aabb_max) into an OBB
+
+
+    glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f)* Matrix_Rotate_Y(1 * PI / 8);
+
+
+    if ( TestRayOBBIntersection(
+                ray_origin,
+                ray_direction,
+                aabb_min,
+                aabb_max,
+                ModelMatrix,
+                intersection_distance)
+       )
+    {
+        printf("cliqueiii");
     }
 }
 
