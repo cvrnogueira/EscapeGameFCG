@@ -1,4 +1,3 @@
-
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -817,17 +816,20 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
     //laptop
     model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
-            * Matrix_Scale(0.2f, 0.2f, 0.2f)
-            * Matrix_Rotate_Y(-PI);
+        * Matrix_Scale(0.2f, 0.2f, 0.2f)
+          * Matrix_Rotate_Y(-PI);
+
+	g_VirtualScene["HPPlane002"].model_matrix = model;
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane002");
 
-    model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
+   model = Matrix_Translate(+3.05f, -0.3f, -1.225f)
             * Matrix_Scale(0.2f, 0.2f, 0.2f)
             * Matrix_Rotate_Y(-PI);
+   g_VirtualScene["HPPlane005_Plane"].model_matrix = model;
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, LAPTOP);
+	glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane005_Plane");
 
     // bomb
@@ -1860,7 +1862,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
         // Quando o usuário soltar o botão esquerdo do mouse, atualizamos a
         // variável abaixo para false.
-        g_LeftMouseButtonPressed = false;
+		g_LeftMouseButtonPressed = false;
         checkNoteClick();
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
@@ -2497,7 +2499,7 @@ void checkNoteClick()
     glm::vec3 ray_origin;
     glm::vec3 ray_direction;
     ScreenPosToWorldRay(
-        widthScreen/2, heigthScreen/2,
+		(int)g_LastCursorPosX, (int)g_LastCursorPosY,//widthScreen/2, heigthScreen /2,
         widthScreen, heigthScreen,
         viewVar,
         projectionVar,
@@ -2506,19 +2508,29 @@ void checkNoteClick()
     );
 
     float intersection_distance; // Output of TestRayOBBIntersection()
-    glm::vec3 aabb_min(-0.4f, -0.4f, -0.4f);
-    glm::vec3 aabb_max( 0.4f,  0.4f,  0.4f);
+	glm::vec4 aabb_min = g_VirtualScene["HPPlane002"].model_matrix * glm::vec4(g_VirtualScene["HPPlane002"].bbox_min.x,
+		g_VirtualScene["HPPlane002"].bbox_min.y,
+		g_VirtualScene["HPPlane002"].bbox_min.z,
+		1.0f);
+    glm::vec4 aabb_max = g_VirtualScene["HPPlane002"].model_matrix * glm::vec4(g_VirtualScene["HPPlane002"].bbox_max.x,
+		g_VirtualScene["HPPlane002"].bbox_max.y,
+		g_VirtualScene["HPPlane002"].bbox_max.z,
+		1.0f);
+
 
     // The ModelMatrix transforms :
     // - the mesh to its desired position and orientation
     // - but also the AABB (defined with aabb_min and aabb_max) into an OBB
 
 
-    glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f)* Matrix_Rotate_Y(-PI);
+    //glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f) * Matrix_Scale(0.2f, 0.2f, 0.2f) * Matrix_Rotate_Y(-PI);
+
+	glm::mat4 ModelMatrix = Matrix_Identity();
+
 
 
     if ( TestRayOBBIntersection(
-                ray_origin,
+				ray_origin,
                 ray_direction,
                 aabb_min,
                 aabb_max,
@@ -2526,16 +2538,9 @@ void checkNoteClick()
                 intersection_distance)
        )
     {
-        printf("cliqueiii");
-glClear(GL_COLOR_BUFFER_BIT);
-glBegin(GL_TRIANGLES);
-    glVertex2f(-0.5, 0.5);
-    glVertex2f(-0.5, -0.5);
-    glVertex2f(0.5, 0.5);
-    glVertex2f(0.5, 0.5);
-    glVertex2f(-0.5, -0.5);
-    glVertex2f(0.5, -0.5);
-glEnd();
+		if(intersection_distance < 1.5f) //distancia para interagir
+			printf("cliqueiii");
+
 
 }
 }

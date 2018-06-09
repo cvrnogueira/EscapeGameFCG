@@ -36,6 +36,7 @@ uniform mat4 projection;
 #define AXES 12
 #define COW2 13
 #define SPHERE2 14
+#define MIRA 15
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -217,6 +218,16 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
+    }
+    else if(object_id == MIRA){
+         Kd = vec3(0.08,0.8,0.4);
+        Ks = vec3(0.8,0.8,0.8);
+        Ka = vec3(0.1f,0.1f,0.1f);
+        Ks = vec3(0.1f,0.1f,0.1f);
+        q_linha = 80;
+        h = normalize(l + v);
+        illumination_model = BLINN_PHONG;
+
     }
     else if(object_id == SPHERE2){
          vec4 bbox_center = (bbox_min + bbox_max) / 2.0;

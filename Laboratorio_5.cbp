@@ -336,9 +336,6 @@
 		<Unit filename="include/utils.h" />
 		<Unit filename="painter.hpp" />
 		<Unit filename="snake.hpp" />
-		<Unit filename="src/auxaaaaa.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/glad.c">
 			<Option compilerVar="CC" />
 		</Unit>
