@@ -37,6 +37,8 @@ uniform mat4 projection;
 #define COW2 13
 #define SPHERE2 14
 #define MIRA 15
+#define AIM 16
+
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -238,15 +240,20 @@ void main()
 
         U = (anguloteta + M_PI)/(2*M_PI);
         V = (angulofi + M_PI_2)/M_PI;
-    }
-
-      else if (object_id == ARMCHAIR){
-             Kd = vec3(0.08,0.8,0.4);
+    }else if (object_id == ARMCHAIR){
+        Kd = vec3(0.08,0.8,0.4);
         //Ks = vec3(0.8,0.8,0.8);
         Ka = Kd/2;
         //q = 32.0;
         illumination_model = LAMBERT;
-    }else {
+    } else if (object_id == AIM){
+        Kd = vec3(0.08f, 0.7f, 1.0f);
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
+        q = 10.0;
+       // l = normalize(camera_position - p);
+    }
+    else {
         illumination_model = VERTEX;
     }
 

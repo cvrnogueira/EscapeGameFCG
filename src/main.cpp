@@ -202,7 +202,7 @@ void checkNoteClick();
 #define AXES 12
 #define COW2 13
 #define SPHERE2 14
-
+#define AIM 16
 
 
 #define SECONDS 300
@@ -878,6 +878,24 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
+
+    glm::vec4 viewVector = front_vector;
+   // std::cout << "x " << viewVector.x << std::endl;
+  //  std::cout << "y " << viewVector.y << std::endl;
+   // std::cout << "z " << viewVector.z << std::endl;
+      std::cout << "phi " << g_CameraPhi << std::endl;
+
+    model = Matrix_Translate(pos_char[0] + viewVector[0], pos_char[1] + viewVector[1], pos_char[2] + viewVector[2])
+           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
+           //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
+           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
+          //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
+           * Matrix_Scale(0.05f, 0.05f, 0.05f)
+           * Matrix_Rotate_X(-M_PI *  g_CameraPhi)
+           * Matrix_Rotate_Z(-M_PI_2 *  g_CameraTheta);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, AIM);
+    DrawVirtualObject("sphere");
 
     updateTime();
     if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 )
