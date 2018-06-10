@@ -2499,7 +2499,7 @@ void checkNoteClick()
     glm::vec3 ray_origin;
     glm::vec3 ray_direction;
     ScreenPosToWorldRay(
-		(int)g_LastCursorPosX, (int)g_LastCursorPosY,//widthScreen/2, heigthScreen /2,
+		widthScreen/2, heigthScreen/2,//widthScreen/2, heigthScreen /2,
         widthScreen, heigthScreen,
         viewVar,
         projectionVar,
