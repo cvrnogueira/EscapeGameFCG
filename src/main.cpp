@@ -159,7 +159,6 @@ double actualSecond;
 void atualizaPulo();
 int startJump = 0;
 GLFWwindow* window;
-GLFWwindow* charadaWindow;
 void escreveMsgNaTela();
 bool lostGame = false;
 void fimJogo();
@@ -186,6 +185,7 @@ int heigthScreen;
 glm::mat4 viewVar;
 glm::mat4 projectionVar;
 void checkNoteClick();
+bool cliquei = false;
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 #define WALL  0
 #define FLOOR 1
@@ -203,6 +203,7 @@ void checkNoteClick();
 #define COW2 13
 #define SPHERE2 14
 #define MIRA 15
+#define KEY 16
 
 
 #define SECONDS 300
@@ -388,7 +389,8 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_normal_map.jpg"); // TextureImage6
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
-    LoadTextureImage("../../data/DoorUV.png"); //TextureImage19
+    LoadTextureImage("../../data/DoorUV.png"); //TextureImage9
+     LoadTextureImage("../../data/keyB_tx.bmp"); //[
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -436,6 +438,12 @@ int main(int argc, char* argv[])
     ObjModel armchair("../../data/3dstylish-fav001.obj", "../../data/");
     ComputeNormals(&armchair);
     BuildTrianglesAndAddToVirtualScene(&armchair);
+
+
+    ObjModel key("../../data/Key_B_02.obj", "../../data/");
+    ComputeNormals(&key);
+    BuildTrianglesAndAddToVirtualScene(&key);
+
 
     BuildLine();
 
@@ -485,16 +493,11 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void escreveMsgNaTela()
+void escreveMsgNaTela() //charada
 {
     char buffer[80];
     snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
-    TextRendering_PrintString(window,buffer, 0.0f, 0.0f, 1.0f);
-    // TextRendering_PrintString(charadaWindow, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
-
-
-
-
+    TextRendering_PrintString(window,buffer, -1.0f, 0.0f, 1.0f);
 }
 ///Coloca pra jogar
 void playGame()
@@ -893,13 +896,24 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
-
+    if(cliquei == true){
+        model = Matrix_Translate(1.0f,0.0f,0.0f)
+        * Matrix_Scale(0.04f, 0.04f, 0.04f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, KEY);
+        DrawVirtualObject("Key_B");
+    }
 
 
     updateTime();
     if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 )
     {
         lostGame = true;
+    }
+    if(cliquei == true){
+            //key
+
+        escreveMsgNaTela();
     }
 
 
@@ -1328,6 +1342,8 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage6"), 6);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage7"), 7);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
+        glUniform1i(glGetUniformLocation(program_id, "TextureImage9"), 9);
+              glUniform1i(glGetUniformLocation(program_id, "TextureImage10"), 10);
     glUseProgram(0);
 }
 
@@ -2558,8 +2574,7 @@ void checkNoteClick()
     {
 		if(intersection_distance < 1.5f){
           //distancia para interagir
-			printf("cliqueiii");
-			escreveMsgNaTela();
+			cliquei = true;
 
 		}
 

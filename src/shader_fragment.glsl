@@ -37,6 +37,7 @@ uniform mat4 projection;
 #define COW2 13
 #define SPHERE2 14
 #define MIRA 15
+#define KEY 16
 
 uniform int object_id;
 
@@ -55,6 +56,7 @@ uniform sampler2D TextureImage6;
 uniform sampler2D TextureImage7;
 uniform sampler2D TextureImage8;
 uniform sampler2D TextureImage9;
+uniform sampler2D TextureImage10;
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
 
@@ -216,6 +218,14 @@ void main()
             U = texcoords.x;
         V = texcoords.y;
         Kd = texture(TextureImage9, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
+        q = 1;
+    }
+    else if(object_id == KEY){
+          U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage10, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
         q = 1;
