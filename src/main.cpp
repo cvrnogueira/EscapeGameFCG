@@ -324,8 +324,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-    widthScreen =mode->width;
-    heigthScreen = mode->height;
+   // widthScreen =mode->width;
+    widthScreen= 1024;
+    //heigthScreen = mode->height;
+    heigthScreen= 736;
     window = glfwCreateWindow(widthScreen, heigthScreen, "Scape Game Topper", NULL, NULL);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
@@ -362,8 +364,8 @@ int main(int argc, char* argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-   // FramebufferSizeCallback(window, 1024,736);
-    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
+    FramebufferSizeCallback(window, 1024,736);
+   // FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 //======================================================================================================================================================
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
