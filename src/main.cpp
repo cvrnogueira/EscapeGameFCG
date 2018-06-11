@@ -160,7 +160,7 @@ void atualizaPulo();
 int startJump = 0;
 GLFWwindow* window;
 GLFWwindow* charadaWindow;
-void escreveMsgNaTela(GLFWwindow* charadaWindow);
+void escreveMsgNaTela();
 bool lostGame = false;
 void fimJogo();
 float g_AngleY = 0.0f;
@@ -181,8 +181,8 @@ bool TestRayOBBIntersection(
     float& intersection_distance // Output : distance between ray_origin and the intersection with the OBB
 );
 const GLFWvidmode* mode;
-double widthScreen;
-double heigthScreen;
+int widthScreen;
+int heigthScreen;
 glm::mat4 viewVar;
 glm::mat4 projectionVar;
 void checkNoteClick();
@@ -202,7 +202,7 @@ void checkNoteClick();
 #define AXES 12
 #define COW2 13
 #define SPHERE2 14
-#define AIM 16
+#define MIRA 15
 
 
 #define SECONDS 300
@@ -323,10 +323,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-    widthScreen =1024;
-    heigthScreen = 736;
-    window = glfwCreateWindow(1024, 736, "Scape Game Topper", NULL, NULL);
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    widthScreen =mode->width;
+    heigthScreen = mode->height;
+    window = glfwCreateWindow(widthScreen, heigthScreen, "Scape Game Topper", NULL, NULL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
     {
         glfwTerminate();
@@ -361,8 +361,8 @@ int main(int argc, char* argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 1024,736);
-   // FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
+   // FramebufferSizeCallback(window, 1024,736);
+    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 //======================================================================================================================================================
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -485,11 +485,11 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void escreveMsgNaTela(GLFWwindow* charadaWindow)
+void escreveMsgNaTela()
 {
     char buffer[80];
     snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
-    TextRendering_PrintString(charadaWindow,buffer, 0.0f, 0.0f, 1.0f);
+    TextRendering_PrintString(window,buffer, 0.0f, 0.0f, 1.0f);
     // TextRendering_PrintString(charadaWindow, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
 
 
@@ -514,8 +514,6 @@ void playGame()
     while (!glfwWindowShouldClose(window))
     {
 
-
-
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
         // os shaders de vértice e fragmentos).
         // os shaders de vértice e fragmentos).
@@ -533,7 +531,7 @@ void playGame()
         // estão no sentido negativo! Veja slides 180-183 do documento
         // "Aula_09_Projecoes.pdf".
         float nearplane = -0.1f;  // Posição do "near plane"
-        float farplane = -40.0f; // Posição do "far plane"
+        float farplane = -500.0f; // Posição do "far plane"
 
         // Projeção Perspectiva.
         projectionVar = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
@@ -713,6 +711,23 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(view_uniform, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
+        glm::vec4 viewVector = normalize(front_vector);
+   // std::cout << "x " << viewVector.x << std::endl;
+  //  std::cout << "y " << viewVector.y << std::endl;
+   // std::cout << "z " << viewVector.z << std::endl;
+    //  std::cout << "phi " << g_CameraPhi << std::endl;
+
+    model = Matrix_Translate(pos_char[0] + viewVector[0], pos_char[1] + viewVector[1], pos_char[2] + viewVector[2])
+           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
+           //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
+           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
+          //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
+           * Matrix_Scale(0.008f, 0.008f, 0.008f)
+           * Matrix_Rotate_X(-M_PI *  g_CameraPhi)
+           * Matrix_Rotate_Z(-M_PI_2 *  g_CameraTheta);
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, MIRA);
+    DrawVirtualObject("sphere");
 
     //chao
     model = Matrix_Translate(0.0f,-1.0f,0.0f)
@@ -879,23 +894,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
 
-    glm::vec4 viewVector = front_vector;
-   // std::cout << "x " << viewVector.x << std::endl;
-  //  std::cout << "y " << viewVector.y << std::endl;
-   // std::cout << "z " << viewVector.z << std::endl;
-      std::cout << "phi " << g_CameraPhi << std::endl;
 
-    model = Matrix_Translate(pos_char[0] + viewVector[0], pos_char[1] + viewVector[1], pos_char[2] + viewVector[2])
-           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
-           //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
-           //* Matrix_Rotate(g_CameraPhi + 3.14/2, u)
-          //* Matrix_Rotate(3.14/2 + g_CameraTheta, up_vector)
-           * Matrix_Scale(0.05f, 0.05f, 0.05f)
-           * Matrix_Rotate_X(-M_PI *  g_CameraPhi)
-           * Matrix_Rotate_Z(-M_PI_2 *  g_CameraTheta);
-    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, AIM);
-    DrawVirtualObject("sphere");
 
     updateTime();
     if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 )
@@ -1101,6 +1100,7 @@ bool collided()
         if (fabs(x*A + y*B + z*C + D) < 0.3)
         {
             std::cout << " colidiu" << std::endl;
+                printf("%d", widthScreen);
             std::cout << " conta = " << (x*A + y*B + z*C + D) << std::endl;
             std::cout << "cont = " << cont << std::endl;
             std::cout << "A = " << A << std::endl;
@@ -2526,13 +2526,13 @@ void checkNoteClick()
     );
 
     float intersection_distance; // Output of TestRayOBBIntersection()
-	glm::vec4 aabb_min = g_VirtualScene["HPPlane002"].model_matrix * glm::vec4(g_VirtualScene["HPPlane002"].bbox_min.x,
-		g_VirtualScene["HPPlane002"].bbox_min.y,
-		g_VirtualScene["HPPlane002"].bbox_min.z,
+	glm::vec4 aabb_min = g_VirtualScene["HPPlane005_Plane"].model_matrix * glm::vec4(g_VirtualScene["HPPlane005_Plane"].bbox_min.x,
+		g_VirtualScene["HPPlane005_Plane"].bbox_min.y,
+		g_VirtualScene["HPPlane005_Plane"].bbox_min.z,
 		1.0f);
-    glm::vec4 aabb_max = g_VirtualScene["HPPlane002"].model_matrix * glm::vec4(g_VirtualScene["HPPlane002"].bbox_max.x,
-		g_VirtualScene["HPPlane002"].bbox_max.y,
-		g_VirtualScene["HPPlane002"].bbox_max.z,
+    glm::vec4 aabb_max = g_VirtualScene["HPPlane005_Plane"].model_matrix * glm::vec4(g_VirtualScene["HPPlane005_Plane"].bbox_max.x,
+		g_VirtualScene["HPPlane005_Plane"].bbox_max.y,
+		g_VirtualScene["HPPlane005_Plane"].bbox_max.z,
 		1.0f);
 
 
@@ -2556,9 +2556,12 @@ void checkNoteClick()
                 intersection_distance)
        )
     {
-		if(intersection_distance < 1.5f) //distancia para interagir
+		if(intersection_distance < 1.5f){
+          //distancia para interagir
 			printf("cliqueiii");
+			escreveMsgNaTela();
 
+		}
 
 }
 }

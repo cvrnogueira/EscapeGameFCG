@@ -37,7 +37,6 @@ uniform mat4 projection;
 #define COW2 13
 #define SPHERE2 14
 #define MIRA 15
-#define AIM 16
 
 uniform int object_id;
 
@@ -221,17 +220,7 @@ void main()
         Ka = Kd/2;
         q = 1;
     }
-    else if(object_id == MIRA){
-         Kd = vec3(0.08,0.8,0.4);
-        Ks = vec3(0.8,0.8,0.8);
-        Ka = vec3(0.1f,0.1f,0.1f);
-        Ks = vec3(0.1f,0.1f,0.1f);
-        q_linha = 80;
-        h = normalize(l + v);
-        illumination_model = BLINN_PHONG;
-
-    }
-    else if(object_id == SPHERE2){
+     else if(object_id == SPHERE2){
          vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         vec4 p = position_model - bbox_center;
         float anguloro = length(p);
@@ -246,12 +235,11 @@ void main()
         Ka = Kd/2;
         //q = 32.0;
         illumination_model = LAMBERT;
-    } else if (object_id == AIM){
-        Kd = vec3(0.08f, 0.7f, 1.0f);
-        Ks = vec3(0.0f,0.0f,0.0f);
-        Ka = Kd/2;
-        q = 10.0;
-       // l = normalize(camera_position - p);
+    } else if (object_id == MIRA){
+           Kd = vec3(0.0,0.0,0.0);
+        Ks = vec3(0.0,0.0,0.0);
+        Ka = vec3(0.0,0.0,0.0);
+        q = 1.0;
     }
     else {
         illumination_model = VERTEX;
@@ -309,5 +297,6 @@ void main()
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
    color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
    }
+
 
 }
