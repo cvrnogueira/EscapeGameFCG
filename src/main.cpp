@@ -204,6 +204,7 @@ bool cliquei = false;
 #define SPHERE2 14
 #define MIRA 15
 #define KEY 16
+#define BUNNY 17
 
 
 #define SECONDS 300
@@ -289,7 +290,7 @@ std::vector<std::string> roomObjects;
 bool isPointInsideBBOX(glm::vec3 point);
 
 int seconds = SECONDS; //tempo de jogo
-int time = (int)glfwGetTime();
+int game_Time = (int)glfwGetTime();
 void updateTime();
 using namespace std;
 int main(int argc, char* argv[])
@@ -398,10 +399,10 @@ int main(int argc, char* argv[])
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
-    /*
+
     ObjModel bunnymodel("../../data/bunny.obj");
     ComputeNormals(&bunnymodel);
-    BuildTrianglesAndAddToVirtualScene(&bunnymodel);*/
+    BuildTrianglesAndAddToVirtualScene(&bunnymodel);
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -499,7 +500,8 @@ void escreveMsgNaTela() //charada
 {
     char buffer[80];
     snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
-    TextRendering_PrintString(window,buffer, -1.0f, 0.0f, 1.0f);
+    TextRendering_PrintString(window,buffer, -1.0f, 1.0f, 1.0f);
+
 }
 ///Coloca pra jogar
 void playGame()
@@ -872,24 +874,22 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, DOOR);
     DrawVirtualObject("Cube");
 
-    model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+    model = Matrix_Translate(0.5f, -1.3f, -2.7f)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
     // * Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("Line02");
-    g_VirtualScene["Line02"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-                                            * Matrix_Scale(0.04f, 0.04f, 0.04f);
+    g_VirtualScene["Line02"].model_matrix = model;
     roomObjects.push_back("Line02");
 
-    model = Matrix_Translate(-2.0f, -1.3f, 1.7f)
+    model = Matrix_Translate(0.5f, -1.3f, -2.7f)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
     //* Matrix_Rotate_Y(1 * PI / 2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("cuadrado");
-    g_VirtualScene["cuadrado"].model_matrix = Matrix_Translate(-2.0f, -1.3f, 1.7f)
-            * Matrix_Scale(0.04f, 0.04f, 0.04f);
+    g_VirtualScene["cuadrado"].model_matrix = model;
     roomObjects.push_back("cuadrado");
 
 
@@ -898,12 +898,26 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
+    cliquei = true;
     if(cliquei == true){
-        model = Matrix_Translate(1.0f,0.0f,0.0f)
-        * Matrix_Scale(0.04f, 0.04f, 0.04f);
+
+        model = Matrix_Translate(-2.0f,0.0f,3.7f)
+                * Matrix_Scale(0.08f, 0.08f, 0.08f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, KEY);
+        g_VirtualScene["Key_B"].model_matrix = model;
+        roomObjects.push_back("Key_B");
         DrawVirtualObject("Key_B");
+
+       // model = Matrix_Translate(-2.0f, 0.0f, 3.7f)
+        //        * Matrix_Scale(0.5f, 0.5f, 0.5f);
+       // glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+       // glUniform1i(object_id_uniform, BUNNY);
+       // DrawVirtualObject("bunny");
+       // g_VirtualScene["bunny"].model_matrix = model;
+      //  roomObjects.push_back("bunny");
+        //if ()
+
     }
 
 
@@ -922,12 +936,13 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
 
 }
+
 void updateTime()
 {
 
-    if((time != (int)glfwGetTime()) && seconds > 0)
+    if((game_Time != (int)glfwGetTime()) && seconds > 0)
     {
-        time =(int)glfwGetTime();
+        game_Time =(int)glfwGetTime();
         seconds--;
     }
 
@@ -1033,9 +1048,21 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
     glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
     glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
 
-    return (playerbbox_max.x > objBBox_min.x && playerbbox_min.x < objBBox_max.x) &&
-           (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
-           (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
+    bool playerCollided = (playerbbox_max.x > objBBox_min.x && playerbbox_min.x < objBBox_max.x) &&
+                            (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
+                            (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
+
+    if (objectName.compare("bunny") == 0 && playerCollided) {
+        return false;
+    }
+    else if (objectName.compare("Key_B") == 0 && playerCollided){
+        fimJogo();
+        return true;
+    }else {
+        return playerCollided;
+    }
+
+
 }
 bool checkCollisionAllRoomObjects()
 {

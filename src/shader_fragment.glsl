@@ -38,8 +38,13 @@ uniform mat4 projection;
 #define SPHERE2 14
 #define MIRA 15
 #define KEY 16
+#define BUNNY 17
 
 uniform int object_id;
+uniform float red;
+uniform float green;
+uniform float blue;
+
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
 uniform vec4 bbox_min;
@@ -147,7 +152,7 @@ void main()
         q = 1;
     }
         else if (object_id == COW2){
-  U = (position_model.x - minx)/(maxx - minx) ;
+        U = (position_model.x - minx)/(maxx - minx) ;
         V = (position_model.y - miny)/(maxy - miny) ;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
@@ -155,16 +160,15 @@ void main()
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
         q = 1;
-    }/*
-    else if (object_id == COW){
+    }
+    else if (object_id == BUNNY){
         Kd = vec3(0.08,0.8,0.4);
         Ks = vec3(0.8,0.8,0.8);
         Ka = vec3(0.1f,0.1f,0.1f);
         Ks = vec3(0.1f,0.1f,0.1f);
-        q_linha = 80;
-        h = normalize(l + v);
-        illumination_model = BLINN_PHONG;
-    }*/
+        q = 80;
+        illumination_model = PHONG;
+    }
       else if (object_id == TABLE){
            U = texcoords.x;
         V = texcoords.y;
@@ -225,10 +229,11 @@ void main()
     else if(object_id == KEY){
           U = texcoords.x;
         V = texcoords.y;
+
         Kd = texture(TextureImage10, vec2(U,V)).rgb;
-        Ks = vec3(0.0f,0.0f,0.0f);
+        Ks = vec3(1.0f,1.0f,1.0f);
         Ka = Kd/2;
-        q = 1;
+        q = 80;
     }
      else if(object_id == SPHERE2){
          vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
