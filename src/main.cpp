@@ -187,6 +187,7 @@ glm::mat4 projectionVar;
 void checkNoteClick();
 bool cliquei = false;
 //====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
+#define ANSWER "PHONG"
 #define WALL  0
 #define FLOOR 1
 #define CEILING 2
@@ -288,10 +289,19 @@ bool collisionCameraBBoxObjecBBox(std::string objectName);
 bool checkCollisionAllRoomObjects();
 std::vector<std::string> roomObjects;
 bool isPointInsideBBOX(glm::vec3 point);
+void check_Player_Answer();
+
 
 int seconds = SECONDS; //tempo de jogo
 int game_Time = (int)glfwGetTime();
 void updateTime();
+void display_Try_Again_Message();
+void display_Congrats_Message();
+void display_Player_Answer();
+bool player_freezed = true; //JUST TO DEBUG. TAKE THIS OFF
+bool player_tried = false;
+std::string player_input;
+int jumpCounter = 0;
 using namespace std;
 int main(int argc, char* argv[])
 {
@@ -499,9 +509,9 @@ int main(int argc, char* argv[])
 void escreveMsgNaTela() //charada
 {
     char buffer[80];
-    snprintf(buffer, 80, "Se eu digo tic, e a bomba diz tac, como tirar da porta o X?");
-    TextRendering_PrintString(window,buffer, -1.0f, 1.0f, 1.0f);
-
+    snprintf(buffer, 80, "Tic, tac, qual o modelo de iluminacao do coelhinho?");
+    //TextRendering_PrintString(window,buffer, -1.0f, 1.0f, 1.0f);
+    TextRendering_PrintString(window,buffer, -1.0f, 0.9f, 1.0f);
 }
 ///Coloca pra jogar
 void playGame()
@@ -909,15 +919,29 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
         roomObjects.push_back("Key_B");
         DrawVirtualObject("Key_B");
 
-       // model = Matrix_Translate(-2.0f, 0.0f, 3.7f)
-        //        * Matrix_Scale(0.5f, 0.5f, 0.5f);
-       // glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-       // glUniform1i(object_id_uniform, BUNNY);
-       // DrawVirtualObject("bunny");
-       // g_VirtualScene["bunny"].model_matrix = model;
-      //  roomObjects.push_back("bunny");
-        //if ()
-
+        if (player_freezed) {
+            model = Matrix_Translate(-2.0f, 0.0f, 3.7f)
+                * Matrix_Scale(0.7f, 0.7f, 0.7f);
+            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1i(object_id_uniform, BUNNY);
+            DrawVirtualObject("bunny");
+            g_VirtualScene["bunny"].model_matrix = model;
+            roomObjects.push_back("bunny");
+            escreveMsgNaTela();
+            if (player_tried) {
+                display_Try_Again_Message();
+            }
+            if (jumpCounter == 3) {
+                jumpCounter = 0;
+                player_tried = true;
+                check_Player_Answer();
+            }
+            display_Player_Answer();
+        }
+        else {
+            roomObjects.erase(std::remove(roomObjects.begin(), roomObjects.end(), "bunny"), roomObjects.end());
+            display_Congrats_Message();
+        }
     }
 
 
@@ -926,14 +950,6 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     {
         lostGame = true;
     }
-    if(cliquei == true){
-            //key
-
-        escreveMsgNaTela();
-    }
-
-
-
 
 }
 
@@ -1052,10 +1068,7 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
                             (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
                             (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
 
-    if (objectName.compare("bunny") == 0 && playerCollided) {
-        return false;
-    }
-    else if (objectName.compare("Key_B") == 0 && playerCollided){
+    if (objectName.compare("Key_B") == 0 && playerCollided){
         fimJogo();
         return true;
     }else {
@@ -2037,7 +2050,34 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     if (g_CameraDistance < verysmallnumber)
         g_CameraDistance = verysmallnumber;
 }
-
+void display_Try_Again_Message() {
+    char buffer[65];
+    sprintf ( buffer, "Vish.. Deu ruim! Acho que alguem faltou muita aula.." );
+    TextRendering_PrintString(window,buffer, -1.0f, 0.85f, 1.0f);
+}
+void display_Congrats_Message() {
+    std::string congrats = "Vai Brasil!! Agora eh soh sair!";
+    TextRendering_PrintString(window, congrats, -1.0f, 0.9f, 1.0f);
+}
+void display_Player_Answer() {
+    std::string player_answer = "Resposta = ";
+    player_answer.append(player_input);
+    TextRendering_PrintString(window, player_answer, -1.0f, 0.75f, 1.0f);
+}
+void check_Player_Answer(){
+     std::cout << "minha string = " << player_input << std::endl;
+     std::cout << "cont = " << player_input.compare(ANSWER);
+    if (player_input.compare(ANSWER) == 0){
+        lostGame = false;
+        player_freezed = false;
+        std::cout << "vamo" << std::endl;
+    }
+    else {
+        if (!player_input.empty()) {
+            player_input.erase(0, player_input.length());
+        }
+    }
+}
 // Definição da função que será chamada sempre que o usuário pressionar alguma
 // tecla do teclado. Veja http://www.glfw.org/docs/latest/input_guide.html#input_key
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -2049,24 +2089,29 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
     if ( (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && action == GLFW_PRESS)
     {
+        if (player_freezed && jumpCounter < 3){
+            jumpCounter += 1;
+            std::cout << " vai brasil ??????" << std::endl;
+        }
         enterPressed = true;
     }
-    if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS)
+    if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS && !player_freezed)
     {
         pressW = true;
     }
-    if  (key == GLFW_KEY_S)
+    if  (key == GLFW_KEY_S && !player_freezed)
     {
         pressS = true;
     }
     // Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.
-    if (key == GLFW_KEY_H && action == GLFW_PRESS)
+    if (key == GLFW_KEY_H && action == GLFW_PRESS && !player_freezed)
     {
         g_ShowInfoText = !g_ShowInfoText;
+
     }
 
     // Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
-    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+    if (key == GLFW_KEY_R && action == GLFW_PRESS && !player_freezed)
     {
         LoadShadersFromFiles();
         fprintf(stdout, "Shaders recarregados!\n");
@@ -2077,6 +2122,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     {
         pressW = false;
         busyWKey = false;
+
     }
 
     if ((key == GLFW_KEY_S ) && action == GLFW_RELEASE)
@@ -2088,12 +2134,19 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 
-    if (key >= 0 && key < 200)
+    if (key >= 0 && key < 200 && !player_freezed )
     {
         if (action == GLFW_PRESS)
             teclas[key] = true;
         else if (action == GLFW_RELEASE)
             teclas[key] = false;
+    }
+    if (player_freezed && action == GLFW_PRESS ) {
+        if (key >= 65 && key < 122) {
+            player_input.push_back(key);
+        }else if (key == GLFW_KEY_BACKSPACE && !player_input.empty()){
+            player_input.pop_back();
+        }
     }
 
 }
@@ -2604,6 +2657,7 @@ void checkNoteClick()
 		if(intersection_distance < 1.5f){
           //distancia para interagir
 			cliquei = true;
+            player_freezed = true;
 
 		}
 

@@ -1667,11 +1667,10 @@
 	<inttypes.h>
 	<stdint.h>
 
-1528770908 source:c:\users\laura\desktop\escapegamefcg\src\main.cpp
+1528944454 source:c:\users\laura\desktop\escapegamefcg\src\main.cpp
 	<cmath>
 	<cstdio>
 	<cstdlib>
-	<time.h>
 	<iostream>
 	<map>
 	<stack>
