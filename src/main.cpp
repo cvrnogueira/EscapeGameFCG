@@ -508,10 +508,10 @@ int main(int argc, char* argv[])
 
 void escreveMsgNaTela() //charada
 {
-    char buffer[80];
-    snprintf(buffer, 80, "Tic, tac, qual o modelo de iluminacao do coelhinho?");
+    std::string question = "Tic, tac, qual o modelo de iluminacao do coelhinho? 3 pulos para validar!";
+    //snprintf(buffer, 80, );
     //TextRendering_PrintString(window,buffer, -1.0f, 1.0f, 1.0f);
-    TextRendering_PrintString(window,buffer, -1.0f, 0.9f, 1.0f);
+    TextRendering_PrintString(window,question, -1.0f, 0.9f, 1.0f);
 }
 ///Coloca pra jogar
 void playGame()
@@ -911,7 +911,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     cliquei = true;
     if(cliquei == true){
 
-        model = Matrix_Translate(-2.0f,0.0f,3.7f)
+        model = Matrix_Translate(-3.0f,0.0f,3.0f)
                 * Matrix_Scale(0.08f, 0.08f, 0.08f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, KEY);
@@ -920,8 +920,8 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
         DrawVirtualObject("Key_B");
 
         if (player_freezed) {
-            model = Matrix_Translate(-2.0f, 0.0f, 3.7f)
-                * Matrix_Scale(0.7f, 0.7f, 0.7f);
+            model = Matrix_Translate(-3.0f, 0.0f, 3.0f)
+                * Matrix_Scale(0.8f, 0.7f, 0.7f);
             glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
             glUniform1i(object_id_uniform, BUNNY);
             DrawVirtualObject("bunny");
@@ -2056,7 +2056,7 @@ void display_Try_Again_Message() {
     TextRendering_PrintString(window,buffer, -1.0f, 0.85f, 1.0f);
 }
 void display_Congrats_Message() {
-    std::string congrats = "Vai Brasil!! Agora eh soh sair!";
+    std::string congrats = "Parabens! Agora eh soh pegar a chave!";
     TextRendering_PrintString(window, congrats, -1.0f, 0.9f, 1.0f);
 }
 void display_Player_Answer() {
@@ -2089,10 +2089,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
     if ( (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && action == GLFW_PRESS)
     {
-        if (player_freezed && jumpCounter < 3){
-            jumpCounter += 1;
-            std::cout << " vai brasil ??????" << std::endl;
-        }
         enterPressed = true;
     }
     if ( (key == GLFW_KEY_W  ) && action == GLFW_PRESS && !player_freezed)
@@ -2132,7 +2128,17 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
 
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (key == GLFW_KEY_SPACE) {
 
+         if (player_freezed && jumpCounter < 3 && action == GLFW_PRESS){
+            jumpCounter += 1;
+         }
+          if (action == GLFW_PRESS)
+            teclas[key] = true;
+        else if (action == GLFW_RELEASE)
+            teclas[key] = false;
+
+    }
 
     if (key >= 0 && key < 200 && !player_freezed )
     {
