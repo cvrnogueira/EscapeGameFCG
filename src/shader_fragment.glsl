@@ -162,8 +162,8 @@ void main()
         q = 1;
     }
     else if (object_id == BUNNY){
-        Kd = vec3(0.08,0.8,0.4);
-        Ks = vec3(0.8,0.8,0.8);
+        Kd = vec3(0.5,0.0,0.5);
+        Ks = vec3(0.0,0.0,0.0);
         Ka = vec3(0.1f,0.1f,0.1f);
         Ks = vec3(0.1f,0.1f,0.1f);
         q = 80;
