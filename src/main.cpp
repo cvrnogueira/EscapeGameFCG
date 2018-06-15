@@ -996,8 +996,8 @@ void BuildLine()
     // Criamos um terceiro objeto virtual (SceneObject) que se refere aos eixos XYZ.
     SceneObject axes;
     axes.name           = "axes";
-    axes.first_index    = (void*)(0*sizeof(GLuint)); // Primeiro índice está em indices[60]
-    axes.num_indices    = 4; // Último índice está em indices[65]; total de 6 índices.
+    axes.first_index    = (void*)(0*sizeof(GLuint)); // Primeiro índice
+    axes.num_indices    = 4; // Último índice está em indices
     axes.rendering_mode = GL_LINES; // Índices correspondem ao tipo de rasterização GL_LINES.
     axes.vertex_array_object_id = vertex_array_object_id;
     g_VirtualScene["axes"] = axes;
@@ -1159,7 +1159,7 @@ bool collided()
 
         if (fabs(x*A + y*B + z*C + D) < 0.3)
         {
-            std::cout << " colidiu" << std::endl;
+            /*std::cout << " colidiu" << std::endl;
                 printf("%d", widthScreen);
             std::cout << " conta = " << (x*A + y*B + z*C + D) << std::endl;
             std::cout << "cont = " << cont << std::endl;
@@ -1169,7 +1169,7 @@ bool collided()
             std::cout << "D = " << D << std::endl;
             std::cout << "x = " << x << std::endl;
             std::cout << "y = " << y << std::endl;
-            std::cout << "z = " << z << std::endl;
+            std::cout << "z = " << z << std::endl;*/
             return true;
         }
     }

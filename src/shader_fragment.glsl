@@ -244,9 +244,9 @@ void main()
 
         U = (anguloteta + M_PI)/(2*M_PI);
         V = (angulofi + M_PI_2)/M_PI;
-    }else if (object_id == ARMCHAIR){
-        Kd = vec3(0.08,0.8,0.4);
-        //Ks = vec3(0.8,0.8,0.8);
+    }else if (object_id == AXES){
+        Kd = vec3(1.0,0.0,0.0);
+
         Ka = Kd/2;
         //q = 32.0;
         illumination_model = LAMBERT;

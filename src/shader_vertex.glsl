@@ -22,6 +22,10 @@ out vec4 normal;
 out vec2 texcoords;
 out vec3 cor_v;
 
+#define ARMCHAIR 11
+#define AXES 12
+uniform int object_id;
+
 void main()
 {
     // A variável gl_Position define a posição final de cada vértice
@@ -64,13 +68,21 @@ void main()
     vec4 n = normalize(normal);
     vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
     vec3 I = vec3(1.0,1.0,1.0);
-    vec3 Kd = vec3(1.0f,0.2f,0.2f);
-    vec3 Ka = Kd/2;
-    vec3 Ia = vec3(0.2,0.2,0.2);
-    vec3 ambient_term = Ka * Ia;
-    vec3 lambert = Kd * I * max(0.0f, dot(n, l));
-    cor_v = lambert + ambient_term;
+    vec3 Kd = vec3(0.0f,0.0f,0.0f);
 
+    vec3 Ia = vec3(0.2,0.2,0.2);
+
+
+    if (object_id == ARMCHAIR) {
+        Kd = vec3(0.0f, 0.8f,0.4f);
+    }
+    else {
+        Kd = vec3(1.0f, 0.0f,0.0f);
+    }
+    vec3 lambert = Kd * I * max(0.0f, dot(n, l));
+    vec3 Ka = Kd/2;
+    vec3 ambient_term = Ka * Ia;
+    cor_v = lambert + ambient_term;
 
     // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
     texcoords = texture_coefficients;
