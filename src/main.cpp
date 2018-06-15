@@ -946,7 +946,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 
 
     updateTime();
-    if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f)) || seconds == 0 )
+    if (seconds == 0 )
     {
         lostGame = true;
     }
@@ -1085,6 +1085,10 @@ bool checkCollisionAllRoomObjects()
         {
             return true;
         }
+    }
+    if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f))){
+        lostGame = true;
+        return true;
     }
     return false;
 }
