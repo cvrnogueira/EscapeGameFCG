@@ -417,14 +417,14 @@ int main(int argc, char* argv[])
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
-
+/*
     ObjModel leftwallmodel("../../data/leftwall.obj");
     ComputeNormals(&leftwallmodel);
     BuildTrianglesAndAddToVirtualScene(&leftwallmodel);
 
     ObjModel rightwallmodel("../../data/rightwall.obj");
     ComputeNormals(&rightwallmodel);
-    BuildTrianglesAndAddToVirtualScene(&rightwallmodel);
+    BuildTrianglesAndAddToVirtualScene(&rightwallmodel);*/
 
     ObjModel cowmodel("../../data/cow.obj");
     ComputeNormals(&cowmodel);
@@ -777,10 +777,11 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     //esquerda
     model = Matrix_Translate(-4.0f,0.0f,0.0f)
             * Matrix_Scale(1.0f, 1.0f, 4.0f)
-            * Matrix_Rotate_Z(-M_PI_2);
+            * Matrix_Rotate_Z(-M_PI_2)
+            * Matrix_Rotate_Y(M_PI_2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
-    DrawVirtualObject("leftwall");
+    DrawVirtualObject("plane");
     roomPlanes[2] = getPlaneEquation(model);
     roomPlanes[2].normal = -roomPlanes[2].normal;
     /*
@@ -792,10 +793,11 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     //direita
     model = Matrix_Translate(4.0f,0.0f,0.0f)
             * Matrix_Scale(1.0f,1.0f,4.0f)
-            * Matrix_Rotate_Z(M_PI_2);
+            * Matrix_Rotate_Z(M_PI_2)
+            * Matrix_Rotate_Y(-M_PI_2);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, WALL);
-    DrawVirtualObject("rightwall");
+    DrawVirtualObject("plane");
     roomPlanes[3] = getPlaneEquation(model);
     roomPlanes[3].normal = -roomPlanes[3].normal;
     /*

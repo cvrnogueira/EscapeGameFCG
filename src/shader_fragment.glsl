@@ -187,6 +187,7 @@ void main()
         Ka = Kd/2;
         q = 1;
     }
+
     else if(object_id == BOMB)
     {
         U = texcoords.x;
