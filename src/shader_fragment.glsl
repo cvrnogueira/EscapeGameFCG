@@ -170,14 +170,14 @@ void main()
         illumination_model = PHONG;
     }
       else if (object_id == TABLE){
-           U = texcoords.x;
+        U = texcoords.x;
         V = texcoords.y;
-        Kd = texture(TextureImage8, vec2(U,V)).rgb;
-        Ks = vec3(0.0f,0.0f,0.0f);
+        Kd = vec3(0.1f,0.1f, 0.1f);
+        Ks = vec3(0.5f,0.5f,0.5f);
         Ka = Kd/2;
-        q = 1;
+        q_linha = 3.0f;
+        h = normalize(l + v);
         illumination_model = BLINN_PHONG;
-
     }
       else if (object_id == LAPTOP){
         U = texcoords.x;
@@ -208,18 +208,15 @@ void main()
 
     }
     else if (object_id == BUTTON){
-             U = (position_model.x - minx)/(maxx - minx) ;
+        U = (position_model.x - minx)/(maxx - minx) ;
         V = (position_model.y - miny)/(maxy - miny) ;
-
-
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
         Kd = texture(TextureImage8, vec2(U,V)).rgb;
         Ks = vec3(0.2f,0.2f,0.2f);
         Ka = Kd/2;
         q = 1;
     }
     else if (object_id == DOOR){
-            U = texcoords.x;
+        U = texcoords.x;
         V = texcoords.y;
         Kd = texture(TextureImage9, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
@@ -227,16 +224,15 @@ void main()
         q = 1;
     }
     else if(object_id == KEY){
-          U = texcoords.x;
+        U = texcoords.x;
         V = texcoords.y;
-
         Kd = texture(TextureImage10, vec2(U,V)).rgb;
         Ks = vec3(1.0f,1.0f,1.0f);
         Ka = Kd/2;
         q = 80;
     }
      else if(object_id == SPHERE2){
-         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         vec4 p = position_model - bbox_center;
         float anguloro = length(p);
         float anguloteta = atan(p.x, p.z);
@@ -244,14 +240,22 @@ void main()
 
         U = (anguloteta + M_PI)/(2*M_PI);
         V = (angulofi + M_PI_2)/M_PI;
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+
+        vec3 Kd1 = texture(TextureImage8, vec2(U,V)).rgb;
+
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+
+
+        color = Kd1 * (1 - pow(lambert,0.2)) +  Kd0 * (lambert + 0.01);
     }else if (object_id == AXES){
         Kd = vec3(1.0,0.0,0.0);
-
         Ka = Kd/2;
-        //q = 32.0;
         illumination_model = LAMBERT;
     } else if (object_id == MIRA){
-           Kd = vec3(0.0,0.0,0.0);
+        Kd = vec3(0.0,0.0,0.0);
         Ks = vec3(0.0,0.0,0.0);
         Ka = vec3(0.0,0.0,0.0);
         q = 1.0;
@@ -260,23 +264,8 @@ void main()
         illumination_model = VERTEX;
     }
 
-   if(object_id ==SPHERE2){
 
-    // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-    vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
-
-    vec3 Kd1 = texture(TextureImage8, vec2(U,V)).rgb;
-
-    // Equação de Iluminação
-    float lambert = max(0,dot(n,l));
-
-    color = Kd0 * (lambert + 0.01);
-    color = Kd1 * (1 - pow(lambert,0.2)) +  Kd0 * (lambert + 0.01);
-    // Cor final com correção gamma, considerando monitor sRGB.
-    // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-    color = pow(color, vec3(1.0,1.0,1.0)/2.2);
-   }
-   else{
+   if (object_id != SPHERE2 && object_id != BOMB) {
 
     vec3 I = vec3(1.0,1.0,1.0);
 
@@ -302,16 +291,7 @@ void main()
     }else {
         color = cor_v;
     }
-
-    // Equação de Iluminação
-   // float lambert = max(0,dot(n,l));
-
-    //color = Kd0 * (lambert + 0.01);
-
-    // Cor final com correção gamma, considerando monitor sRGB.
-    // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-   color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
    }
-
+    color = pow(color, vec3(1.0f,1.0f,1.0f)/2.2);
 
 }
