@@ -298,7 +298,7 @@ void updateTime();
 void display_Try_Again_Message();
 void display_Congrats_Message();
 void display_Player_Answer();
-bool player_freezed = true; //JUST TO DEBUG. TAKE THIS OFF
+bool player_freezed = false; //JUST TO DEBUG. TAKE THIS OFF
 bool player_tried = false;
 std::string player_input;
 int jumpCounter = 0;
@@ -910,7 +910,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
-    cliquei = true;
+
     if(cliquei == true){
 
         model = Matrix_Translate(-3.0f,0.0f,3.0f)
@@ -1045,23 +1045,6 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
                             g_VirtualScene[objectName].bbox_min.y,
                             g_VirtualScene[objectName].bbox_min.z,
                             1.0f);
-
-    /*    std::cout << "PLAYER Xmin = " << player.bbox_min.x << std::endl;
-        std::cout << "PLAYER Ymin = " << player.bbox_min.y << std::endl;
-        std::cout << "PLAYER Zmin = " << player.bbox_min.z << std::endl;
-
-        std::cout << "PLAYER Xmax = " << player.bbox_max.x << std::endl;
-        std::cout << "PLAYER Ymax = " << player.bbox_max.y << std::endl;
-        std::cout << "PLAYER Zmax = " << player.bbox_max.z << std::endl;
-
-        std::cout << "OBJ minX = " << objBBox_min.x << std::endl;
-        std::cout << "OBJ minY = " << objBBox_min.y << std::endl;
-        std::cout << "OBJ minZ = " << objBBox_min.z << std::endl;
-
-        std::cout << "OBJ maxX = " << objBBox_max.x << std::endl;
-        std::cout << "OBJ maxY = " << objBBox_max.y << std::endl;
-        std::cout << "OBJ maxZ = " << objBBox_max.z << std::endl;*/
-
 
     glm::vec4 playerbbox_max = glm::vec4(novoPos_char.x + 0.5f, novoPos_char.y + 0.5f, novoPos_char.z + 0.5f, 1.0f);
     glm::vec4 playerbbox_min = glm::vec4(novoPos_char.x - 0.5f, novoPos_char.y - 1.0f, novoPos_char.z - 0.5f, 1.0f);
