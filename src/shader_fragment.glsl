@@ -39,6 +39,8 @@ uniform mat4 projection;
 #define MIRA 15
 #define KEY 16
 #define BUNNY 17
+#define PAINTING 18
+#define MASH 19
 
 uniform int object_id;
 uniform float red;
@@ -62,6 +64,8 @@ uniform sampler2D TextureImage7;
 uniform sampler2D TextureImage8;
 uniform sampler2D TextureImage9;
 uniform sampler2D TextureImage10;
+uniform sampler2D TextureImage11;
+uniform sampler2D TextureImage12;
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
 
@@ -187,6 +191,23 @@ void main()
         Ka = Kd/2;
         q = 1;
     }
+      else if (object_id == MASH){
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage12, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
+        q = 1;
+    }
+     else if (object_id == PAINTING){
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureImage11, vec2(U,V)).rgb;
+        Ks = vec3(0.0f,0.0f,0.0f);
+        Ka = Kd/2;
+        q = 1;
+    }
+
 
     else if(object_id == BOMB)
     {

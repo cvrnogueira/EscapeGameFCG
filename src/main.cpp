@@ -115,7 +115,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-//====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
 //PARA CAMERA E MOVIMENTO
 
 #define PI 3.14159265
@@ -162,6 +161,7 @@ GLFWwindow* window;
 void escreveMsgNaTela();
 bool lostGame = false;
 void fimJogo();
+bool removeAxes = false;
 float g_AngleY = 0.0f;
 void ScreenPosToWorldRay(
     int mouseX, int mouseY,             // Mouse position, in pixels, from bottom-left corner of the window
@@ -186,7 +186,11 @@ glm::mat4 viewVar;
 glm::mat4 projectionVar;
 void checkNoteClick();
 bool cliquei = false;
-//====================================================================DEFINIÇÕES QUE A CATA FEZ AGR=======================================================
+bool hasKeyOne =false;
+   bool hasKeyTwo =false;
+   bool hasOtherKey =false;
+   bool isFirstJumpToGetKey= false;
+   bool cliqueiNoBotao = false;
 #define ANSWER "PHONG"
 #define WALL  0
 #define FLOOR 1
@@ -206,8 +210,8 @@ bool cliquei = false;
 #define MIRA 15
 #define KEY 16
 #define BUNNY 17
-
-
+#define PAINTING 18
+#define MASH 19
 #define SECONDS 300
 
 // esquerda
@@ -409,7 +413,9 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/bomb_specular_map.jpg"); // TextureImage7
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); //TextureImage8
     LoadTextureImage("../../data/DoorUV.png"); //TextureImage9
-     LoadTextureImage("../../data/keyB_tx.bmp"); //[
+     LoadTextureImage("../../data/keyB_tx.bmp"); //TextureImage10
+          LoadTextureImage("../../data/painting.jpg"); //TextureImage11
+                    LoadTextureImage("../../data/tex_0.jpg"); //TextureImage12
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -462,6 +468,16 @@ int main(int argc, char* argv[])
     ObjModel key("../../data/Key_B_02.obj", "../../data/");
     ComputeNormals(&key);
     BuildTrianglesAndAddToVirtualScene(&key);
+
+
+    ObjModel objpainting("../../data/objpainting.obj", "../../data/");
+    ComputeNormals(&objpainting);
+    BuildTrianglesAndAddToVirtualScene(&objpainting);
+
+
+    ObjModel keyHolePin("../../data/mesh.obj", "../../data/");
+    ComputeNormals(&keyHolePin);
+    BuildTrianglesAndAddToVirtualScene(&keyHolePin);
 
 
     BuildLine();
@@ -858,8 +874,8 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
             * Matrix_Rotate_Y(1 * PI / 8);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-    glUniform1i(object_id_uniform, TABLE); ///Oi, lau! Gostaria mtmt que funcionasse colocoar a textura do mapa nessa mesa. è estranho pq eu testei a testura no laptop e funciona, na msa é que não rola. Ve se tu consegue daii
-    DrawVirtualObject("coffee_table"); //oi cata! saaad, tentarei!
+    glUniform1i(object_id_uniform, TABLE);
+    DrawVirtualObject("coffee_table");
     g_VirtualScene["coffee_table"].model_matrix = Matrix_Translate(+3.05f, -1.025f, -1.225f)
             * Matrix_Scale(0.002f, 0.002f, 0.002f);
     roomObjects.push_back("coffee_table");
@@ -882,6 +898,16 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
 	glUniform1i(object_id_uniform, LAPTOP);
     DrawVirtualObject("HPPlane005_Plane");
 
+//meesh
+       model = Matrix_Translate(+3.9f, 0.0f, 2.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(PI);
+   g_VirtualScene["mesh"].model_matrix = model;
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(object_id_uniform, MASH);
+    DrawVirtualObject("mesh");
+      roomObjects.push_back("mesh");
+
     // bomb
     model = Matrix_Translate(2.05f, -0.8f, +1.225f)
             * Matrix_Scale(0.02f, 0.02f, 0.02f)
@@ -890,10 +916,27 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
     g_VirtualScene["Cylinder010"].model_matrix = model;
-    DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
-    roomObjects.push_back("Cylinder010"); //oi cata, nao tive tempo, mas depois eu tentarei
+    DrawVirtualObject("Cylinder010");
+    roomObjects.push_back("Cylinder010");
+if(!hasKeyTwo){
+      model = Matrix_Translate(-4.5f,0.4f,3.0f)
+                * Matrix_Scale(0.8f, 0.03f, 0.2f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PAINTING);
+        if(!hasKeyOne){
+         g_VirtualScene["Cube"].model_matrix = model;
+        roomObjects.push_back("Cube");
+        }
+        DrawVirtualObject("Cube");
 
-
+           model =  Matrix_Translate(-3.8f,0.5f,3.0f)
+                * Matrix_Scale(0.02f, 0.02f, 0.02f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, KEY);
+        g_VirtualScene["Key_B2"].model_matrix = model;
+        roomObjects.push_back("Key_B2");
+        DrawVirtualObject("Key_B");
+}
     model = Matrix_Translate(-2.5f, -0.67f, -4.2f)
             * Matrix_Scale(0.38f, 0.32f, 0.28f)
             * Matrix_Rotate_Y(-PI / 2);
@@ -951,16 +994,25 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     g_VirtualScene["cuadrado"].model_matrix = model;
     roomObjects.push_back("cuadrado");
 
-
-
-
+if(removeAxes == false){
     glLineWidth(10.0f);
     model = Matrix_Translate(-2.5f,0.0f,-3.7f); //Matrix_Translate(0.0f,0.0f,0.0f);
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, AXES);
     DrawVirtualObject("axes");
+}
 
-    if(cliquei == true){
+
+if(hasKeyOne){
+        roomObjects.erase(std::remove(roomObjects.begin(), roomObjects.end(), "Key_B"), roomObjects.end());
+    roomObjects.erase(std::remove(roomObjects.begin(), roomObjects.end(), "Cube"), roomObjects.end());
+     if(cliqueiNoBotao == true){
+        roomObjects.push_back("Key_B2");
+     }
+
+}
+
+    if(cliquei == true && !hasKeyOne){
 
         model = Matrix_Translate(-3.0f,0.0f,3.0f)
                 * Matrix_Scale(0.08f, 0.08f, 0.08f);
@@ -1144,9 +1196,24 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
                             (playerbbox_max.y > objBBox_min.y && playerbbox_min.y < objBBox_max.y) &&
                             (playerbbox_max.z > objBBox_min.z && playerbbox_min.z < objBBox_max.z);
 
+                            if(hasKeyOne || hasKeyTwo){
+                                hasOtherKey = true;
+                            }
+
+    if (objectName.compare("Key_B2") == 0 && playerCollided && hasKeyOne == true && cliqueiNoBotao == true){
+            hasKeyTwo = true;
+             removeAxes = true;
+               return true;
+        }
+
     if (objectName.compare("Key_B") == 0 && playerCollided){
-        fimJogo();
-        return true;
+            hasKeyOne = true;
+        if(hasOtherKey == true){
+             removeAxes = true;
+               return true;
+        }
+
+
     }else {
         return playerCollided;
     }
@@ -1163,7 +1230,10 @@ bool checkCollisionAllRoomObjects()
         }
     }
     if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f))){
+            if(removeAxes == true) fimJogo();
+    else{
         lostGame = true;
+    }
         return true;
     }
     return false;
@@ -1466,6 +1536,8 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage8"), 8);
         glUniform1i(glGetUniformLocation(program_id, "TextureImage9"), 9);
               glUniform1i(glGetUniformLocation(program_id, "TextureImage10"), 10);
+                 glUniform1i(glGetUniformLocation(program_id, "TextureImage11"), 11);
+                                  glUniform1i(glGetUniformLocation(program_id, "TextureImage12"), 12);
     glUseProgram(0);
 }
 
@@ -1534,8 +1606,6 @@ void ComputeNormals(ObjModel* model)
 
 void fimJogo()
 {
-//TODO: testar dai se o player acabou o jogo perdendo ou n
-
     float startPos = -0.5f;
     float startSize = 2.5f;
     float exitPos = -0.65f;
@@ -1651,8 +1721,8 @@ void fimJogo()
         glUniform1i(object_id_uniform, SPHERE2);
         DrawVirtualObject("sphere");
 
-        if(lostGame == true) TextRendering_PrintString(window, "Tic tac, a bomba explodiu! Você saiu do mundo :(", 0.0f, startPos, startSize);
-        else TextRendering_PrintString(window, "Parabéns! Você continua nesse mundo :)", 0.0f, startPos, startSize);
+        if(lostGame == true) TextRendering_PrintString(window, "Tic tac, a bomba explodiu! Tu saiu do mundo :(", 0.0f, startPos, startSize);
+        else TextRendering_PrintString(window, "Uhu! Tu continuas nesse mundo :)", 0.0f, startPos, startSize);
         TextRendering_PrintString(window, "Sair", 0.0f, exitPos, exitSize);
 
         glfwSwapBuffers(window);
@@ -2053,14 +2123,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         // variável abaixo para false.
         g_MiddleMouseButtonPressed = false;
     }
-    //deixa essa funcao ai, lau, pls. q eu vou usar ela p ver se a pessoa clicou no note
-    // if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    //{
-    // double xpos, ypos;
-    //getting cursor position
-    // glfwGetCursorPos(window, &xpos, &ypos);
-    //cout << "Cursor Position at (" << xpos << " : " << ypos << endl;
-    //}
+
 }
 
 // Função callback chamada sempre que o usuário movimentar o cursor do mouse em
@@ -2719,6 +2782,14 @@ void checkNoteClick()
 		g_VirtualScene["HPPlane005_Plane"].bbox_max.z,
 		1.0f);
 
+			glm::vec4 aabb_min2 = g_VirtualScene["mesh"].model_matrix * glm::vec4(g_VirtualScene["mesh"].bbox_min.x,
+		g_VirtualScene["mesh"].bbox_min.y,
+		g_VirtualScene["mesh"].bbox_min.z,
+		1.0f);
+    glm::vec4 aabb_max2 = g_VirtualScene["mesh"].model_matrix * glm::vec4(g_VirtualScene["mesh"].bbox_max.x,
+		g_VirtualScene["mesh"].bbox_max.y,
+		g_VirtualScene["mesh"].bbox_max.z,
+		1.0f);
 
     // The ModelMatrix transforms :
     // - the mesh to its desired position and orientation
@@ -2728,6 +2799,9 @@ void checkNoteClick()
     //glm::mat4 ModelMatrix =  Matrix_Translate(+3.05f, -0.3f, -1.225f) * Matrix_Scale(0.2f, 0.2f, 0.2f) * Matrix_Rotate_Y(-PI);
 
 	glm::mat4 ModelMatrix = Matrix_Identity();
+
+if(cliquei == false)
+    {
 
 
 
@@ -2742,12 +2816,34 @@ void checkNoteClick()
     {
 		if(intersection_distance < 1.5f){
           //distancia para interagir
+
 			cliquei = true;
             player_freezed = true;
 
 		}
 
 }
+}
+
+
+if(cliqueiNoBotao == false){
+    if ( TestRayOBBIntersection(
+				ray_origin,
+                ray_direction,
+                aabb_min2,
+                aabb_max2,
+                ModelMatrix,
+                intersection_distance)
+       )
+    {
+		if(intersection_distance < 1.5f){
+          //distancia para interagir
+          cliqueiNoBotao=true;
+		}
+
+}
+}
+
 }
 
 
