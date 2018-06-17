@@ -136,7 +136,7 @@ void main()
         Kd = texture(TextureImage0, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd / 2; //vec3(0.0f,0.0f,0.0f);
-        q = 1.0f;
+        q = 10.0f;
 
     }
     else if (object_id == FLOOR) {
@@ -145,7 +145,7 @@ void main()
         Kd = texture(TextureImage1, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;   //vec3(0.0f,0.0f,0.0f);
-        q = 1;
+        q = 10;
     }
     else if (object_id == CEILING) {
         U = texcoords.x;
@@ -153,7 +153,7 @@ void main()
         Kd = texture(TextureImage2, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
-        q = 1;
+        q = 10;
     }
         else if (object_id == COW2){
         U = (position_model.x - minx)/(maxx - minx) ;
@@ -163,7 +163,7 @@ void main()
         Kd = texture(TextureImage3, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2; //vec3(0.0f,0.0f,0.0f);
-        q = 1;
+        q = 10;
     }
     else if (object_id == BUNNY){
         Kd = vec3(0.5,0.0,0.5);
@@ -189,7 +189,7 @@ void main()
         Kd = texture(TextureImage4, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
-        q = 1;
+        q = 10;
     }
       else if (object_id == MASH){
         U = texcoords.x;
@@ -197,7 +197,7 @@ void main()
         Kd = texture(TextureImage12, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
-        q = 1;
+        q = 10;
     }
      else if (object_id == PAINTING){
         U = texcoords.x;
@@ -205,7 +205,7 @@ void main()
         Kd = texture(TextureImage11, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
-        q = 1;
+        q = 10;
     }
 
 
@@ -235,7 +235,7 @@ void main()
         Kd = texture(TextureImage8, vec2(U,V)).rgb;
         Ks = vec3(0.2f,0.2f,0.2f);
         Ka = Kd/2;
-        q = 1;
+        q = 10;
     }
     else if (object_id == DOOR){
         U = texcoords.x;
@@ -243,7 +243,7 @@ void main()
         Kd = texture(TextureImage9, vec2(U,V)).rgb;
         Ks = vec3(0.0f,0.0f,0.0f);
         Ka = Kd/2;
-        q = 1;
+        q = 10;
     }
     else if(object_id == KEY){
         U = texcoords.x;
@@ -280,7 +280,7 @@ void main()
         Kd = vec3(0.0,0.0,0.0);
         Ks = vec3(0.0,0.0,0.0);
         Ka = vec3(0.0,0.0,0.0);
-        q = 1.0;
+        q = 10.0;
     }
     else {
         illumination_model = VERTEX;
