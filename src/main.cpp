@@ -306,11 +306,11 @@ bool player_freezed = false; //JUST TO DEBUG as true.
 bool player_tried = false;
 std::string player_input;
 int jumpCounter = 0;
-float previousTime = glfwGetTime();
+float previousTime = 0.0f;
 float chair_going_up = true;
 bool check_Collision_Chair_Ceilling(glm::vec3 chair_updated_pos);
 bool check_Collision_Chair_Floor(glm::vec3 chair_updated_pos);
-glm::vec3 chair_position = glm::vec3(0.5f, -1.3f, -2.7f);
+glm::vec3 chair_position = glm::vec3(0.5f, -1.0f, -2.7f);
 
 using namespace std;
 int main(int argc, char* argv[])
@@ -509,6 +509,7 @@ int main(int argc, char* argv[])
 
         case 0 :
             g_UsePerspectiveProjection = true;
+            previousTime = (float)glfwGetTime();
             playGame();
             break;
 
