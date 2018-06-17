@@ -584,7 +584,6 @@ void playGame()
         if(lostGame == true){
                            engine->stopAllSounds();
             engine->play2D("../../data/audio/boom.mp3");
-            engine->play2D("../../data/audio/boom.mp3");
           fimJogo();
         }
         TextRendering_ShowFramesPerSecond(window);
@@ -916,7 +915,7 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
       roomObjects.push_back("mesh");
 
     // bomb
-    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+    model = Matrix_Translate(1.9f, -0.8f, +1.225f)
             * Matrix_Scale(0.02f, 0.02f, 0.02f)
             *Matrix_Rotate_Y(M_PI/4);
 
@@ -925,6 +924,113 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     g_VirtualScene["Cylinder010"].model_matrix = model;
     DrawVirtualObject("Cylinder010");
     roomObjects.push_back("Cylinder010");
+
+
+ //bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Box001"].model_matrix = model;
+    DrawVirtualObject("Box001");
+    roomObjects.push_back("Box001");
+      // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line002"].model_matrix = model;
+    DrawVirtualObject("Line002");
+    roomObjects.push_back("Line002");
+      // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Box002"].model_matrix = model;
+    DrawVirtualObject("Box002");
+    roomObjects.push_back("Box002");
+      // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line003"].model_matrix = model;
+    DrawVirtualObject("Line003");
+    roomObjects.push_back("Line003");
+      // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Cylinder012"].model_matrix = model;
+    DrawVirtualObject("Cylinder012");
+    roomObjects.push_back("Cylinder012");
+      // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Cylinder013"].model_matrix = model;
+    DrawVirtualObject("Cylinder013");
+    roomObjects.push_back("Cylinder013");
+
+          // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line004"].model_matrix = model;
+    DrawVirtualObject("Line004");
+    roomObjects.push_back("Line004");
+
+          // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line005"].model_matrix = model;
+    DrawVirtualObject("Line005");
+    roomObjects.push_back("Line005");
+
+           // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line006"].model_matrix = model;
+    DrawVirtualObject("Line006");
+    roomObjects.push_back("Line006");
+
+           // bomb
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
+            * Matrix_Scale(0.02f, 0.02f, 0.02f)
+            *Matrix_Rotate_Y(M_PI/4);
+
+    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(object_id_uniform, BOMB);
+    g_VirtualScene["Line007"].model_matrix = model;
+    DrawVirtualObject("Line007");
+    roomObjects.push_back("Line007");
+
 if(!hasKeyTwo){
       model = Matrix_Translate(-4.5f,0.4f,3.0f)
                 * Matrix_Scale(0.8f, 0.03f, 0.2f);
