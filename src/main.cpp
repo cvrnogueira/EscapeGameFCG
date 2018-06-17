@@ -345,10 +345,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-   // widthScreen =mode->width;
-    widthScreen= 1024;
-    //heigthScreen = mode->height;
-    heigthScreen= 736;
+    widthScreen =mode->width;
+    //widthScreen= 1024;
+    heigthScreen = mode->height;
+    //heigthScreen= 736;
     window = glfwCreateWindow(widthScreen, heigthScreen, "Scape Game Topper", NULL, NULL);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (!window)
@@ -385,8 +385,8 @@ int main(int argc, char* argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 1024,736);
-   // FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
+   // FramebufferSizeCallback(window, 1024,736);
+    FramebufferSizeCallback(window, mode->width, mode->height); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.*//
 //======================================================================================================================================================
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -547,6 +547,7 @@ void playGame()
 
     engine->setSoundVolume(0.7);
 
+          engine->play2D("../../data/audio/mainsong.mp3");
 
 
 // Ficamos em loop, renderizando, até que o usuário feche a janela
@@ -579,7 +580,12 @@ void playGame()
         validaMovimento();
         DrawLevel1(viewVar, projectionVar);
         movimento(); // Realiza os movimentos do Personagem de acordo com as teclas pressionadas
-        if(lostGame == true) fimJogo();
+        if(lostGame == true){
+                           engine->stopAllSounds();
+            engine->play2D("../../data/audio/boom.mp3");
+            engine->play2D("../../data/audio/boom.mp3");
+          fimJogo();
+        }
         TextRendering_ShowFramesPerSecond(window);
 
         glfwSwapBuffers(window);
@@ -1203,11 +1209,13 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
     if (objectName.compare("Key_B2") == 0 && playerCollided && hasKeyOne == true && cliqueiNoBotao == true){
             hasKeyTwo = true;
              removeAxes = true;
+              engine->play2D("../../data/audio/clickButton.wav");
                return true;
         }
 
     if (objectName.compare("Key_B") == 0 && playerCollided){
             hasKeyOne = true;
+
         if(hasOtherKey == true){
              removeAxes = true;
                return true;
@@ -1230,7 +1238,11 @@ bool checkCollisionAllRoomObjects()
         }
     }
     if (isPointInsideBBOX(glm::vec3(-2.5f,0.0f,-3.7f))){
-            if(removeAxes == true) fimJogo();
+            if(removeAxes == true){
+                         engine->stopAllSounds();
+            engine->play2D("../../data/audio/tooCool.mp3");
+              fimJogo();
+            }
     else{
         lostGame = true;
     }
@@ -2211,6 +2223,7 @@ void check_Player_Answer(){
      std::cout << "minha string = " << player_input << std::endl;
      std::cout << "cont = " << player_input.compare(ANSWER);
     if (player_input.compare(ANSWER) == 0){
+        engine->play2D("../../data/audio/phongAnswr.wav");
         lostGame = false;
         player_freezed = false;
         std::cout << "vamo" << std::endl;
@@ -2816,7 +2829,7 @@ if(cliquei == false)
     {
 		if(intersection_distance < 1.5f){
           //distancia para interagir
-
+            engine->play2D("../../data/audio/clickButton.wav");
 			cliquei = true;
             player_freezed = true;
 
@@ -2838,6 +2851,7 @@ if(cliqueiNoBotao == false){
     {
 		if(intersection_distance < 1.5f){
           //distancia para interagir
+          engine->play2D("../../data/audio/clickButton.wav");
           cliqueiNoBotao=true;
 		}
 
