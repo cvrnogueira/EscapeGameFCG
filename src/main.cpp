@@ -1208,21 +1208,23 @@ bool collisionCameraBBoxObjecBBox(std::string objectName)
 
     if (objectName.compare("Key_B2") == 0 && playerCollided && hasKeyOne == true && cliqueiNoBotao == true){
             hasKeyTwo = true;
-             removeAxes = true;
+
+             if(removeAxes ==false){
               engine->play2D("../../data/audio/clickButton.wav");
+                 removeAxes = true;
+             }
+
                return true;
         }
 
     if (objectName.compare("Key_B") == 0 && playerCollided){
             hasKeyOne = true;
-
-        if(hasOtherKey == true){
-             removeAxes = true;
+            engine->play2D("../../data/audio/clickButton.wav");
                return true;
-        }
+    }
 
 
-    }else {
+    else {
         return playerCollided;
     }
 
