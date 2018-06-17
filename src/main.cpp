@@ -298,10 +298,16 @@ void updateTime();
 void display_Try_Again_Message();
 void display_Congrats_Message();
 void display_Player_Answer();
-bool player_freezed = false; //JUST TO DEBUG. TAKE THIS OFF
+bool player_freezed = false; //JUST TO DEBUG as true.
 bool player_tried = false;
 std::string player_input;
 int jumpCounter = 0;
+float previousTime = glfwGetTime();
+float chair_going_up = true;
+bool check_Collision_Chair_Ceilling(glm::vec3 chair_updated_pos);
+bool check_Collision_Chair_Floor(glm::vec3 chair_updated_pos);
+glm::vec3 chair_position = glm::vec3(0.5f, -1.3f, -2.7f);
+
 using namespace std;
 int main(int argc, char* argv[])
 {
@@ -703,9 +709,19 @@ Plane getPlaneEquation(glm::mat4 model)
     glm::vec4 diagonal2 = finalPoint[2] - finalPoint[0];
 
     Plane newPlane;
-    newPlane.normal = glm::normalize(crossproduct(diagonal1, diagonal2));
+    newPlane.normal = glm::normalize(crossproduct(diagonal2, diagonal1));
 
     newPlane.d = norm((model * origin) - origin);
+
+   // std::cout << finalPoint.x << std::endl;
+   // std::cout << finalPoint[1] << std::endl;
+   // std::cout << finalPoint[2] << std::endl;
+   // std::cout << finalPoint[3] << std::endl;
+
+    //std::cout << newPlane.normal[0] << std::endl;
+   // std::cout << newPlane.normal[1] << std::endl;
+   // std::cout << newPlane.normal[2] << std::endl;
+//std::cout << newPlane.d << std::endl;
 
     return newPlane;
 }
@@ -867,14 +883,13 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     DrawVirtualObject("HPPlane005_Plane");
 
     // bomb
-    model = Matrix_Translate(-2.05f, -0.9f, -1.225f)
+    model = Matrix_Translate(2.05f, -0.8f, +1.225f)
             * Matrix_Scale(0.02f, 0.02f, 0.02f)
             *Matrix_Rotate_Y(M_PI/4);
 
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, BOMB);
-    g_VirtualScene["Cylinder010"].model_matrix = Matrix_Translate(-2.05f, -0.9f, -1.225f)
-            * Matrix_Scale(0.02f, 0.02f, 0.02f);
+    g_VirtualScene["Cylinder010"].model_matrix = model;
     DrawVirtualObject("Cylinder010"); /// Oi, lau! gostaria de colocar a bomba como cube ou sphere, mas n consegui. Ve se tu consegue, pq com plane ta mt péssimo
     roomObjects.push_back("Cylinder010"); //oi cata, nao tive tempo, mas depois eu tentarei
 
@@ -886,23 +901,57 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     glUniform1i(object_id_uniform, DOOR);
     DrawVirtualObject("Cube");
 
-    model = Matrix_Translate(0.5f, -1.3f, -2.7f)
+    float current_time = (float)glfwGetTime();
+    float deltaTime =  current_time - previousTime;
+    previousTime = current_time;
+    glm::vec3 velocity = glm::vec3(0.0f,0.1f,0.0f);
+    glm::vec3 translation =  glm::vec3(0.0f,0.0f,0.0f);
+
+    if (chair_going_up) {
+        translation = chair_position + velocity * deltaTime;
+        if (check_Collision_Chair_Ceilling(translation)){
+            chair_going_up = false;
+            chair_position = chair_position - velocity * deltaTime;
+        }
+        else {
+            chair_position = translation;
+        }
+    }else {
+        translation = chair_position - velocity * deltaTime;
+        if (check_Collision_Chair_Floor(translation)){
+            chair_going_up = true;
+            chair_position = chair_position + velocity * deltaTime;
+        }
+        else {
+            chair_position = translation;
+        }
+    }
+    /*
+    if (check_Collision_Chair(translation)) {
+        chair_position = chair_position - velocity * deltaTime;
+    }else {
+        chair_position = translation;
+    }*/
+
+    model = Matrix_Translate(chair_position.x, chair_position.y, chair_position.z)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
-    // * Matrix_Rotate_Y(1 * PI / 2);
+
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("Line02");
     g_VirtualScene["Line02"].model_matrix = model;
     roomObjects.push_back("Line02");
 
-    model = Matrix_Translate(0.5f, -1.3f, -2.7f)
+    model = Matrix_Translate(chair_position.x, chair_position.y, chair_position.z)
             * Matrix_Scale(0.04f, 0.04f, 0.04f);
-    //* Matrix_Rotate_Y(1 * PI / 2);
+
     glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(object_id_uniform, ARMCHAIR);
     DrawVirtualObject("cuadrado");
     g_VirtualScene["cuadrado"].model_matrix = model;
     roomObjects.push_back("cuadrado");
+
+
 
 
     glLineWidth(10.0f);
@@ -954,7 +1003,49 @@ void DrawLevel1(glm::mat4 view, glm::mat4 projection)
     }
 
 }
+bool check_Collision_Chair_Floor(glm::vec3 chair_updated_pos){
 
+        float A = roomPlanes[0].normal.x;
+        float B = roomPlanes[0].normal.y;
+        float C = roomPlanes[0].normal.z;
+        float D = roomPlanes[0].d;
+        glm::vec4 objBBox_min = g_VirtualScene["Line02"].model_matrix * glm::vec4(g_VirtualScene["Line02"].bbox_min.x,
+                            g_VirtualScene["Line02"].bbox_min.y,
+                            g_VirtualScene["Line02"].bbox_min.z,
+                            1.0f);
+        float x = objBBox_min.x;
+        float y = objBBox_min.y;
+        float z = objBBox_min.z;
+
+        if (fabs(x*A + y*B + z*C + D) < 0.1)
+        {
+            std::cout << " colidiu cadeira chao" << std::endl;
+            return true;
+        }
+        else {return false;}
+}
+
+bool check_Collision_Chair_Ceilling(glm::vec3 chair_updated_pos){
+
+        float A = roomPlanes[1].normal.x;
+        float B = roomPlanes[1].normal.y;
+        float C = roomPlanes[1].normal.z;
+        float D = roomPlanes[1].d;
+        glm::vec4 objBBox_max = g_VirtualScene["Line02"].model_matrix * glm::vec4(g_VirtualScene["Line02"].bbox_max.x,
+                            g_VirtualScene["Line02"].bbox_max.y,
+                            g_VirtualScene["Line02"].bbox_max.z,
+                            1.0f);
+        float x = objBBox_max.x;
+        float y = objBBox_max.y;
+        float z = objBBox_max.z;
+
+        if (fabs(x*A + y*B + z*C + D) < 0.1)
+        {
+            std::cout << " colidiu cadeira teto" << std::endl;
+            return true;
+        }
+        else {return false;}
+}
 void updateTime()
 {
 
